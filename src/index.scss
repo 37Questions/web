@@ -4,5 +4,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   font-family: 'Roboto Slab', serif;
-  background-color: #c9c9c9;
+  background-color: #f0f0f0;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #4f4f4f;
+  }
 }

@@ -1,4 +1,6 @@
 .card {
+  position: relative;
+
   width: 200px;
   height: 140px;
   background-color: white;
@@ -6,16 +8,8 @@
   margin: 80px auto;
   padding: 10px 20px;
 
-  border: 1px solid black;
+  border: 2px solid black;
   border-radius: 10px;
-
-  display: flex;
-  justify-content: left;
-  align-items: flex-start;
-
-  &.answer {
-    font-family: 'Indie Flower', cursive;
-  }
 
   .text {
     color: black;
@@ -25,14 +19,51 @@
     cursor: text;
   }
 
-  &.input {
+  &.response .text {
+    font-family: 'Indie Flower', cursive;
+    font-size: 1.1em;
+  }
 
+  &.input {
     .text[contenteditable] {
       outline: 0px solid transparent;
 
       &:empty:before {
         content: attr(placeholder);
         color: #828282;
+      }
+    }
+
+    .corner {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      height: 30px;
+
+      display: flex;
+      align-items: center;
+
+      .submit-text {
+        margin: 0;
+        padding-right: 2px;
+        font-size: 0.9em;
+      }
+
+      .submit-btn-wrapper {
+        width: 30px;
+        height: 30px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .submit-icon {
+          cursor: pointer;
+
+          &:hover {
+            color: dodgerblue;
+          }
+        }
       }
     }
   }
