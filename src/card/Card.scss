@@ -1,0 +1,39 @@
+.card {
+  width: 200px;
+  height: 140px;
+  background-color: white;
+
+  margin: 80px auto;
+  padding: 10px 20px;
+
+  border: 1px solid black;
+  border-radius: 10px;
+
+  display: flex;
+  justify-content: left;
+  align-items: flex-start;
+
+  &.answer {
+    font-family: 'Indie Flower', cursive;
+  }
+
+  .text {
+    color: black;
+    text-align: left;
+
+    display: block;
+    cursor: text;
+  }
+
+  &.input {
+
+    .text[contenteditable] {
+      outline: 0px solid transparent;
+
+      &:empty:before {
+        content: attr(placeholder);
+        color: #828282;
+      }
+    }
+  }
+}
