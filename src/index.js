@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.scss';
-import Game from './Game';
+import Wrapper from './wrapper';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Game />
+    <Wrapper />
   </React.StrictMode>,
   document.getElementById('root')
 );

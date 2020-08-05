@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
 import socketIOClient from "socket.io-client";
-import {QuestionCard, InputCard} from "./card/Card";
-import './Game.scss';
+import Game from "./game/game";
+import './wrapper.scss';
+import Scoreboard from "./game/scoreboard/scoreboard";
+import Chat from "./game/chat/chat";
 
 const socket = socketIOClient("http://192.168.0.102:3000");
 
@@ -13,6 +15,10 @@ function SidebarButton(props) {
   const [hovered, setHovered] = useState(false);
   const onMouseEnter = () => setHovered(true);
   const onMouseLeave = () => setHovered(false);
+  const onClick = (e) => {
+    setHovered(false);
+    props.onClick(e);
+  }
 
   const text = (
     <div className="title">
@@ -28,7 +34,7 @@ function SidebarButton(props) {
           className={"icon" + (props.isLeft ? "" : " flipped")}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
-          onClick={props.onClick}
+          onClick={onClick}
         >
           <i className={"far fa-angle-left"} />
         </div>
@@ -38,7 +44,7 @@ function SidebarButton(props) {
   );
 }
 
-function Game() {
+function Wrapper() {
   const PANELS_HIDDEN = 0;
   const USER_PANEL_VISIBLE = 1;
   const CHAT_PANEL_VISIBLE = 2;
@@ -63,7 +69,7 @@ function Game() {
   return (
     <div id="wrapper" className={getPanelString()}>
       <div className="side container" id="user-container">
-        <p>Score</p>
+        <Scoreboard />
       </div>
       <SidebarButton
         id="user-panel-btn"
@@ -72,11 +78,10 @@ function Game() {
         onClick={toggleUserPanel}
       />
       <div className="container" id="game-container">
-        <QuestionCard text="What should they offer at the concession stands in movie theaters?" />
-        <InputCard />
+        <Game />
       </div>
       <div className="side container" id="chat-container">
-        <p>Chat</p>
+        <Chat />
       </div>
       <SidebarButton
         id="chat-panel-btn"
@@ -93,4 +98,4 @@ function Game() {
   );
 }
 
-export default Game;
+export default Wrapper;

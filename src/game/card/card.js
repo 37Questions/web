@@ -1,7 +1,7 @@
 import React from 'react';
-import './Card.scss';
+import './card.scss';
 
-function CardBacking(props) {
+function CardBacking() {
   return (
     <div className="card back">
       <div className="title-wrapper">
@@ -12,19 +12,17 @@ function CardBacking(props) {
   );
 }
 
-class Card extends React.Component {
-  render() {
-    return (
-      <div className="outer-card">
-        <div className="inner-card">
-          <div className={this.props.type + " card front"}>
-            <p className="text">{this.props.text}</p>
-          </div>
-          <CardBacking />
+function Card(props) {
+  return (
+    <div className="outer-card">
+      <div className="inner-card">
+        <div className={props.type + " card front"}>
+          <p className="text">{props.text}</p>
         </div>
+        <CardBacking />
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 function QuestionCard(props) {
@@ -74,11 +72,6 @@ class InputCard extends React.Component {
         error: "too short!"
       });
       return false;
-    } else if (text.length > 140) {
-      this.setState({
-        error: "too long!"
-      });
-      return false;
     } else if (this.state.error) {
       this.setState({
         error: null
@@ -91,7 +84,6 @@ class InputCard extends React.Component {
     let text = this.input.current.value;
 
     if (this.validateInput(text)) {
-      console.info("F:LIP");
       this.setState({
         flipped: !this.state.flipped
       });
@@ -104,7 +96,7 @@ class InputCard extends React.Component {
         <div className={"inner-card" + (this.state.flipped ? " flipped" : "")}>
           <div className={"input response" + (this.state.error ? " error" : "") + " card front"}>
             <textarea
-              maxLength="160"
+              maxLength="140"
               className="text"
               placeholder={this.state.error || "your answer..."}
               onKeyDown={this.onKeyDown}

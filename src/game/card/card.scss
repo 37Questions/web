@@ -1,12 +1,10 @@
-$cardWidth: 300px;
-$cardHeight: 200px;
+$cardWidth: 260px;
+$cardHeight: 204px;
 
 .outer-card {
   width: $cardWidth;
   height: $cardHeight;
   perspective: 1000px;
-
-  margin: 80px auto;
 
   color: black;
 
