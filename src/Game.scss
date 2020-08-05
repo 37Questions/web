@@ -1,0 +1,198 @@
+#wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  overflow: hidden;
+
+  font-family: 'Roboto Slab', serif;
+
+  display: flex;
+
+  background-color: #f0f0f0;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #4f4f4f;
+    color: white;
+  }
+
+  $sidebarWidth: 250px;
+  $hideSidebarsAt: 1000px;
+  $sidebarTransition: left 0.3s ease, right 0.3s ease;
+
+  .sidebar-button-container {
+    position: absolute;
+    top: 50%;
+
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+
+    transition: $sidebarTransition;
+
+    z-index: 5;
+
+    &#user-panel-btn {
+      left: 10px;
+    }
+
+    &#chat-panel-btn {
+      right: 10px;
+    }
+
+    @media (min-width: $hideSidebarsAt + 1px) {
+      display: none;
+    }
+
+    .sidebar-button {
+      display: flex;
+      align-items: center;
+
+      .icon {
+        margin: 10px;
+        font-size: 30px;
+        cursor: pointer;
+
+        transition: 0.3s ease;
+
+        &.flipped {
+          transform: rotateY(180deg);
+        }
+      }
+
+      .title {
+        transition: opacity 0.1s ease;
+        opacity: 0.0;
+        cursor: default;
+
+        p {
+          padding: 0;
+          margin: 0;
+        }
+      }
+
+      &.hovered {
+        .title {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .container {
+    position: relative;
+    min-height: 100%;
+
+    &.side {
+      z-index: 5;
+
+      display: flex;
+      width: $sidebarWidth;
+      box-sizing: border-box;
+
+      padding: 10px;
+      min-height: 100%;
+      transition: $sidebarTransition;
+
+      background-color: white;
+
+      @media (prefers-color-scheme: dark) {
+        background-color: #3d3d3d;
+      }
+
+      @media (max-width: $hideSidebarsAt) {
+        position: absolute;
+
+        &#user-container {
+          left: -$sidebarWidth;
+        }
+
+        &#chat-container {
+          right: -$sidebarWidth;
+        }
+      }
+
+      $border: 1px solid black;
+
+      &#user-container {
+        border-right: $border;
+      }
+
+      &#chat-container {
+        border-left: $border;
+      }
+
+    }
+
+    &#game-container {
+      flex: 3;
+    }
+  }
+
+  .overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    background-color: black;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    z-index: 1;
+  }
+
+  &:not(.without-panels) {
+    .sidebar-button-container .sidebar-button .title {
+      opacity: 0;
+    }
+
+    .overlay {
+      @media (max-width: $hideSidebarsAt) {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  &.with-user-panel {
+    .sidebar-button-container {
+      &#user-panel-btn {
+        left: $sidebarWidth + 10px;
+
+        .icon {
+          color: white;
+        }
+      }
+
+      &#chat-panel-btn {
+        z-index: 0;
+      }
+    }
+
+    .container#user-container {
+      left: 0;
+    }
+  }
+
+  &.with-chat-panel {
+    .sidebar-button-container {
+      &#chat-panel-btn {
+        right: $sidebarWidth + 10px;
+
+        .icon {
+          color: white;
+        }
+      }
+
+      &#user-panel-btn {
+        z-index: 0;
+      }
+    }
+
+    .container#chat-container {
+      right: 0;
+    }
+  }
+}
