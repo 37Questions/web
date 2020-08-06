@@ -15,9 +15,17 @@ function SidebarButton(props) {
   const [hovered, setHovered] = useState(false);
   const onMouseEnter = () => setHovered(true);
   const onMouseLeave = () => setHovered(false);
-  const onClick = (e) => {
+
+  const onClick = () => props.activated && handleClick();
+
+  const onClickIcon = (e) => {
+    e.stopPropagation();
+    handleClick();
+  }
+
+  const handleClick = () => {
     setHovered(false);
-    props.onClick(e);
+    props.onClick();
   }
 
   const text = (
@@ -27,14 +35,17 @@ function SidebarButton(props) {
   );
 
   return (
-    <div className="sidebar-button-container" id={props.id}>
+    <div
+      className="sidebar-button-container" id={props.id}
+      onClick={onClick}
+    >
       <div className={"sidebar-button" + (hovered ? " hovered" : "")}>
         {props.textBefore && text}
         <div
           className={"icon" + (props.isLeft ? "" : " flipped")}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
-          onClick={onClick}
+          onClick={onClickIcon}
         >
           <i className={"far fa-angle-left"} />
         </div>
@@ -73,9 +84,10 @@ function Wrapper() {
       </div>
       <SidebarButton
         id="user-panel-btn"
-        isLeft={panelStatus === USER_PANEL_VISIBLE}
         title="Scoreboard"
         onClick={toggleUserPanel}
+        isLeft={panelStatus === USER_PANEL_VISIBLE}
+        activated={panelStatus === USER_PANEL_VISIBLE}
       />
       <div className="container" id="game-container">
         <Game />
@@ -85,10 +97,11 @@ function Wrapper() {
       </div>
       <SidebarButton
         id="chat-panel-btn"
-        isLeft={panelStatus !== CHAT_PANEL_VISIBLE}
         title="Chat"
-        onClick={toggleChatPanel}
         textBefore={true}
+        onClick={toggleChatPanel}
+        isLeft={panelStatus !== CHAT_PANEL_VISIBLE}
+        activated={panelStatus === CHAT_PANEL_VISIBLE}
       />
       <div
         className="overlay"
