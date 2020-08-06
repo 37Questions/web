@@ -1,240 +1,273 @@
 #wrapper {
   position: absolute;
   top: 0;
-  bottom: 0;
   left: 0;
   right: 0;
-
-  overflow: hidden;
+  bottom: 0;
 
   font-family: 'Roboto Slab', serif;
+  overflow: hidden;
 
   display: flex;
+  flex-flow: column;
 
   @media (prefers-color-scheme: dark) {
     color: white;
   }
 
-  $sidebarWidth: 250px;
-  $hideSidebarsAt: 1000px;
-  $sidebarTransition: left 0.3s ease, right 0.3s ease;
+  $darkSidebarColor: #3d3d3d;
 
-  $initialButtonPadding: 10px;
-  $minimalButtonPadding: 2px;
-  $shrinkButtonPaddingAt: 330px;
+  #top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-  .sidebar-button-container {
-    position: absolute;
-    top: 50%;
+    box-sizing: border-box;
+    border-bottom: 2px solid black;
 
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
+    background-color: white;
 
-    transition: $sidebarTransition;
-
-    z-index: 5;
-
-    &#user-panel-btn {
-      left: $initialButtonPadding;
-
-      @media (max-width: $shrinkButtonPaddingAt) {
-        left: $minimalButtonPadding;
-      }
+    @media (prefers-color-scheme: dark) {
+      background-color: $darkSidebarColor;
     }
+  }
 
-    &#chat-panel-btn {
-      right: $initialButtonPadding;
+  #game-wrapper {
+    position: relative;
+    flex: 1 1 auto;
 
-      @media (max-width: $shrinkButtonPaddingAt) {
-        right: $minimalButtonPadding;
-      }
-    }
+    $sidebarWidth: 250px;
+    $hideSidebarsAt: 1000px;
+    $sidebarTransition: left 0.3s ease, right 0.3s ease;
 
-    @media (min-width: $hideSidebarsAt + 1px) {
-      display: none;
-    }
+    $initialButtonPadding: 10px;
+    $minimalButtonPadding: 2px;
+    $shrinkButtonPaddingAt: 330px;
 
-    .sidebar-button {
+    #game-layout {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
       display: flex;
-      align-items: center;
 
-      .icon {
-        margin: 10px;
-        font-size: 30px;
-        cursor: pointer;
-        transition: 0.3s ease;
+      .sidebar-button-container {
+        position: absolute;
+        top: 50%;
 
-        -webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
-        color: #595959;
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
 
-        @media (prefers-color-scheme: dark) {
-          color: #dedede;
-        }
+        transition: $sidebarTransition;
 
+        z-index: 5;
 
-        &.flipped {
-          transform: rotateY(180deg);
-        }
-      }
+        &#user-panel-btn {
+          left: $initialButtonPadding;
 
-      .title {
-        transition: opacity 0.2s ease;
-        opacity: 0.0;
-        cursor: default;
-        margin-top: -2px;
-
-        p {
-          font-weight: 700;
-          padding: 0;
-          margin: 0;
-        }
-      }
-
-      &.hovered {
-        .icon {
-          color: black;
-
-          @media (prefers-color-scheme: dark) {
-            color: white;
+          @media (max-width: $shrinkButtonPaddingAt) {
+            left: $minimalButtonPadding;
           }
         }
 
-        .title {
-          opacity: 1;
-        }
-      }
-    }
-  }
+        &#chat-panel-btn {
+          right: $initialButtonPadding;
 
-  .container {
-    position: relative;
-    min-height: 100%;
-
-    &.side {
-      z-index: 5;
-
-      display: flex;
-      width: $sidebarWidth;
-      box-sizing: border-box;
-
-      min-height: 100%;
-      transition: $sidebarTransition;
-
-      background-color: white;
-
-      @media (prefers-color-scheme: dark) {
-        background-color: #3d3d3d;
-      }
-
-      @media (max-width: $hideSidebarsAt) {
-        position: absolute;
-
-        &#user-container {
-          left: -$sidebarWidth;
+          @media (max-width: $shrinkButtonPaddingAt) {
+            right: $minimalButtonPadding;
+          }
         }
 
-        &#chat-container {
-          right: -$sidebarWidth;
+        @media (min-width: $hideSidebarsAt + 1px) {
+          display: none;
+        }
+
+        .sidebar-button {
+          display: flex;
+          align-items: center;
+
+          .icon {
+            margin: 10px;
+            font-size: 30px;
+            cursor: pointer;
+            transition: 0.3s ease;
+
+            -webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
+            color: #595959;
+
+            @media (prefers-color-scheme: dark) {
+              color: #dedede;
+            }
+
+
+            &.flipped {
+              transform: rotateY(180deg);
+            }
+          }
+
+          .title {
+            transition: opacity 0.2s ease;
+            opacity: 0.0;
+            cursor: default;
+            margin-top: -2px;
+
+            p {
+              font-weight: 700;
+              padding: 0;
+              margin: 0;
+            }
+          }
+
+          &.hovered {
+            .icon {
+              color: black;
+
+              @media (prefers-color-scheme: dark) {
+                color: white;
+              }
+            }
+
+            .title {
+              opacity: 1;
+            }
+          }
         }
       }
 
-      $border: 1px solid black;
+      .container {
+        position: relative;
+        min-height: 100%;
 
-      &#user-container {
-        border-right: $border;
+        &.side {
+          z-index: 5;
+
+          display: flex;
+          width: $sidebarWidth;
+          box-sizing: border-box;
+
+          min-height: 100%;
+          transition: $sidebarTransition;
+
+          background-color: white;
+
+          @media (prefers-color-scheme: dark) {
+            background-color: $darkSidebarColor;
+          }
+
+          @media (max-width: $hideSidebarsAt) {
+            position: absolute;
+
+            &#user-container {
+              left: -$sidebarWidth;
+            }
+
+            &#chat-container {
+              right: -$sidebarWidth;
+            }
+          }
+
+          $border: 1px solid black;
+
+          &#user-container {
+            border-right: $border;
+          }
+
+          &#chat-container {
+            border-left: $border;
+          }
+        }
+
+        &#game-container {
+          flex: 3;
+        }
       }
-
-      &#chat-container {
-        border-left: $border;
-      }
-
-    }
-
-    &#game-container {
-      flex: 3;
-    }
-  }
-
-  .overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-
-    background-color: black;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-
-    z-index: -1;
-  }
-
-  &:not(.without-panels) {
-    .sidebar-button-container .sidebar-button .title {
-      opacity: 0;
     }
 
     .overlay {
-      @media (max-width: $hideSidebarsAt) {
-        opacity: 0.5;
-        z-index: 2;
-      }
-    }
-  }
-
-  &.with-user-panel {
-    .sidebar-button-container {
-      &#user-panel-btn {
-        left: $sidebarWidth + $initialButtonPadding;
-
-        @media (max-width: $shrinkButtonPaddingAt) {
-          left: $sidebarWidth + $minimalButtonPadding;
-        }
-
-        .icon {
-          color: #dedede;
-
-          &:hover {
-            color: white;
-          }
-        }
-      }
-
-      &#chat-panel-btn {
-        z-index: 1;
-      }
-    }
-
-    .container#user-container {
+      position: absolute;
       left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+
+      background-color: black;
+
+      z-index: 2;
+      opacity: 0;
+      visibility: hidden;
+
+      transition: 0.2s ease;
     }
-  }
 
-  &.with-chat-panel {
-    .sidebar-button-container {
-      &#chat-panel-btn {
-        right: $sidebarWidth + $initialButtonPadding;
+    &:not(.without-panels) {
+      #game-layout .sidebar-button-container .sidebar-button .title {
+        opacity: 0;
+      }
 
-        @media (max-width: $shrinkButtonPaddingAt) {
-          right: $sidebarWidth + $minimalButtonPadding;
+      .overlay {
+        @media (max-width: $hideSidebarsAt) {
+          visibility: visible;
+          opacity: 0.5;
         }
+      }
+    }
 
-        .icon {
-          color: #dedede;
+    &.with-user-panel #game-layout {
+      .sidebar-button-container {
+        &#user-panel-btn {
+          left: $sidebarWidth + $initialButtonPadding;
 
-          &:hover {
-            color: white;
+          @media (max-width: $shrinkButtonPaddingAt) {
+            left: $sidebarWidth + $minimalButtonPadding;
+          }
+
+          .icon {
+            color: #dedede;
+
+            &:hover {
+              color: white;
+            }
           }
         }
+
+        &#chat-panel-btn {
+          z-index: 1;
+        }
       }
 
-      &#user-panel-btn {
-        z-index: 1;
+      .container#user-container {
+        left: 0;
       }
     }
 
-    .container#chat-container {
-      right: 0;
+    &.with-chat-panel #game-layout {
+      .sidebar-button-container {
+        &#chat-panel-btn {
+          right: $sidebarWidth + $initialButtonPadding;
+
+          @media (max-width: $shrinkButtonPaddingAt) {
+            right: $sidebarWidth + $minimalButtonPadding;
+          }
+
+          .icon {
+            color: #dedede;
+
+            &:hover {
+              color: white;
+            }
+          }
+        }
+
+        &#user-panel-btn {
+          z-index: 1;
+        }
+      }
+
+      .container#chat-container {
+        right: 0;
+      }
     }
   }
 }

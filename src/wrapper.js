@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import socketIOClient from "socket.io-client";
 import Game from "./game/game";
-import './wrapper.scss';
 import Scoreboard from "./game/scoreboard/scoreboard";
 import Chat from "./game/chat/chat";
+import Header from "./game/header";
+import './wrapper.scss';
 
 const API_ENDPOINT = "http://192.168.0.102:3000";
 
@@ -125,35 +126,42 @@ function Wrapper() {
   }
 
   return (
-    <div id="wrapper" className={getPanelString()}>
-      <div className="side container" id="user-container">
-        <Scoreboard />
+    <div id="wrapper">
+      <div id="top-bar">
+        <Header />
       </div>
-      <SidebarButton
-        id="user-panel-btn"
-        title="Scoreboard"
-        onClick={toggleUserPanel}
-        isLeft={panelStatus === USER_PANEL_VISIBLE}
-        activated={panelStatus === USER_PANEL_VISIBLE}
-      />
-      <div className="container" id="game-container">
-        <Game />
+      <div id="game-wrapper" className={getPanelString()}>
+        <div id="game-layout">
+          <div className="side container" id="user-container">
+            <Scoreboard />
+          </div>
+          <SidebarButton
+            id="user-panel-btn"
+            title="Scoreboard"
+            onClick={toggleUserPanel}
+            isLeft={panelStatus === USER_PANEL_VISIBLE}
+            activated={panelStatus === USER_PANEL_VISIBLE}
+          />
+          <div className="container" id="game-container">
+            <Game />
+          </div>
+          <div className="side container" id="chat-container">
+            <Chat />
+          </div>
+          <SidebarButton
+            id="chat-panel-btn"
+            title="Chat"
+            textBefore={true}
+            onClick={toggleChatPanel}
+            isLeft={panelStatus !== CHAT_PANEL_VISIBLE}
+            activated={panelStatus === CHAT_PANEL_VISIBLE}
+          />
+        </div>
+        <div
+          className="overlay"
+          onClick={hidePanels}
+        />
       </div>
-      <div className="side container" id="chat-container">
-        <Chat />
-      </div>
-      <SidebarButton
-        id="chat-panel-btn"
-        title="Chat"
-        textBefore={true}
-        onClick={toggleChatPanel}
-        isLeft={panelStatus !== CHAT_PANEL_VISIBLE}
-        activated={panelStatus === CHAT_PANEL_VISIBLE}
-      />
-      <div
-        className="overlay"
-        onClick={hidePanels}
-      />
     </div>
   );
 }
