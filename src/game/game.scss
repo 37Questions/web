@@ -1,9 +1,11 @@
+@import "../colors";
+
 #game-wrapper {
-  background-color: #f0f0f0;
+  background-color: $lightBackgroundColor;
   height: 100%;
 
   @media (prefers-color-scheme: dark) {
-    background-color: #4f4f4f;
+    background-color: $darkBackgroundColor;
   }
 
   .card-list {

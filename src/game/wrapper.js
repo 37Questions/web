@@ -1,63 +1,9 @@
 import React, {useState} from 'react';
-import socketIOClient from "socket.io-client";
-import Game from "./game/game";
-import Scoreboard from "./game/scoreboard/scoreboard";
-import Chat from "./game/chat/chat";
-import Header from "./game/header";
+import Game from "./game";
+import Scoreboard from "./scoreboard/scoreboard";
+import Chat from "./chat/chat";
+import Header from "./header";
 import './wrapper.scss';
-
-const API_ENDPOINT = "http://192.168.0.102:3000";
-
-async function getUser(attempt = 0) {
-  const USER_KEY = "questions-user";
-
-  return new Promise((resolve) => {
-    if (attempt > 3) {
-      console.error("User setup failed too many times, giving up.");
-      return resolve(false);
-    }
-
-    const savedUser = localStorage.getItem(USER_KEY);
-    if (savedUser) {
-      const user = JSON.parse(savedUser);
-      const req = `/validate-token?id=${user.id}&token=${user.token}`;
-      fetch(API_ENDPOINT + req, {method: "GET"}).then((res) => {
-        res.json().then((res) => {
-          console.info("Validation:", res);
-          if (res.valid) {
-            return resolve(user);
-          }
-          console.warn("Cached user was invalid, attempting to create a new account");
-          localStorage.removeItem(USER_KEY);
-          return getUser(attempt++);
-        });
-      });
-    } else {
-      fetch(API_ENDPOINT + "/user", {method: "POST"}).then((res) => {
-        res.json().then((user) => {
-          localStorage.setItem(USER_KEY, JSON.stringify(user));
-          resolve(user);
-        });
-      });
-    }
-  });
-}
-
-getUser().then((user) => {
-  console.info("User:", user);
-
-  const socket = socketIOClient(API_ENDPOINT, {
-    transports: ["websocket"],
-    query: {
-      id: user.id,
-      token: user.token
-    }
-  });
-
-  socket.on("init", (data) => {
-    console.info("Init:", data);
-  });
-});
 
 function SidebarButton(props) {
   const [hovered, setHovered] = useState(false);
@@ -103,7 +49,7 @@ function SidebarButton(props) {
   );
 }
 
-function Wrapper() {
+function Wrapper(props) {
   const PANELS_HIDDEN = 0;
   const USER_PANEL_VISIBLE = 1;
   const CHAT_PANEL_VISIBLE = 2;

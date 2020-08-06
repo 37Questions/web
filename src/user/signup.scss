@@ -1,0 +1,192 @@
+@import "../colors";
+
+#signup-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background-color: $lightSidebarColor;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: $darkSidebarColor;
+  }
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  $initialWidth: 570px;
+
+  #signup-form-container {
+    box-sizing: border-box;
+    width: $initialWidth + 20px;
+    max-height: calc(100% - 4px);
+
+    @media (max-width: $initialWidth) {
+      width: 100%;
+
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+
+    border: 2px solid black;
+    border-radius: 10px;
+
+    background-color: $lightBackgroundColor;
+    font-family: 'Roboto Slab', serif;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: $darkBackgroundColor;
+      color: $lightTextColor;
+    }
+
+    display: flex;
+    flex-direction: column;
+    padding: 20px 30px 10px;
+
+    #signup-form {
+      box-sizing: border-box;
+      padding: 20px 30px 10px;
+
+      width: 100%;
+      height: 100%;
+
+      overflow-y: auto;
+
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: darkgrey;
+        border-radius: 30px;
+      }
+
+      h1 {
+        margin: 0;
+      }
+
+      h2 {
+        font-size: 0.8em;
+        font-weight: 400;
+        margin: 3px;
+      }
+
+      p {
+        font-size: 1.1em;
+        font-weight: 500;
+      }
+
+      #name-input {
+        background-color: $lightSidebarColor;
+        width: 95%;
+        height: 30px;
+
+        border: 2px solid black;
+        border-radius: 10px;
+
+        font-family: 'Indie Flower', cursive;
+
+        color: black;
+        outline: none;
+
+        padding: 5px 10px;
+        font-size: 1.1em;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: $darkButtonColor;
+          color: white;
+        }
+      }
+
+      #icon-selection {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+
+        .icon-wrapper {
+          margin: 4px;
+          padding: 10px;
+
+          border: 2px solid black;
+          border-radius: 20px;
+
+          width: 30px;
+          height: 30px;
+
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          .icon {
+            font-size: 25px;
+          }
+        }
+
+        @media (min-width: 494px) {
+          :nth-child(n+15) {
+            display: none;
+          }
+        }
+
+        @media (max-width: 533px) and (min-width: 493px) {
+          :nth-child(n+13) {
+            display: none;
+          }
+        }
+
+        @media (max-width:493px) and (min-width: 492px) {
+          :nth-child(n+13) {
+            display: none;
+          }
+        }
+
+        @media (max-width: 348px) {
+          :nth-child(n+13) {
+            display: none;
+          }
+        }
+      }
+
+      @media (max-width: 553px) and (min-width: 494px) {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      @media (max-width: 429px) and (min-width: 368px){
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+
+      @media (max-width: 369px) {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      #signup-submit {
+        background-color: $lightSidebarColor;
+
+        margin: 30px;
+        padding: 10px 40px;
+
+        border: 2px solid black;
+        border-radius: 10px;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: $darkButtonColor;
+        }
+      }
+    }
+  }
+}
