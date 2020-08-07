@@ -106,6 +106,9 @@
         @media (prefers-color-scheme: dark) {
           background-color: $darkButtonColor;
           color: white;
+          &::placeholder {
+            color: rgba(white, 0.55);
+          }
         }
       }
 
@@ -115,21 +118,14 @@
         flex-wrap: wrap;
 
         .icon-wrapper {
-          margin: 4px;
-          padding: 10px;
+          &.selected {
+            padding: 8px;
+            border-width: 4px;
+            border-color: dodgerblue;
 
-          border: 2px solid black;
-          border-radius: 20px;
-
-          width: 30px;
-          height: 30px;
-
-          display: flex;
-          justify-content: center;
-          align-items: center;
-
-          .icon {
-            font-size: 25px;
+            @media (prefers-color-scheme: dark) {
+              border-color: gold;
+            }
           }
         }
 
@@ -176,14 +172,36 @@
       #signup-submit {
         background-color: $lightSidebarColor;
 
+        @media (prefers-color-scheme: dark) {
+          background-color: $darkButtonColor;
+        }
+
         margin: 30px;
         padding: 10px 40px;
 
         border: 2px solid black;
         border-radius: 10px;
 
-        @media (prefers-color-scheme: dark) {
-          background-color: $darkButtonColor;
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+
+        &:hover {
+          background-color: rgba(black, 0.05);
+          @media (prefers-color-scheme: dark) {
+            background-color: rgba(white, 0.1);
+          }
+        }
+
+        &.disabled {
+          cursor: not-allowed;
+
+          background-color: rgba(black, 0.25);
+          color: rgba(black, 0.4);
+
+          @media (prefers-color-scheme: dark) {
+            background-color: rgba(red, 0.1);
+            color: rgba(white, 0.35);
+          }
         }
       }
     }

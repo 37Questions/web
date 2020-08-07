@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Wrapper from './game/wrapper';
 import Signup from "./user/signup";
-import {getUser} from "./api";
+import Api from "./api";
 import LoadingScreen from "./loading";
 import './index.scss';
 
@@ -22,6 +22,8 @@ class QuestionsGame extends React.Component {
       canRender: false,
       user: null
     };
+
+    this.finishSignup = this.finishSignup.bind(this);
   }
 
   componentDidMount() {
@@ -30,10 +32,17 @@ class QuestionsGame extends React.Component {
         canRender: true
       });
     }.bind(this), 1000);
-    getUser().then((user) => {
+    Api.getUser().then((user) => {
+      console.info("User:", user);
       this.setState({
         user: user
       });
+    });
+  }
+
+  finishSignup(user) {
+    this.setState({
+      user: user
     });
   }
 
@@ -45,7 +54,7 @@ class QuestionsGame extends React.Component {
           <LoadingScreen />
         </WrapperContainer>
         <WrapperContainer visible={canRender && !this.state.user.name}>
-          <Signup user={this.state.user} />
+          <Signup user={this.state.user} onComplete={this.finishSignup} />
         </WrapperContainer>
         <WrapperContainer visible={canRender && this.state.user.name}>
           <Wrapper user={this.state.user} />
