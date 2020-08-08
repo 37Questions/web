@@ -1,6 +1,8 @@
 @import "../colors";
 
-#signup-wrapper {
+$initialWidth: 570px;
+
+.setup-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -17,9 +19,7 @@
   justify-content: center;
   align-items: center;
 
-  $initialWidth: 570px;
-
-  #signup-form-container {
+  .outer-setup-container {
     box-sizing: border-box;
     width: $initialWidth + 20px;
     max-height: calc(100% - 4px);
@@ -44,9 +44,9 @@
 
     display: flex;
     flex-direction: column;
-    padding: 20px 30px 10px;
+    padding: 20px 30px;
 
-    #signup-form {
+    .inner-setup-container {
       box-sizing: border-box;
       padding: 20px 30px 10px;
 
@@ -58,6 +58,8 @@
       display: flex;
       flex-flow: column;
       align-items: center;
+
+      text-align: center;
 
       &::-webkit-scrollbar {
         width: 5px;
@@ -87,89 +89,7 @@
         font-weight: 500;
       }
 
-      #name-input {
-        background-color: $lightSidebarColor;
-        width: 95%;
-        height: 30px;
-
-        border: 2px solid black;
-        border-radius: 10px;
-
-        font-family: 'Indie Flower', cursive;
-
-        color: black;
-        outline: none;
-
-        padding: 5px 10px;
-        font-size: 1.1em;
-
-        @media (prefers-color-scheme: dark) {
-          background-color: $darkButtonColor;
-          color: white;
-          &::placeholder {
-            color: rgba(white, 0.55);
-          }
-        }
-      }
-
-      #icon-selection {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-
-        .icon-wrapper {
-          &.selected {
-            padding: 8px;
-            border-width: 4px;
-            border-color: dodgerblue;
-
-            @media (prefers-color-scheme: dark) {
-              border-color: gold;
-            }
-          }
-        }
-
-        @media (min-width: 494px) {
-          :nth-child(n+15) {
-            display: none;
-          }
-        }
-
-        @media (max-width: 533px) and (min-width: 493px) {
-          :nth-child(n+13) {
-            display: none;
-          }
-        }
-
-        @media (max-width:493px) and (min-width: 492px) {
-          :nth-child(n+13) {
-            display: none;
-          }
-        }
-
-        @media (max-width: 348px) {
-          :nth-child(n+13) {
-            display: none;
-          }
-        }
-      }
-
-      @media (max-width: 553px) and (min-width: 494px) {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-
-      @media (max-width: 429px) and (min-width: 368px){
-        padding-left: 30px;
-        padding-right: 30px;
-      }
-
-      @media (max-width: 369px) {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-
-      #signup-submit {
+      .setup-button {
         background-color: $lightSidebarColor;
 
         @media (prefers-color-scheme: dark) {
@@ -184,6 +104,8 @@
 
         cursor: pointer;
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+
+        font-weight: 700;
 
         &:hover {
           background-color: rgba(black, 0.05);

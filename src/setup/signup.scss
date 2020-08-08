@@ -1,0 +1,85 @@
+@import "./setup";
+
+#signup-form {
+  #name-input {
+    background-color: $lightSidebarColor;
+    width: 95%;
+    height: 30px;
+
+    border: 2px solid black;
+    border-radius: 10px;
+
+    font-family: 'Indie Flower', cursive;
+
+    color: black;
+    outline: none;
+
+    padding: 5px 10px;
+    font-size: 1.1em;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: $darkButtonColor;
+      color: white;
+      &::placeholder {
+        color: rgba(white, 0.55);
+      }
+    }
+  }
+
+  #icon-selection {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    .icon-wrapper {
+      &.selected {
+        padding: 8px;
+        border-width: 4px;
+        border-color: dodgerblue;
+
+        @media (prefers-color-scheme: dark) {
+          border-color: gold;
+        }
+      }
+    }
+
+    @media (min-width: 494px) {
+      :nth-child(n+15) {
+        display: none;
+      }
+    }
+
+    @media (max-width: 533px) and (min-width: 493px) {
+      :nth-child(n+13) {
+        display: none;
+      }
+    }
+
+    @media (max-width:493px) and (min-width: 492px) {
+      :nth-child(n+13) {
+        display: none;
+      }
+    }
+
+    @media (max-width: 348px) {
+      :nth-child(n+13) {
+        display: none;
+      }
+    }
+  }
+
+  @media (max-width: 553px) and (min-width: 494px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  @media (max-width: 429px) and (min-width: 368px){
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+
+  @media (max-width: 369px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

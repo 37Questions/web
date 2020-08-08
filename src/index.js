@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Wrapper from './game/wrapper';
-import Signup from "./user/signup";
+import Signup from "./setup/signup";
 import Api from "./api";
 import LoadingScreen from "./loading";
 import './index.scss';
+import RoomSetup from "./setup/rooms";
 
 function WrapperContainer(props) {
   return (
@@ -46,6 +47,10 @@ class QuestionsGame extends React.Component {
     });
   }
 
+  finishRoomSetup(user, room) {
+    console.info("Finished room setup :)");
+  }
+
   render() {
     let canRender = this.state.canRender && this.state.user;
     return (
@@ -56,7 +61,10 @@ class QuestionsGame extends React.Component {
         <WrapperContainer visible={canRender && !this.state.user.name}>
           <Signup user={this.state.user} onComplete={this.finishSignup} />
         </WrapperContainer>
-        <WrapperContainer visible={canRender && this.state.user.name}>
+        <WrapperContainer visible={canRender && this.state.user.name && !this.state.user.room_id}>
+          <RoomSetup user={this.state.user} onComplete={this.finishRoomSetup} />
+        </WrapperContainer>
+        <WrapperContainer visible={canRender && this.state.user.room_id}>
           <Wrapper user={this.state.user} />
         </WrapperContainer>
       </div>

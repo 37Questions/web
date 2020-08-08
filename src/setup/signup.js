@@ -2,6 +2,7 @@ import React from 'react';
 import Api from "../api";
 import Icon from "./icon";
 import "./signup.scss";
+import SetupFooter from "./footer";
 
 const MIN_USERNAME_LENGTH = 3;
 
@@ -74,9 +75,9 @@ class Signup extends React.Component {
 
   render() {
     return (
-      <div id="signup-wrapper">
-        <div id="signup-form-container">
-          <div id="signup-form">
+      <div className="setup-wrapper">
+        <div className="outer-setup-container">
+          <div id="signup-form" className="inner-setup-container">
             <h1>37 Questions</h1>
             <h2>A game of wit and skill</h2>
             <p id="name-hint">Choose a username</p>
@@ -104,9 +105,14 @@ class Signup extends React.Component {
                 })
               }
             </div>
-            <div id="signup-submit" className={(this.state.canSubmit ? "" : "disabled")} onClick={this.submit}>
+            <div
+              id="signup-submit"
+              className={"setup-button" + (this.state.canSubmit ? "" : " disabled")}
+              onClick={this.submit}
+            >
               Continue
             </div>
+            <SetupFooter />
           </div>
         </div>
       </div>
