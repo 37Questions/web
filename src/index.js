@@ -9,23 +9,54 @@ import RoomSetup from "./setup/rooms";
 
 function WrapperContainer(props) {
   return (
-    <div className={"wrapper-container " + (props.visible ? "visible" : "hidden")}>
+    <div
+      className={"wrapper-container " + (props.visible ? "visible" : "hidden")}
+      onTransitionEnd={props.onTransitionEnd}
+    >
       {props.children}
     </div>
   );
 }
 
+class Stage {
+  static LOADING = 0;
+  static LOADED = 1;
+  static SIGNED_UP = 2;
+  static JOINED_ROOM = 3;
+}
+
 class QuestionsGame extends React.Component {
-  constructor(props) {
-    super(props);
+  state = {
+    stage: Stage.LOADING,
+    canRender: false,
+    user: null
+  };
 
-    this.state = {
-      canRender: false,
-      user: null
-    };
+  finishSignup = (user) => {
+    this.setState({
+      user: user
+    });
+  };
 
-    this.finishSignup = this.finishSignup.bind(this);
-  }
+  loadingUpdate = () => {
+    if (this.state.user && this.state.stage === Stage.LOADING) {
+      this.setState({
+        stage: this.state.user.name ? Stage.SIGNED_UP : Stage.LOADED
+      });
+    }
+  };
+
+  signupUpdate = () => {
+    if (this.state.user.name && this.state.stage === Stage.LOADED) {
+      this.setState({
+        stage: Stage.SIGNED_UP
+      });
+    }
+  };
+
+  finishRoomSetup(user, room) {
+    console.info("Finished room setup :)");
+  };
 
   componentDidMount() {
     setTimeout(function() {
@@ -41,29 +72,27 @@ class QuestionsGame extends React.Component {
     });
   }
 
-  finishSignup(user) {
-    this.setState({
-      user: user
-    });
-  }
-
-  finishRoomSetup(user, room) {
-    console.info("Finished room setup :)");
-  }
-
   render() {
     let canRender = this.state.canRender && this.state.user;
+    let stage = this.state.stage;
+
     return (
       <div id="app-wrapper">
-        <WrapperContainer visible={!this.state.user}>
-          <LoadingScreen />
-        </WrapperContainer>
-        <WrapperContainer visible={canRender && !this.state.user.name}>
-          <Signup user={this.state.user} onComplete={this.finishSignup} />
-        </WrapperContainer>
-        <WrapperContainer visible={canRender && this.state.user.name && !this.state.user.room_id}>
-          <RoomSetup user={this.state.user} onComplete={this.finishRoomSetup} />
-        </WrapperContainer>
+        {stage < Stage.LOADED &&
+          <WrapperContainer visible={!this.state.user} onTransitionEnd={this.loadingUpdate} >
+            <LoadingScreen />
+          </WrapperContainer>
+        }
+        {stage < Stage.SIGNED_UP &&
+          <WrapperContainer visible={canRender && !this.state.user.name} onTransitionEnd={this.signupUpdate}>
+            <Signup user={this.state.user} onComplete={this.finishSignup} />
+          </WrapperContainer>
+        }
+        {stage < Stage.JOINED_ROOM &&
+          <WrapperContainer visible={canRender && this.state.user.name && !this.state.user.room_id}>
+            <RoomSetup user={this.state.user} onComplete={this.finishRoomSetup} />
+          </WrapperContainer>
+        }
         <WrapperContainer visible={canRender && this.state.user.room_id}>
           <Wrapper user={this.state.user} />
         </WrapperContainer>
