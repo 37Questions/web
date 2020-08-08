@@ -32,9 +32,22 @@
     flex-wrap: wrap;
 
     .icon-wrapper {
-      &.selected {
-        padding: 8px;
+      &:hover, &.selected {
+        margin: 2px;
+        width: 58px;
+        height: 58px;
         border-width: 4px;
+
+        .icon {
+          font-size: 27px;
+        }
+      }
+
+      &:hover {
+        border-color: grey;
+      }
+
+      &.selected {
         border-color: dodgerblue;
 
         @media (prefers-color-scheme: dark) {

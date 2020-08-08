@@ -1,9 +1,9 @@
 @import "./setup";
 
 #room-setup {
-  #join-or-create-btns {
+  .buttons-list {
     display: flex;
-    margin-bottom: 15px;
+    margin: 15px 0;
 
     .setup-button {
       margin: 15px;
@@ -15,6 +15,30 @@
       .setup-button {
         margin: 10px 0;
       }
+    }
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .room-option {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 5px;
+
+    .room-option-checkbox {
+      margin: 5px;
+      height: 15px;
+      width: 15px;
+    }
+
+    .room-option-label {
+      margin: 0;
+      font-size: 0.9em;
+      font-weight: 300;
     }
   }
 }
