@@ -1,3 +1,4 @@
+@import "../loading";
 @import "./setup";
 
 #room-setup {
@@ -19,7 +20,7 @@
   }
 
   p {
-    margin: 0;
+    margin: 20px 0 15px;
   }
 
   .room-option {
@@ -29,16 +30,129 @@
 
     margin: 5px;
 
-    .room-option-checkbox {
-      margin: 5px;
-      height: 15px;
-      width: 15px;
-    }
-
     .room-option-label {
       margin: 0;
       font-size: 0.9em;
-      font-weight: 300;
+      font-weight: 400;
+      width: 105px;
+      text-align: right;
     }
+
+    .room-option-dropdown {
+      width: 180px;
+      margin-left: 20px;
+
+      @media (max-width: 370px) {
+        width: 100px;
+      }
+
+      .dropdown-container {
+        text-align: left;
+        font-size: 0.9em;
+
+        color: rgba(black, 0.4);
+
+        .dropdown__control {
+          background-color: $lightSidebarColor;
+          box-shadow: none;
+
+          border-color: black;
+          border-width: 2px;
+          border-radius: 10px;
+
+          @media (prefers-color-scheme: dark) {
+            background-color: $darkButtonColor;
+          }
+
+          .dropdown__value-container .dropdown__single-value {
+            color: $darkTextColor;
+
+            @media (prefers-color-scheme: dark) {
+              color: $lightTextColor;
+            }
+          }
+
+          .dropdown__indicators {
+            .dropdown__indicator-separator {
+              background-color: transparent;
+            }
+
+            .dropdown__indicator {
+              color: rgba(black, 0.3);
+
+              &:hover {
+                color: rgba(black, 0.5);
+              }
+
+              @media (prefers-color-scheme: dark) {
+                color: rgba(white, 0.3);
+
+                &:hover {
+                  color: rgba(white, 0.5);
+                }
+              }
+            }
+          }
+
+          &.dropdown__control--menu-is-open {
+
+            .dropdown__indicators {
+              .dropdown__indicator {
+                color: black;
+
+                @media (prefers-color-scheme: dark) {
+                  color: white;
+                }
+              }
+            }
+          }
+        }
+
+        .dropdown__menu {
+          border-radius: 10px;
+
+          .dropdown__menu-list {
+            border: 2px solid black;
+            border-radius: 10px;
+            background-color: $lightSidebarColor;
+            padding: 0;
+
+            @media (prefers-color-scheme: dark) {
+              background-color: $darkButtonColor;
+            }
+
+            .dropdown__option {
+              color: rgba(black, 0.6);
+
+              @media (prefers-color-scheme: dark) {
+                color: rgba(white, 0.6);
+              }
+
+              &.dropdown__option--is-focused {
+                background-color: rgba(black, 0.15);
+              }
+
+              &.dropdown__option--is-selected {
+                background-color: dodgerblue;
+                color: white;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    &.with-error {
+      .room-option-dropdown .dropdown-container .dropdown__control {
+        border-color: $errorColor;
+      }
+    }
+  }
+
+  .setup-warning {
+    margin-top: 20px;
+    color: $errorColor;
+    font-size: 0.9em;
+    font-weight: 300;
   }
 }

@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
-import "./rooms.scss";
+import React from 'react';
+import Select from 'react-select';
 import SetupFooter from "./footer";
+import "./rooms.scss";
 
 const SELECT_OPTION = 0;
 const CREATE_ROOM = 1;
@@ -17,6 +18,116 @@ function RoomSetupWrapper(props) {
       </div>
     </div>
   );
+}
+
+const votingMethods = [
+  { value: "rotate", label: "Rotate" },
+  { value: "democratic", label: "Democratic" }
+];
+
+const visibilityOptions = [
+  { value: "private", label: "Public" },
+  { value: "public", label: "Public" }
+];
+
+class RoomCreationMenu extends React.Component {
+  state = {
+    votingMethod: votingMethods[0],
+    visibility: visibilityOptions[0],
+    warning: null,
+    loading: false
+  };
+
+  getWarning = (votingMethod, visibility) => {
+    if (votingMethod.value === "rotate" && visibility.value === "public") {
+      return {
+        message: "Democratic voting is strongly recommended in public rooms!",
+        for: "votingMethod"
+      };
+    } else return null;
+  }
+
+  changeVotingMethod = (method) => {
+    if (method === this.state.votingMethod) return;
+    this.setState({
+      votingMethod: method,
+      warning: this.getWarning(method, this.state.visibility)
+    });
+  }
+
+  changeVisibility = (visibility) => {
+    if (visibility === this.state.visibility) return;
+    this.setState({
+      visibility: visibility,
+      warning: this.getWarning(this.state.votingMethod, visibility)
+    });
+  }
+
+  createRoom = () => {
+    if (this.state.loading) return;
+
+    let votingMethod = this.state.votingMethod.value;
+    let visibility = this.state.visibility.value;
+
+    console.info("Voting method:", votingMethod, "Visibility:", visibility);
+    this.setState({
+      loading: true
+    });
+  };
+
+  render () {
+    if (this.state.loading) {
+      return (
+        <RoomSetupWrapper>
+          <h1>Creating Room</h1>
+          <h2>This may take a few seconds.</h2>
+          <br />
+          <div className="loading-icon-container">
+            <div className="loading-icon">
+              <i className="fad fa-spinner-third fa-spin" />
+            </div>
+          </div>
+          <br />
+        </RoomSetupWrapper>
+      );
+    }
+    return (
+      <RoomSetupWrapper>
+        <h1>Room Settings</h1>
+        <h2>Adjust these settings to fine-tune your game.</h2>
+        <br/>
+        <div className="room-option">
+          <p className="room-option-label">Privacy</p>
+          <div className="room-option-dropdown">
+            <Select
+              className="dropdown-container"
+              classNamePrefix="dropdown"
+              value={this.state.visibility}
+              onChange={this.changeVisibility}
+              options={visibilityOptions}
+            />
+          </div>
+        </div>
+        <div className={"room-option" + (this.state.warning && this.state.warning.for === "votingMethod" ? " with-error" : "")}>
+          <p className="room-option-label">Voting Method</p>
+          <div className="room-option-dropdown">
+            <Select
+              className="dropdown-container"
+              classNamePrefix="dropdown"
+              value={this.state.votingMethod}
+              onChange={this.changeVotingMethod}
+              options={votingMethods}
+            />
+          </div>
+        </div>
+        {this.state.warning && <div className={"setup-warning"}>{this.state.warning.message}</div>}
+        <div className="buttons-list">
+          <div className="setup-button" onClick={this.createRoom}>Create Room</div>
+          <div className="setup-button" onClick={() => this.props.changeMode(SELECT_OPTION)}>Back</div>
+        </div>
+      </RoomSetupWrapper>
+    );
+  }
 }
 
 class RoomSetup extends React.Component {
@@ -53,20 +164,7 @@ class RoomSetup extends React.Component {
       );
     } else if (mode === CREATE_ROOM) {
       return (
-        <RoomSetupWrapper>
-          <h1>Create Room</h1>
-          <h2>Here you can configure the game to your liking.</h2>
-          <br />
-          <p>Room Visibility</p>
-          <div className="room-option">
-            <input type="checkbox" className="room-option-checkbox" />
-            <p className="room-option-label">Public Room</p>
-          </div>
-          <div className="buttons-list">
-            <div className="setup-button">Create Room</div>
-            <div className="setup-button" onClick={() => this.setMode(SELECT_OPTION)}>Back</div>
-          </div>
-        </RoomSetupWrapper>
+        <RoomCreationMenu changeMode={this.setMode} />
       );
     } else if (mode === JOIN_ROOM) {
       return (

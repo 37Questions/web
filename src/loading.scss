@@ -1,4 +1,4 @@
-@import "./colors";
+@import "theme";
 
 .loading-wrapper {
   position: absolute;
@@ -36,21 +36,21 @@
       color: $lightAltTextColor;
     }
   }
+}
 
-  .loading-icon-container {
-    .loading-icon {
-      font-size: 3.2em;
+.loading-icon-container {
+  .loading-icon {
+    font-size: 3.2em;
 
-      .fa-primary {
-        color: dodgerblue;
-      }
+    .fa-primary {
+      color: dodgerblue;
+    }
 
-      .fa-secondary {
-        color: $darkAltTextColor;
+    .fa-secondary {
+      color: $darkAltTextColor;
 
-        @media (prefers-color-scheme: dark) {
-          color: $lightAltTextColor;
-        }
+      @media (prefers-color-scheme: dark) {
+        color: $lightAltTextColor;
       }
     }
   }

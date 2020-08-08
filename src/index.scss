@@ -1,4 +1,4 @@
-@import "./colors";
+@import "theme";
 
 html, body {
   -webkit-font-smoothing: antialiased;
@@ -8,7 +8,7 @@ html, body {
   padding: 0;
   margin: 0;
 
-  font-family: 'Roboto Slab', serif;
+  font-family: $primaryFont;
 
   background-color: $lightBackgroundColor;
 

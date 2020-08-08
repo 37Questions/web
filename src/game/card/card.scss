@@ -1,3 +1,5 @@
+@import "../../theme";
+
 $cardWidth: 260px;
 $cardHeight: 204px;
 
@@ -47,7 +49,7 @@ $cardHeight: 204px;
         }
 
         &.response .text {
-          font-family: 'Indie Flower', cursive;
+          font-family: $cursiveFont;
           font-size: 1.1em;
         }
 
