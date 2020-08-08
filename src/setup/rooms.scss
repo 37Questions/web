@@ -155,4 +155,49 @@
     font-size: 0.9em;
     font-weight: 300;
   }
+
+  .room-link-container {
+    display: flex;
+    align-items: center;
+    color: dodgerblue;
+
+
+    .room-link-icon-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      width: 25px;
+      height: 25px;
+
+      cursor: pointer;
+
+      font-size: 1em;
+
+      &:hover {
+        font-size: 1.1em;
+      }
+
+      &:active {
+        font-size: 1.2em;
+      }
+
+      .room-link-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+
+    .room-link-textarea {
+      position: absolute;
+      left: -1000px;
+      right: -1000px;
+    }
+
+    .room-link-text {
+      display: inline-block;
+      word-wrap: break-word;
+    }
+  }
 }

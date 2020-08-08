@@ -1,7 +1,7 @@
 import socketIOClient from "socket.io-client";
 import Api from "./api";
 
-async function createSocket(user) {
+function createSocket(user) {
   let socket = socketIOClient(Api.ENDPOINT, {
     transports: ["websocket"],
     query: {

@@ -63,12 +63,7 @@ class Signup extends React.Component {
 
     Api.setupUser(this.props.user, username, icon).then((error) => {
       if (error) return console.info("User setup failed:", error);
-      this.props.onComplete({
-        id: this.props.user.id,
-        token: this.props.user.token,
-        name: username,
-        icon: icon
-      });
+      this.props.onComplete(username, icon);
     });
   }
 

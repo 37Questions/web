@@ -1,9 +1,8 @@
-import React from 'react';
+import React, {createRef} from 'react';
 import Select from 'react-select';
 import SetupFooter from "./footer";
 import {LoadingSpinner} from "../loading";
 import "./rooms.scss";
-import {createSocket} from "../api/socket";
 
 const SELECT_OPTION = 0;
 const CREATE_ROOM = 1;
@@ -32,12 +31,19 @@ const visibilityOptions = [
   { value: "public", label: "Public" }
 ];
 
+class RoomCreationStage {
+  static CONFIGURING = 0;
+  static LOADING = 1;
+  static CREATED = 2;
+}
+
 class RoomCreationMenu extends React.Component {
   state = {
+    stage: RoomCreationStage.CONFIGURING,
     votingMethod: votingMethods[0],
     visibility: visibilityOptions[0],
     warning: null,
-    loading: false
+    room: null
   };
 
   getWarning = (votingMethod, visibility) => {
@@ -66,28 +72,99 @@ class RoomCreationMenu extends React.Component {
   }
 
   createRoom = () => {
-    if (this.state.loading) return;
+    if (this.state.stage > RoomCreationStage.CONFIGURING) return;
 
     let votingMethod = this.state.votingMethod.value;
     let visibility = this.state.visibility.value;
 
     console.info("Voting method:", votingMethod, "Visibility:", visibility);
     this.setState({
-      loading: true
+      stage: RoomCreationStage.LOADING
     });
 
-    createSocket(this.props.user).then((socket) => {
-      socket.emit("createRoom", {
-        votingMethod: votingMethod,
-        visibility: visibility
-      }, (res) => {
-        console.info("Create Room Response:", res);
-      });
+    this.props.socket.emit("createRoom", {
+      votingMethod: votingMethod,
+      visibility: visibility
+    }, (res) => {
+      if (res.error) {
+        console.warn("Failed to create room:", res.error);
+        return this.setState({
+          stage: RoomCreationStage.CONFIGURING,
+          warning: {
+            message: "Room Creation Failed: " + res.error
+          }
+        });
+      }
+      let room = res.room;
+      let url = window.location.href.split("?")[0];
+
+      room.link = url + `?room=${room.id}&token=${room.token}`;
+      window.history.pushState(null, null, room.link);
+
+      this.setState({
+        stage: RoomCreationStage.CREATED,
+        room: room
+      })
     });
   };
 
+  roomLink = createRef();
+
+  copyRoomLink = (e) => {
+    if (!this.roomLink.current) return;
+
+    this.roomLink.current.select();
+    document.execCommand("copy");
+
+    e.target.focus();
+  };
+
+  onComplete = () => {
+    if (!this.state.room) return;
+    this.props.onComplete(this.state.room);
+  };
+
   render () {
-    if (this.state.loading) {
+    let stage = this.state.stage;
+    if (stage === RoomCreationStage.CONFIGURING) {
+      return (
+        <RoomSetupWrapper>
+          <h1>Room Settings</h1>
+          <h2>Adjust these settings to fine-tune your game.</h2>
+          <br/>
+          <div className="room-option">
+            <p className="room-option-label">Privacy</p>
+            <div className="room-option-dropdown">
+              <Select
+                className="dropdown-container"
+                classNamePrefix="dropdown"
+                value={this.state.visibility}
+                onChange={this.changeVisibility}
+                options={visibilityOptions}
+              />
+            </div>
+          </div>
+          <div className={"room-option" + (this.state.warning && this.state.warning.for === "votingMethod" ? " with-error" : "")}>
+            <p className="room-option-label">Voting Method</p>
+            <div className="room-option-dropdown">
+              <Select
+                className="dropdown-container"
+                classNamePrefix="dropdown"
+                value={this.state.votingMethod}
+                onChange={this.changeVotingMethod}
+                options={votingMethods}
+              />
+            </div>
+          </div>
+          {this.state.warning && <div className={"setup-warning"}>{this.state.warning.message}</div>}
+          <div className="buttons-list">
+            <div className="setup-button" onClick={this.createRoom}>Create Room</div>
+            <div className="setup-button" onClick={() => this.props.changeMode(SELECT_OPTION)}>Back</div>
+          </div>
+        </RoomSetupWrapper>
+      );
+    }
+    if (stage === RoomCreationStage.LOADING) {
       return (
         <RoomSetupWrapper>
           <h1>Creating Room</h1>
@@ -97,58 +174,43 @@ class RoomCreationMenu extends React.Component {
           <br />
         </RoomSetupWrapper>
       );
+    } else if (stage === RoomCreationStage.CREATED) {
+      return (
+        <RoomSetupWrapper>
+          <h1>Created Room!</h1>
+          <h2>To invite friends, send them the link below.</h2>
+          <br />
+          <div className="room-link-container">
+            <div className="room-link-icon-container" onClick={this.copyRoomLink}>
+              <div className="room-link-icon">
+                <i className="far fa-link" />
+              </div>
+            </div>
+            <textarea
+              className="room-link-textarea"
+              ref={this.roomLink}
+              readOnly={true}
+              value={this.state.room.link}
+            />
+            <div className="room-link-text">
+              {this.state.room.link}
+            </div>
+          </div>
+          <div className="setup-button" onClick={this.onComplete}>
+            Start Game
+          </div>
+        </RoomSetupWrapper>
+      )
     }
-    return (
-      <RoomSetupWrapper>
-        <h1>Room Settings</h1>
-        <h2>Adjust these settings to fine-tune your game.</h2>
-        <br/>
-        <div className="room-option">
-          <p className="room-option-label">Privacy</p>
-          <div className="room-option-dropdown">
-            <Select
-              className="dropdown-container"
-              classNamePrefix="dropdown"
-              value={this.state.visibility}
-              onChange={this.changeVisibility}
-              options={visibilityOptions}
-            />
-          </div>
-        </div>
-        <div className={"room-option" + (this.state.warning && this.state.warning.for === "votingMethod" ? " with-error" : "")}>
-          <p className="room-option-label">Voting Method</p>
-          <div className="room-option-dropdown">
-            <Select
-              className="dropdown-container"
-              classNamePrefix="dropdown"
-              value={this.state.votingMethod}
-              onChange={this.changeVotingMethod}
-              options={votingMethods}
-            />
-          </div>
-        </div>
-        {this.state.warning && <div className={"setup-warning"}>{this.state.warning.message}</div>}
-        <div className="buttons-list">
-          <div className="setup-button" onClick={this.createRoom}>Create Room</div>
-          <div className="setup-button" onClick={() => this.props.changeMode(SELECT_OPTION)}>Back</div>
-        </div>
-      </RoomSetupWrapper>
-    );
   }
 }
 
 class RoomSetup extends React.Component {
-  constructor(props) {
-    super(props);
+  state = {
+    mode: SELECT_OPTION
+  };
 
-    this.state = {
-      mode: SELECT_OPTION
-    }
-
-    this.setMode = this.setMode.bind(this);
-  }
-
-  setMode(mode) {
+  setMode = (mode) => {
     if (mode !== this.state.mode && mode >= SELECT_OPTION && mode <= JOIN_ROOM) {
       this.setState({
         mode: mode
@@ -171,7 +233,12 @@ class RoomSetup extends React.Component {
       );
     } else if (mode === CREATE_ROOM) {
       return (
-        <RoomCreationMenu changeMode={this.setMode} user={this.props.user} />
+        <RoomCreationMenu
+          socket={this.props.socket}
+          user={this.props.user}
+          changeMode={this.setMode}
+          onComplete={this.props.onComplete}
+        />
       );
     } else if (mode === JOIN_ROOM) {
       return (

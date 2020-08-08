@@ -6,6 +6,7 @@ import Api from "./api/api";
 import {LoadingScreen} from "./loading";
 import RoomSetup from "./setup/rooms";
 import './index.scss';
+import {createSocket} from "./api/socket";
 
 function WrapperContainer(props) {
   return (
@@ -25,37 +26,60 @@ class Stage {
   static JOINED_ROOM = 3;
 }
 
+export function getURLParam(name) {
+  let results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
+  return results ? results[1] : null;
+}
+
 class QuestionsGame extends React.Component {
   state = {
     stage: Stage.LOADING,
     canRender: false,
-    user: null
+    socket: null,
+    user: null,
+    room: null
   };
 
-  finishSignup = (user) => {
+  loadingUpdate = () => {
+    if (this.state.user && this.state.stage === Stage.LOADING) {
+      let stage = Stage.LOADED;
+      if (this.state.user.name) stage = this.state.room ? Stage.JOINED_ROOM : Stage.SIGNED_UP;
+
+      this.setState({ stage: stage });
+    }
+  };
+
+  finishSignup = (name, icon) => {
+    let user = this.state.user;
+    user.name = name;
+    user.icon = icon;
     this.setState({
       user: user
     });
   };
 
-  loadingUpdate = () => {
-    if (this.state.user && this.state.stage === Stage.LOADING) {
-      this.setState({
-        stage: this.state.user.name ? Stage.SIGNED_UP : Stage.LOADED
-      });
-    }
-  };
-
   signupUpdate = () => {
     if (this.state.user.name && this.state.stage === Stage.LOADED) {
+      let stage = Stage.SIGNED_UP;
+      if (this.state.user.room_id) {
+        stage = Stage.JOINED_ROOM;
+      }
       this.setState({
-        stage: Stage.SIGNED_UP
+        stage: stage
       });
     }
   };
 
-  finishRoomSetup(user, room) {
-    console.info("Finished room setup :)", user, room);
+  startGame = (room) => {
+    if (this.state.user.name && room && room.id && this.state.stage === Stage.SIGNED_UP) {
+      let user = this.state.user;
+      user.room_id = room.id;
+      this.setState({
+        stage: Stage.JOINED_ROOM,
+        user: user,
+        room: room
+      });
+    }
   };
 
   componentDidMount() {
@@ -66,9 +90,57 @@ class QuestionsGame extends React.Component {
     }.bind(this), 1000);
     Api.getUser().then((user) => {
       console.info("User:", user);
-      this.setState({
-        user: user
-      });
+      let socket = createSocket(user);
+
+      let roomId = getURLParam("room");
+      let token = getURLParam("token");
+
+      if (roomId && token) {
+        socket.emit("joinRoom", {
+          id: roomId,
+          token: token
+        }, (res) => {
+          if (res.error) {
+            let url = window.location.href.split("?")[0];
+            window.history.pushState(null, null, url);
+            console.info(`Failed to join room #${roomId}:`, res.error);
+            this.setState({
+              socket: socket,
+              user: user
+            });
+          } else {
+            user.room_id = res.room.id;
+
+            this.setState({
+              socket: socket,
+              user: user,
+              room: res.room
+            });
+          }
+        });
+      } else if (user.room_id) {
+        socket.emit("rejoinRoom", {}, (res) => {
+          if (res.error) {
+            console.info(`Failed to rejoin room #${user.room_id}:`, res.error);
+            this.setState({
+              socket: socket,
+              user: user
+            });
+          } else {
+            console.info(`Rejoined room #${user.room_id}:`, res.room);
+            this.setState({
+              socket: socket,
+              user: user,
+              room: res.room
+            });
+          }
+        });
+      } else {
+        this.setState({
+          socket: socket,
+          user: user
+        });
+      }
     });
   }
 
@@ -90,11 +162,11 @@ class QuestionsGame extends React.Component {
         }
         {stage < Stage.JOINED_ROOM &&
           <WrapperContainer visible={canRender && this.state.user.name && !this.state.user.room_id}>
-            <RoomSetup user={this.state.user} onComplete={this.finishRoomSetup} />
+            <RoomSetup socket={this.state.socket} user={this.state.user} onComplete={this.startGame} />
           </WrapperContainer>
         }
-        <WrapperContainer visible={canRender && this.state.user.room_id}>
-          <Wrapper user={this.state.user} />
+        <WrapperContainer visible={canRender && this.state.user.name && this.state.user.room_id}>
+          <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} />
         </WrapperContainer>
       </div>
     );
