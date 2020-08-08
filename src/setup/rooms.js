@@ -1,7 +1,9 @@
 import React from 'react';
 import Select from 'react-select';
 import SetupFooter from "./footer";
+import {LoadingSpinner} from "../loading";
 import "./rooms.scss";
+import {createSocket} from "../api/socket";
 
 const SELECT_OPTION = 0;
 const CREATE_ROOM = 1;
@@ -73,6 +75,15 @@ class RoomCreationMenu extends React.Component {
     this.setState({
       loading: true
     });
+
+    createSocket(this.props.user).then((socket) => {
+      socket.emit("createRoom", {
+        votingMethod: votingMethod,
+        visibility: visibility
+      }, (res) => {
+        console.info("Create Room Response:", res);
+      });
+    });
   };
 
   render () {
@@ -82,11 +93,7 @@ class RoomCreationMenu extends React.Component {
           <h1>Creating Room</h1>
           <h2>This may take a few seconds.</h2>
           <br />
-          <div className="loading-icon-container">
-            <div className="loading-icon">
-              <i className="fad fa-spinner-third fa-spin" />
-            </div>
-          </div>
+          <LoadingSpinner />
           <br />
         </RoomSetupWrapper>
       );
@@ -164,7 +171,7 @@ class RoomSetup extends React.Component {
       );
     } else if (mode === CREATE_ROOM) {
       return (
-        <RoomCreationMenu changeMode={this.setMode} />
+        <RoomCreationMenu changeMode={this.setMode} user={this.props.user} />
       );
     } else if (mode === JOIN_ROOM) {
       return (

@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Wrapper from './game/wrapper';
 import Signup from "./setup/signup";
-import Api from "./api";
-import LoadingScreen from "./loading";
-import './index.scss';
+import Api from "./api/api";
+import {LoadingScreen} from "./loading";
 import RoomSetup from "./setup/rooms";
+import './index.scss';
 
 function WrapperContainer(props) {
   return (
@@ -55,7 +55,7 @@ class QuestionsGame extends React.Component {
   };
 
   finishRoomSetup(user, room) {
-    console.info("Finished room setup :)");
+    console.info("Finished room setup :)", user, room);
   };
 
   componentDidMount() {

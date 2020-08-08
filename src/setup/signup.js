@@ -1,5 +1,5 @@
 import React from 'react';
-import Api from "../api";
+import Api from "../api/api";
 import Icon from "./icon";
 import "./signup.scss";
 import SetupFooter from "./footer";

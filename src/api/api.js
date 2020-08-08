@@ -4,35 +4,30 @@ class Api {
   static async getUser(attempt = 0) {
     const USER_KEY = "questions-user";
 
-    return new Promise((resolve) => {
-      if (attempt > 3) {
-        console.error("User setup failed too many times, giving up.");
-        return resolve(false);
-      }
+    if (attempt > 3) throw new Error("User setup failed too many times, giving up.");
 
-      const savedUser = localStorage.getItem(USER_KEY);
-      if (savedUser) {
-        const user = JSON.parse(savedUser);
-        const req = `/validate-token?id=${user.id}&token=${user.token}`;
-        fetch(Api.ENDPOINT + req, {method: "GET"}).then((res) => {
-          res.json().then((res) => {
-            if (res.valid) {
-              return resolve(res.user);
-            }
-            console.warn("Cached user was invalid, attempting to create a new account");
-            localStorage.removeItem(USER_KEY);
-            return Api.getUser(attempt++);
-          });
+    let savedUser = localStorage.getItem(USER_KEY);
+    if (savedUser) {
+      let user = JSON.parse(savedUser);
+      let req = `/validate-token?id=${user.id}&token=${user.token}`;
+      return fetch(Api.ENDPOINT + req, {method: "GET"}).then((res) => {
+        return res.json().then((res) => {
+          if (res.valid) {
+            return res.user;
+          }
+          console.warn("Cached user was invalid, attempting to create a new account");
+          localStorage.removeItem(USER_KEY);
+          return Api.getUser(attempt++);
         });
-      } else {
-        fetch(Api.ENDPOINT + "/user", {method: "POST"}).then((res) => {
-          res.json().then((user) => {
-            localStorage.setItem(USER_KEY, JSON.stringify(user));
-            resolve(user);
-          });
+      });
+    } else {
+      return fetch(Api.ENDPOINT + "/user", {method: "POST"}).then((res) => {
+        return res.json().then((user) => {
+          localStorage.setItem(USER_KEY, JSON.stringify(user));
+          return user;
         });
-      }
-    });
+      });
+    }
   }
 
   static generateHue() {
