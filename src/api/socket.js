@@ -47,6 +47,15 @@ class Socket {
       return room;
     });
   }
+
+  async sendMessage(body) {
+    return this.emit("sendMessage", {
+      body: body
+    }).then((res) => {
+      if (res.error) throw new Error(res.error);
+      return res.message;
+    })
+  }
 }
 
 

@@ -9,6 +9,16 @@ class Chat extends React.Component {
     // Enter key is pressed
     if (e.keyCode === 13) {
       e.preventDefault();
+      let body = e.target.value;
+      if (body.length < 1) return;
+
+      this.props.socket.sendMessage(body).then((message) => {
+        this.props.room.addMessage(message);
+        this.setState({});
+      }).catch((error) => {
+        console.warn(`Failed to send message:`, error);
+      })
+      e.target.value = "";
     }
   }
 
@@ -16,6 +26,12 @@ class Chat extends React.Component {
     if (!this.props.room) return null;
     let users = this.props.room.users;
     let messages = this.props.room.messages;
+
+    let today = new Date();
+
+    let year = today.getFullYear();
+    let month = today.getMonth();
+    let date = today.getDate();
 
     return (
       <div className="panel-wrapper" id="chat-wrapper">
@@ -30,12 +46,23 @@ class Chat extends React.Component {
               if (!users.hasOwnProperty(message.user_id)) return null;
               let user = users[message.user_id];
 
-              let date = new Date(message.created_at);
-              let time = "Today at " + date.toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true
-              });
+
+              let createdAt = new Date(message.created_at);
+              let timeString;
+
+              if (year === createdAt.getFullYear() && month === createdAt.getMonth()) {
+                let msgDate = createdAt.getDate()
+                if (date === msgDate || date - 1 === msgDate) {
+                  let prefix = (date === msgDate) ? "Today" : "Yesterday";
+                  timeString = prefix + " at " + createdAt.toLocaleTimeString("en-US", {
+                    hour: "numeric",
+                    minute: "numeric",
+                    hour12: true
+                  });
+                }
+              }
+
+              if (!timeString) timeString = createdAt.toLocaleDateString();
 
               return (
                 <div className={"scrollable-item chat-message " + (message.isSystemMsg ? "system-msg" : "user-msg")} key={key}>
@@ -43,7 +70,7 @@ class Chat extends React.Component {
                   <div className="message-info">
                     <div className="message-title">
                       <div className="message-user">{user.name}</div>
-                      <div className="message-time">{time}</div>
+                      <div className="message-time">{timeString}</div>
                     </div>
                     <div className="message-content">{message.body}</div>
                   </div>

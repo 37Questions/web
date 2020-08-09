@@ -165,6 +165,22 @@ class QuestionsGame extends React.Component {
     });
   };
 
+  onChatMessage = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received chat message when not in a room:`, this.state);
+
+    let userId = data.message.user_id;
+    if (!room.users.hasOwnProperty(userId)) {
+      return console.warn(`Received chat message from unknown user #${userId}:`, data, room.users)
+    }
+
+    room.addMessage(data.message);
+
+    this.setState({
+      room: room
+    });
+  }
+
   onLogin = (data) => {
     console.info("Socket Init:", data);
     let user = data.user;
@@ -203,6 +219,7 @@ class QuestionsGame extends React.Component {
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
+      socket.on("chatMessage", this.onChatMessage);
     });
   }
 
