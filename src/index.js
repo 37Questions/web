@@ -111,11 +111,47 @@ class QuestionsGame extends React.Component {
   };
 
   onUserUpdated = (data) => {
-    console.info("User updated:", data);
+    let room = this.state.room;
+    if (!room) return console.warn(`Received user update when not in a room:`, this.state);
+
+    let userId = data.id;
+
+    if (!room.users.hasOwnProperty(userId)) {
+      return console.warn(`Received user update for unknown user #${userId}:`, data, room.users)
+    }
+
+    let user = room.users[userId];
+
+    let userName = data.name;
+    let userIcon = data.icon;
+
+    if (userName || userIcon) {
+      if (userName) user.name = userName;
+      if (userIcon) user.icon = userIcon;
+
+      console.info(`Updated user #${userId}:`, user);
+
+      this.setState({
+        room: room
+      });
+    }
   };
 
   onUserLeft = (data) => {
-    console.info("User left:", data);
+    let room = this.state.room;
+    if (!room) return console.warn(`Received user update when not in a room:`, this.state);
+
+    let userId = data.id;
+    if (!room.users.hasOwnProperty(userId)) {
+      return console.warn(`Received leave notification for unknown user #${userId}:`, data, room.users)
+    }
+
+    room.users[userId].active = false;
+    console.info(`User #${userId} left:`, room.users[userId]);
+
+    this.setState({
+      room: room
+    });
   };
 
   onLogin = (data) => {

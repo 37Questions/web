@@ -1,3 +1,9 @@
 #scoreboard-wrapper {
-
+  .scoreboard-list {
+    .scoreboard-user {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+  }
 }

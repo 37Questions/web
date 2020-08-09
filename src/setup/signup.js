@@ -5,6 +5,7 @@ import "./signup.scss";
 import SetupFooter from "./footer";
 
 const MIN_USERNAME_LENGTH = 3;
+const MAX_USERNAME_LENGTH = 16;
 
 class Signup extends React.Component {
   state = {
@@ -88,6 +89,7 @@ class Signup extends React.Component {
               ref={this.username}
               onInput={this.onInput}
               onKeyDown={this.onKeyDown}
+              maxLength={MAX_USERNAME_LENGTH}
             />
             <p id="icon-hint">Choose an icon</p>
             <div id="icon-selection">

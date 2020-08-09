@@ -79,7 +79,7 @@ function Wrapper(props) {
       <div id="game-wrapper" className={getPanelString()}>
         <div id="game-layout">
           <div className="side container" id="user-container">
-            <Scoreboard />
+            <Scoreboard room={props.room} />
           </div>
           <SidebarButton
             id="user-panel-btn"
