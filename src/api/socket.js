@@ -31,7 +31,7 @@ class Socket {
       visibility: visibility,
       votingMethod: votingMethod
     }).then((res) => {
-      let room = new Room(res.room);
+      let room = new Room(res.room, false);
       room.pushLink();
       return room;
     });
@@ -42,14 +42,6 @@ class Socket {
       id: id,
       token: token
     }).then((res) => {
-      let room = new Room(res.room);
-      room.pushLink();
-      return room;
-    });
-  }
-
-  async rejoinRoom() {
-    return this.emit("rejoinRoom").then((res) => {
       let room = new Room(res.room);
       room.pushLink();
       return room;

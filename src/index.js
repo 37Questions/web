@@ -71,12 +71,20 @@ class QuestionsGame extends React.Component {
     }
   };
 
-  startGame = (room) => {
+  setRoom = (room) => {
     if (this.state.user.name && room && room.id && this.state.stage === Stage.SIGNED_UP) {
-      let user = this.state.user;
+      this.setState({
+        room: room
+      });
+    }
+  }
+
+  startGame = () => {
+    let room = this.state.room;
+    if (this.state.user.name && room && room.id && this.state.stage === Stage.SIGNED_UP) {
+      room.finishedCreation = true;
       this.setState({
         stage: Stage.JOINED_ROOM,
-        user: user,
         room: room
       });
     }
@@ -164,7 +172,6 @@ class QuestionsGame extends React.Component {
     if (roomId && token) {
       this.state.socket.joinRoom(roomId, token).then((room) => {
         console.info(`Joined room #${roomId}:`, room);
-
         this.setState({
           user: user,
           room: room
@@ -214,11 +221,16 @@ class QuestionsGame extends React.Component {
           </WrapperContainer>
         }
         {stage < Stage.JOINED_ROOM &&
-          <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && !this.state.room}>
-            <RoomSetup socket={this.state.socket} user={this.state.user} onComplete={this.startGame} />
+          <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && (!this.state.room || !this.state.room.finishedCreation)}>
+            <RoomSetup
+              socket={this.state.socket}
+              user={this.state.user}
+              onRoomCreated={this.setRoom}
+              onComplete={this.startGame}
+            />
           </WrapperContainer>
         }
-        <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && this.state.room}>
+        <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && this.state.room && this.state.room.finishedCreation}>
           <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} />
         </WrapperContainer>
         <WrapperContainer visible={loggedOut}>

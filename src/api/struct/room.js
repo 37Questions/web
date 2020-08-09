@@ -1,10 +1,11 @@
 class Room {
-  constructor(room) {
+  constructor(room, finishedCreation = true) {
     this.id = room.id;
     this.token = room.token;
     this.visibility = room.visibility;
     this.votingMethod = room.votingMethod;
     this.users = room.users;
+    this.finishedCreation = finishedCreation;
 
     let url = window.location.href.split("?")[0];
     this.link = url + `?room=${this.id}&token=${this.token}`;

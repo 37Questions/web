@@ -84,6 +84,7 @@ class RoomCreationMenu extends React.Component {
 
     this.props.socket.createRoom(visibility, votingMethod).then((room) => {
       console.info("Created Room:", room);
+      this.props.onRoomCreated(room);
       this.setState({
         stage: RoomCreationStage.CREATED,
         room: room
@@ -111,7 +112,7 @@ class RoomCreationMenu extends React.Component {
 
   onComplete = () => {
     if (!this.state.room) return;
-    this.props.onComplete(this.state.room);
+    this.props.onComplete();
   };
 
   render () {
@@ -227,6 +228,7 @@ class RoomSetup extends React.Component {
           socket={this.props.socket}
           user={this.props.user}
           changeMode={this.setMode}
+          onRoomCreated={this.props.onRoomCreated}
           onComplete={this.props.onComplete}
         />
       );

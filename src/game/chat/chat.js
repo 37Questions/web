@@ -9,7 +9,7 @@ class Chat extends React.Component {
         <div className="panel-header">
           <h1>Chat</h1>
         </div>
-        <div className="panel-content">
+        <div className="panel-scrollable">
 
         </div>
       </div>

@@ -12,8 +12,9 @@
     }
   }
 
-  .panel-content {
+  .panel-scrollable {
     flex: 1;
+    height: 100%;
     overflow-y: auto;
 
     &::-webkit-scrollbar {
@@ -27,6 +28,15 @@
     &::-webkit-scrollbar-thumb {
       background-color: darkgrey;
       border-radius: 15px;
+    }
+
+    .scrollable-item {
+      display: flex;
+      width: calc(100% - 5px);
+
+      &:hover {
+        background-color: rgba(black, 0.1);
+      }
     }
   }
 }

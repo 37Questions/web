@@ -159,6 +159,8 @@
 
           @media (max-width: $hideSidebarsAt) {
             position: absolute;
+            top: 0;
+            bottom: 0;
 
             &#user-container {
               left: -$sidebarWidth;

@@ -1,13 +1,8 @@
 #scoreboard-wrapper {
-  .panel-content {
+  .panel-scrollable {
     .scoreboard-user {
-      display: flex;
       justify-content: flex-start;
       align-items: center;
-
-      &:hover {
-        background-color: rgba(black, 0.1);
-      }
 
       .user-icon {
         width: 40px;
@@ -29,10 +24,10 @@
       }
 
       .user-score {
-        position: absolute;
-        font-size: 1.2em;
+        margin-right: 5px;
+
+        font-size: 1.5em;
         font-weight: 500;
-        right: 15px;
       }
     }
   }
