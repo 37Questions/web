@@ -5,8 +5,7 @@ import Icon from "../../setup/icon";
 
 class Scoreboard extends React.Component {
   render() {
-    if (!this.props.room) return <div className="panel-wrapper" id="scoreboard-wrapper" />
-
+    if (!this.props.room) return null;
     let users = this.props.room.users;
 
     return (

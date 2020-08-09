@@ -1,3 +1,76 @@
-#chat-wrapper {
+@import "../../theme";
 
+#chat-wrapper {
+  #chat-history {
+    .chat-message {
+      &:first-child {
+        margin-top: auto !important;
+      }
+
+      .message-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        margin: 5px;
+      }
+
+      .message-info {
+        .message-title {
+          display: flex;
+          align-items: flex-end;
+          font-size: 0.8em;
+
+          .message-user {
+            margin-right: 5px;
+          }
+
+          .message-time {
+            font-weight: 300;
+            color: rgba(black, 0.5);
+
+            @media (prefers-color-scheme: dark) {
+              color: rgba(white, 0.5);
+            }
+          }
+        }
+
+        .message-user {
+          font-weight: 700;
+          margin-top: 5px;
+        }
+      }
+
+      &.system-msg {
+        .message-content {
+          color: rgba(black, 0.5);
+
+          @media (prefers-color-scheme: dark) {
+            color: rgba(white, 0.5);
+          }
+        }
+      }
+    }
+  }
+  #chat-input-container {
+    margin: 10px;
+    #chat-input {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 5px;
+
+      border: none;
+      outline: none;
+      resize: none;
+
+      background-color: rgba(black, 0.15);
+      color: $darkTextColor;
+
+      font-family: $primaryFont;
+
+      @media (prefers-color-scheme: dark) {
+        background-color: rgba(white, 0.07);
+        color: $lightTextColor;
+      }
+    }
+  }
 }

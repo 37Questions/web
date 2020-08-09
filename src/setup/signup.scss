@@ -1,6 +1,13 @@
 @import "./setup";
 
 #signup-form {
+  #name-hint .username-error {
+    margin-top: 2px;
+    color: $errorColor;
+    font-weight: 400;
+    font-size: 0.8em;
+  }
+
   #name-input {
     background-color: $lightSidebarColor;
     width: 95%;
@@ -8,6 +15,10 @@
 
     border: 2px solid black;
     border-radius: 10px;
+
+    &.with-error {
+      border-color: $errorColor;
+    }
 
     font-family: 'Indie Flower', cursive;
 

@@ -154,8 +154,11 @@ class QuestionsGame extends React.Component {
       return console.warn(`Received leave notification for unknown user #${userId}:`, data, room.users)
     }
 
+    if (data.message) room.addMessage(data.message);
+
     room.users[userId].active = false;
     console.info(`User #${userId} left:`, room.users[userId]);
+
 
     this.setState({
       room: room

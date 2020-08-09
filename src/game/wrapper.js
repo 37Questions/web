@@ -92,7 +92,7 @@ function Wrapper(props) {
             <Game />
           </div>
           <div className="side container" id="chat-container">
-            <Chat />
+            <Chat room={props.room} />
           </div>
           <SidebarButton
             id="chat-panel-btn"
