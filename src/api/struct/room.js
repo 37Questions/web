@@ -4,6 +4,7 @@ class Room {
     this.token = room.token;
     this.visibility = room.visibility;
     this.votingMethod = room.votingMethod;
+    this.users = room.users;
 
     let url = window.location.href.split("?")[0];
     this.link = url + `?room=${this.id}&token=${this.token}`;

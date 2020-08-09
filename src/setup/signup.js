@@ -62,6 +62,8 @@ class Signup extends React.Component {
 
     if (!icon || username.length < MIN_USERNAME_LENGTH) return;
 
+    console.info("Setup:", this.props);
+
     Api.setupUser(this.props.user, username, icon).then((error) => {
       if (error) return console.info("User setup failed:", error);
       this.props.onComplete(username, icon);

@@ -62,7 +62,7 @@ class QuestionsGame extends React.Component {
   signupUpdate = () => {
     if (this.state.user.name && this.state.stage === Stage.LOADED) {
       let stage = Stage.SIGNED_UP;
-      if (this.state.user.room_id) {
+      if (this.state.room) {
         stage = Stage.JOINED_ROOM;
       }
       this.setState({
@@ -74,13 +74,48 @@ class QuestionsGame extends React.Component {
   startGame = (room) => {
     if (this.state.user.name && room && room.id && this.state.stage === Stage.SIGNED_UP) {
       let user = this.state.user;
-      user.room_id = room.id;
       this.setState({
         stage: Stage.JOINED_ROOM,
         user: user,
         room: room
       });
     }
+  };
+
+  onLogout = () => {
+    this.state.socket.emit("logout");
+
+    let user = this.state.user;
+    if (!user || user.logged_out) return;
+
+    user.logged_out = true;
+
+    this.setState({
+      socket: null,
+      user: user,
+      room: null
+    });
+  };
+
+  onUserJoined = (data) => {
+    let user = data.user;
+    if (!user) return console.warn(`Received join data with no user:`, data)
+
+    let room = this.state.room;
+    if (!room) return console.warn(`Received join data when not in a room:`, this.state);
+
+    console.info(`User #${user.id} joined the room:`, user);
+    room.users[user.id] = user;
+
+    this.setState({ room: room });
+  };
+
+  onUserUpdated = (data) => {
+    console.info("User updated:", data);
+  };
+
+  onUserLeft = (data) => {
+    console.info("User left:", data);
   };
 
   onLogin = (data) => {
@@ -93,7 +128,6 @@ class QuestionsGame extends React.Component {
     if (roomId && token) {
       this.state.socket.joinRoom(roomId, token).then((room) => {
         console.info(`Joined room #${roomId}:`, room);
-        user.room_id = room.id;
 
         this.setState({
           user: user,
@@ -103,48 +137,26 @@ class QuestionsGame extends React.Component {
         console.info(`Failed to join room #${roomId}:`, error.message);
         Room.resetLink();
 
-        this.setState({
-          user: user
-        });
+        this.setState({ user: user });
       });
-    } else {
-      this.setState({
-        user: user
-      });
-    }
-  }
-
-  onLogout = () => {
-    this.state.socket.emit("logout");
-
-    let user = this.state.user;
-    if (!user || user.logged_out) return;
-
-    user.logged_out = true;
-    user.room_id = null;
-
-    this.setState({
-      socket: null,
-      user: user,
-      room: null
-    });
-  }
+    } else this.setState({ user: user });
+  };
 
   componentDidMount() {
     setTimeout(function() {
-      this.setState({
-        canRender: true
-      });
+      this.setState({ canRender: true });
     }.bind(this), 1000);
     Api.getUser().then((user) => {
       console.info("User:", user);
 
-      this.setState({
-        socket: new Socket(user)
-      });
+      let socket = new Socket(user);
+      this.setState({ socket: socket });
 
-      this.state.socket.on("init", this.onLogin);
-      this.state.socket.on("logout", this.onLogout);
+      socket.on("init", this.onLogin);
+      socket.on("logout", this.onLogout);
+      socket.on("userJoined", this.onUserJoined);
+      socket.on("userUpdated", this.onUserUpdated);
+      socket.on("userLeft", this.onUserLeft);
     });
   }
 
@@ -166,11 +178,11 @@ class QuestionsGame extends React.Component {
           </WrapperContainer>
         }
         {stage < Stage.JOINED_ROOM &&
-          <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && !this.state.user.room_id}>
+          <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && !this.state.room}>
             <RoomSetup socket={this.state.socket} user={this.state.user} onComplete={this.startGame} />
           </WrapperContainer>
         }
-        <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && this.state.user.room_id}>
+        <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && this.state.room}>
           <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} />
         </WrapperContainer>
         <WrapperContainer visible={loggedOut}>

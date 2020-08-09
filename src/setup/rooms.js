@@ -83,6 +83,7 @@ class RoomCreationMenu extends React.Component {
     });
 
     this.props.socket.createRoom(visibility, votingMethod).then((room) => {
+      console.info("Created Room:", room);
       this.setState({
         stage: RoomCreationStage.CREATED,
         room: room
