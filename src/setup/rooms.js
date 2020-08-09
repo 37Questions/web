@@ -82,29 +82,18 @@ class RoomCreationMenu extends React.Component {
       stage: RoomCreationStage.LOADING
     });
 
-    this.props.socket.emit("createRoom", {
-      votingMethod: votingMethod,
-      visibility: visibility
-    }, (res) => {
-      if (res.error) {
-        console.warn("Failed to create room:", res.error);
-        return this.setState({
-          stage: RoomCreationStage.CONFIGURING,
-          warning: {
-            message: "Room Creation Failed: " + res.error
-          }
-        });
-      }
-      let room = res.room;
-      let url = window.location.href.split("?")[0];
-
-      room.link = url + `?room=${room.id}&token=${room.token}`;
-      window.history.pushState(null, null, room.link);
-
+    this.props.socket.createRoom(visibility, votingMethod).then((room) => {
       this.setState({
         stage: RoomCreationStage.CREATED,
         room: room
-      })
+      });
+    }).catch((error) => {
+      this.setState({
+        stage: RoomCreationStage.CONFIGURING,
+        warning: {
+          message: "Room Creation Failed: " + error.message
+        }
+      });
     });
   };
 

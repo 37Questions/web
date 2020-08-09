@@ -5,8 +5,9 @@ import Signup from "./setup/signup";
 import Api from "./api/api";
 import {LoadingScreen} from "./loading";
 import RoomSetup from "./setup/rooms";
+import Socket from "./api/socket";
 import './index.scss';
-import {createSocket} from "./api/socket";
+import Room from "./api/struct/room";
 
 function WrapperContainer(props) {
   return (
@@ -90,54 +91,47 @@ class QuestionsGame extends React.Component {
     }.bind(this), 1000);
     Api.getUser().then((user) => {
       console.info("User:", user);
-      let socket = createSocket(user);
+      let socket = new Socket(user);
+
+      this.setState({
+        socket: socket
+      });
 
       let roomId = getURLParam("room");
       let token = getURLParam("token");
 
       if (roomId && token) {
-        socket.emit("joinRoom", {
-          id: roomId,
-          token: token
-        }, (res) => {
-          if (res.error) {
-            let url = window.location.href.split("?")[0];
-            window.history.pushState(null, null, url);
-            console.info(`Failed to join room #${roomId}:`, res.error);
-            this.setState({
-              socket: socket,
-              user: user
-            });
-          } else {
-            user.room_id = res.room.id;
+        socket.joinRoom(roomId, token).then((room) => {
+          console.info(`Joined room #${roomId}:`, room);
+          user.room_id = room.id;
 
-            this.setState({
-              socket: socket,
-              user: user,
-              room: res.room
-            });
-          }
+          this.setState({
+            user: user,
+            room: room
+          });
+        }).catch((error) => {
+          console.info(`Failed to join room #${roomId}:`, error.message);
+          Room.resetLink();
+
+          this.setState({
+            user: user
+          });
         });
       } else if (user.room_id) {
-        socket.emit("rejoinRoom", {}, (res) => {
-          if (res.error) {
-            console.info(`Failed to rejoin room #${user.room_id}:`, res.error);
-            this.setState({
-              socket: socket,
-              user: user
-            });
-          } else {
-            console.info(`Rejoined room #${user.room_id}:`, res.room);
-            this.setState({
-              socket: socket,
-              user: user,
-              room: res.room
-            });
-          }
+        socket.rejoinRoom().then((room) => {
+          console.info(`Rejoined room #${user.room_id}:`, room);
+          this.setState({
+            user: user,
+            room: room
+          });
+        }).catch((error) => {
+          console.info(`Failed to rejoin room #${user.room_id}:`, error.message);
+          this.setState({
+            user: user
+          });
         });
       } else {
         this.setState({
-          socket: socket,
           user: user
         });
       }
