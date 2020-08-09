@@ -1,7 +1,7 @@
 import React, {createRef} from 'react';
 import Select from 'react-select';
 import SetupFooter from "./footer";
-import {LoadingSpinner} from "../loading";
+import {LoadingSpinner} from "../splash";
 import "./rooms.scss";
 
 const SELECT_OPTION = 0;

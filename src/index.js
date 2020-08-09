@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom';
 import Wrapper from './game/wrapper';
 import Signup from "./setup/signup";
 import Api from "./api/api";
-import {LoadingScreen} from "./loading";
+import {LoadingScreen, LogoutScreen} from "./splash";
 import RoomSetup from "./setup/rooms";
 import Socket from "./api/socket";
-import './index.scss';
 import Room from "./api/struct/room";
+import './index.scss';
 
 function WrapperContainer(props) {
   return (
@@ -83,6 +83,37 @@ class QuestionsGame extends React.Component {
     }
   };
 
+  rejoinRoom = (user) => {
+    if (user.room_id) {
+      this.state.socket.rejoinRoom().then((room) => {
+        console.info(`Rejoined room #${user.room_id}:`, room);
+        this.setState({
+          user: user,
+          room: room
+        });
+      }).catch((error) => {
+        console.info(`Failed to rejoin room #${user.room_id}:`, error.message);
+        this.setState({
+          user: user
+        });
+      });
+      return true;
+    } else return false;
+  }
+
+  onLogout = () => {
+    let user = this.state.user;
+    if (!user || user.logged_out) return;
+
+    user.logged_out = true;
+    user.room_id = null;
+
+    this.setState({
+      user: user,
+      room: null
+    });
+  }
+
   componentDidMount() {
     setTimeout(function() {
       this.setState({
@@ -91,17 +122,18 @@ class QuestionsGame extends React.Component {
     }.bind(this), 1000);
     Api.getUser().then((user) => {
       console.info("User:", user);
-      let socket = new Socket(user);
 
       this.setState({
-        socket: socket
+        socket: new Socket(user)
       });
+
+      this.state.socket.on("logout", this.onLogout);
 
       let roomId = getURLParam("room");
       let token = getURLParam("token");
 
       if (roomId && token) {
-        socket.joinRoom(roomId, token).then((room) => {
+        this.state.socket.joinRoom(roomId, token).then((room) => {
           console.info(`Joined room #${roomId}:`, room);
           user.room_id = room.id;
 
@@ -113,24 +145,13 @@ class QuestionsGame extends React.Component {
           console.info(`Failed to join room #${roomId}:`, error.message);
           Room.resetLink();
 
-          this.setState({
-            user: user
-          });
+          if (!this.rejoinRoom(user)) {
+            this.setState({
+              user: user
+            });
+          }
         });
-      } else if (user.room_id) {
-        socket.rejoinRoom().then((room) => {
-          console.info(`Rejoined room #${user.room_id}:`, room);
-          this.setState({
-            user: user,
-            room: room
-          });
-        }).catch((error) => {
-          console.info(`Failed to rejoin room #${user.room_id}:`, error.message);
-          this.setState({
-            user: user
-          });
-        });
-      } else {
+      } else if (!this.rejoinRoom(user)) {
         this.setState({
           user: user
         });
@@ -162,6 +183,11 @@ class QuestionsGame extends React.Component {
         <WrapperContainer visible={canRender && this.state.user.name && this.state.user.room_id}>
           <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} />
         </WrapperContainer>
+        {stage >= Stage.JOINED_ROOM &&
+          <WrapperContainer visible={canRender && this.state.user.logged_out}>
+            <LogoutScreen />
+          </WrapperContainer>
+        }
       </div>
     );
   }

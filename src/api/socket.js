@@ -26,6 +26,10 @@ class Socket {
     });
   }
 
+  on(message, callback) {
+    this.socket.on(message, callback);
+  }
+
   async createRoom(visibility, votingMethod) {
     return this.emit("createRoom", {
       visibility: visibility,

@@ -7,20 +7,13 @@ import SetupFooter from "./footer";
 const MIN_USERNAME_LENGTH = 3;
 
 class Signup extends React.Component {
-  constructor(props) {
-    super(props);
+  state = {
+    icons: [],
+    selectedIcon: null,
+    canSubmit: false
+  };
 
-    this.state = {
-      icons: [],
-      selectedIcon: null,
-      canSubmit: false
-    };
-
-    this.username = React.createRef();
-    this.selectIcon = this.selectIcon.bind(this);
-    this.onInput = this.onInput.bind(this);
-    this.submit = this.submit.bind(this);
-  }
+  username = React.createRef();
 
   componentDidMount() {
     Api.getIcons().then((icons) => {
@@ -30,7 +23,7 @@ class Signup extends React.Component {
     });
   }
 
-  selectIcon(icon) {
+  selectIcon = (icon) => {
     if (icon !== this.state.selectedIcon) {
       this.setState({
         selectedIcon: icon,
@@ -39,7 +32,7 @@ class Signup extends React.Component {
     }
   }
 
-  onInput() {
+  onInput = () => {
     if (this.state.selectedIcon && this.username.current.value.length >= MIN_USERNAME_LENGTH) {
       if (!this.state.canSubmit) {
         this.setState({
@@ -53,7 +46,15 @@ class Signup extends React.Component {
     }
   }
 
-  submit() {
+  onKeyDown = (e) => {
+    // If the enter key was pressed
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      this.submit();
+    }
+  };
+
+  submit = () => {
     if (!this.state.canSubmit) return;
 
     let username = this.username.current.value;
@@ -84,6 +85,7 @@ class Signup extends React.Component {
               placeholder="username..."
               ref={this.username}
               onInput={this.onInput}
+              onKeyDown={this.onKeyDown}
             />
             <p id="icon-hint">Choose an icon</p>
             <div id="icon-selection">

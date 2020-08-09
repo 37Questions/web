@@ -1,5 +1,5 @@
 import React from "react";
-import "./loading.scss";
+import "./splash.scss";
 
 function LoadingSpinner() {
   return (
@@ -13,7 +13,7 @@ function LoadingSpinner() {
 
 function LoadingScreen() {
   return (
-    <div className="loading-wrapper">
+    <div className="splash-wrapper loading-wrapper">
       <h1>37 Questions</h1>
       <h2>A game of wit and skill is loading...</h2>
       <br /><br />
@@ -22,4 +22,13 @@ function LoadingScreen() {
   );
 }
 
-export {LoadingScreen, LoadingSpinner};
+function LogoutScreen() {
+  return (
+    <div className="splash-wrapper logout-wrapper">
+      <h1>Logged Out</h1>
+      <h2>You can only play 37 Questions in one tab at a time!</h2>
+    </div>
+  );
+}
+
+export {LoadingScreen, LogoutScreen, LoadingSpinner};
