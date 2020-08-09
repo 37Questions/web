@@ -11,10 +11,6 @@ class Socket {
         token: user.token
       }
     });
-
-    this.socket.on("init", (data) => {
-      console.info("Socket Init:", data);
-    });
   }
 
   async emit(message, data = {}) {

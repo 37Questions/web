@@ -13,7 +13,7 @@ class Api {
       return fetch(Api.ENDPOINT + req, {method: "GET"}).then((res) => {
         return res.json().then((res) => {
           if (res.valid) {
-            return res.user;
+            return user;
           }
           console.warn("Cached user was invalid, attempting to create a new account");
           localStorage.removeItem(USER_KEY);

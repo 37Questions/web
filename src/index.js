@@ -83,25 +83,40 @@ class QuestionsGame extends React.Component {
     }
   };
 
-  rejoinRoom = (user) => {
-    if (user.room_id) {
-      this.state.socket.rejoinRoom().then((room) => {
-        console.info(`Rejoined room #${user.room_id}:`, room);
+  onLogin = (data) => {
+    console.info("Socket Init:", data);
+    let user = data.user;
+
+    let roomId = getURLParam("room");
+    let token = getURLParam("token");
+
+    if (roomId && token) {
+      this.state.socket.joinRoom(roomId, token).then((room) => {
+        console.info(`Joined room #${roomId}:`, room);
+        user.room_id = room.id;
+
         this.setState({
           user: user,
           room: room
         });
       }).catch((error) => {
-        console.info(`Failed to rejoin room #${user.room_id}:`, error.message);
+        console.info(`Failed to join room #${roomId}:`, error.message);
+        Room.resetLink();
+
         this.setState({
           user: user
         });
       });
-      return true;
-    } else return false;
+    } else {
+      this.setState({
+        user: user
+      });
+    }
   }
 
   onLogout = () => {
+    this.state.socket.emit("logout");
+
     let user = this.state.user;
     if (!user || user.logged_out) return;
 
@@ -109,6 +124,7 @@ class QuestionsGame extends React.Component {
     user.room_id = null;
 
     this.setState({
+      socket: null,
       user: user,
       room: null
     });
@@ -127,41 +143,15 @@ class QuestionsGame extends React.Component {
         socket: new Socket(user)
       });
 
+      this.state.socket.on("init", this.onLogin);
       this.state.socket.on("logout", this.onLogout);
-
-      let roomId = getURLParam("room");
-      let token = getURLParam("token");
-
-      if (roomId && token) {
-        this.state.socket.joinRoom(roomId, token).then((room) => {
-          console.info(`Joined room #${roomId}:`, room);
-          user.room_id = room.id;
-
-          this.setState({
-            user: user,
-            room: room
-          });
-        }).catch((error) => {
-          console.info(`Failed to join room #${roomId}:`, error.message);
-          Room.resetLink();
-
-          if (!this.rejoinRoom(user)) {
-            this.setState({
-              user: user
-            });
-          }
-        });
-      } else if (!this.rejoinRoom(user)) {
-        this.setState({
-          user: user
-        });
-      }
     });
   }
 
   render() {
     let canRender = this.state.canRender && this.state.user;
     let stage = this.state.stage;
+    let loggedOut = canRender && this.state.user && this.state.user.logged_out;
 
     return (
       <div id="app-wrapper">
@@ -171,23 +161,21 @@ class QuestionsGame extends React.Component {
           </WrapperContainer>
         }
         {stage < Stage.SIGNED_UP &&
-          <WrapperContainer visible={canRender && !this.state.user.name} onTransitionEnd={this.signupUpdate}>
+          <WrapperContainer visible={canRender && !loggedOut && !this.state.user.name} onTransitionEnd={this.signupUpdate}>
             <Signup user={this.state.user} onComplete={this.finishSignup} />
           </WrapperContainer>
         }
         {stage < Stage.JOINED_ROOM &&
-          <WrapperContainer visible={canRender && this.state.user.name && !this.state.user.room_id}>
+          <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && !this.state.user.room_id}>
             <RoomSetup socket={this.state.socket} user={this.state.user} onComplete={this.startGame} />
           </WrapperContainer>
         }
-        <WrapperContainer visible={canRender && this.state.user.name && this.state.user.room_id}>
+        <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && this.state.user.room_id}>
           <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} />
         </WrapperContainer>
-        {stage >= Stage.JOINED_ROOM &&
-          <WrapperContainer visible={canRender && this.state.user.logged_out}>
-            <LogoutScreen />
-          </WrapperContainer>
-        }
+        <WrapperContainer visible={loggedOut}>
+          <LogoutScreen />
+        </WrapperContainer>
       </div>
     );
   }
