@@ -6,7 +6,12 @@ class Chat extends React.Component {
   render() {
     return (
       <div className="panel-wrapper" id="chat-wrapper">
-        <p>Chat</p>
+        <div className="panel-header">
+          <h1>Chat</h1>
+        </div>
+        <div className="panel-content">
+
+        </div>
       </div>
     );
   }

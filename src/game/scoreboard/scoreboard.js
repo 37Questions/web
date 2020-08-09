@@ -11,17 +11,23 @@ class Scoreboard extends React.Component {
 
     return (
       <div className="panel-wrapper" id="scoreboard-wrapper">
-        <p>Scoreboard</p>
-        <div className="scoreboard-list">
+        <div className="panel-header">
+          <h1>Scoreboard</h1>
+        </div>
+        <div className="panel-content">
           {
             Object.keys(users).map((userId, key) => {
               let user = users[userId];
-              if (!user.name || !user.icon) return;
+              if (!user.name || !user.icon) return null;
 
               return (
                 <div className="scoreboard-user" key={key}>
-                  <Icon icon={user.icon} />
-                  {(`${user.id}: ${user.name} (${user.active ? "active" : "inactive"})`)}
+                  <Icon icon={user.icon} className="user-icon" />
+                  <div className="user-info">
+                    <div className="user-name">{user.name}</div>
+                    <div className="user-state">{(user.active ? "Active" : "Inactive")}</div>
+                  </div>
+                  <div className="user-score">{user.score}</div>
                 </div>
               );
             })

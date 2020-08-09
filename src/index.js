@@ -82,8 +82,8 @@ class QuestionsGame extends React.Component {
     }
   };
 
-  onLogout = () => {
-    this.state.socket.emit("logout");
+  onForcedLogout = () => {
+    this.state.socket.emit("forcedLogout");
 
     let user = this.state.user;
     if (!user || user.logged_out) return;
@@ -189,7 +189,7 @@ class QuestionsGame extends React.Component {
       this.setState({ socket: socket });
 
       socket.on("init", this.onLogin);
-      socket.on("logout", this.onLogout);
+      socket.on("forceLogout", this.onForcedLogout);
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);

@@ -1,9 +1,39 @@
 #scoreboard-wrapper {
-  .scoreboard-list {
+  .panel-content {
     .scoreboard-user {
       display: flex;
       justify-content: flex-start;
       align-items: center;
+
+      &:hover {
+        background-color: rgba(black, 0.1);
+      }
+
+      .user-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        margin: 5px;
+      }
+
+      .user-info {
+        flex: 2;
+
+        .user-name {
+          font-weight: 700;
+        }
+
+        .user-state {
+          font-weight: 300;
+        }
+      }
+
+      .user-score {
+        position: absolute;
+        font-size: 1.2em;
+        font-weight: 500;
+        right: 15px;
+      }
     }
   }
 }
