@@ -118,7 +118,7 @@ $cardHeight: 204px;
         $topColor: #fa3939;
         $bottomColor: #383838;
 
-        background-image: linear-gradient(-10deg, $topColor, $topColor 50%, $bottomColor 50%, $bottomColor);
+        background-image: linear-gradient(-10deg, $topColor, $topColor 49%, $bottomColor 51%, $bottomColor);
         background-size: cover;
         background-repeat: no-repeat;
 
@@ -132,7 +132,6 @@ $cardHeight: 204px;
           width: 100px;
           height: 100px;
 
-          border: 2px solid black;
           border-radius: 50%;
 
           display: flex;

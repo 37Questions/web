@@ -1,6 +1,7 @@
 #scoreboard-wrapper {
   .panel-scrollable {
     .scoreboard-user {
+      display: flex;
       align-items: center;
 
       .user-icon {

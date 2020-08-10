@@ -3,50 +3,185 @@
 #chat-wrapper {
   .chat-history {
     .chat-message {
+      position: relative;
+
       &:first-child {
         margin-top: auto !important;
       }
 
-      .message-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        margin: 5px;
-      }
+      .message-container {
+        display: flex;
 
-      .message-info {
-        .message-title {
-          display: flex;
-          align-items: flex-end;
-          font-size: 0.8em;
+        .message-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          margin: 5px;
+        }
 
-          .message-user {
-            margin-right: 5px;
-            font-weight: 700;
-            margin-top: 5px;
+        .message-info {
+          .message-title {
+            display: flex;
+            align-items: flex-end;
+            font-size: 0.8em;
+
+            .message-user {
+              margin-right: 5px;
+              font-weight: 700;
+              margin-top: 5px;
+            }
+
+            .message-time {
+              font-weight: 300;
+              color: rgba(black, 0.5);
+
+              @media (prefers-color-scheme: dark) {
+                color: rgba(white, 0.5);
+              }
+            }
           }
 
-          .message-time {
-            font-weight: 300;
-            color: rgba(black, 0.5);
+          .message-content {
+            color: rgba(black, 0.7);
 
             @media (prefers-color-scheme: dark) {
-              color: rgba(white, 0.5);
+              color: rgba(white, 0.7);
             }
           }
         }
+      }
 
-        .message-content {
-          color: rgba(black, 0.7);
+      .message-actions-container {
+        position: absolute;
+        top: 0;
+        right: 5px;
+        transform: translateY(-50%);
 
-          @media (prefers-color-scheme: dark) {
-            color: rgba(white, 0.7);
+        visibility: hidden;
+
+        $borderRadius: 5px;
+
+        border-radius: $borderRadius;
+        border: 1px solid rgba(black, 0.2);
+
+        @media (prefers-color-scheme: dark) {
+          border-color: rgba(black, 0.4);
+        }
+
+        background-color: $lightSidebarColor;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: $darkBackgroundColor;
+        }
+
+        transition: box-shadow 0.1s ease;
+
+        &:hover {
+          box-shadow: 0 3px 10px rgba(black, 0.2);
+        }
+
+        .message-actions {
+          display: flex;
+
+          .message-action {
+            $iconSize: 30px;
+
+            &:first-child .message-action-icon-container {
+              border-top-left-radius: $borderRadius;
+              border-bottom-left-radius: $borderRadius;
+            }
+
+            &:last-child .message-action-icon-container {
+              border-top-right-radius: $borderRadius;
+              border-bottom-right-radius: $borderRadius;
+            }
+
+            .message-action-icon-container {
+              box-sizing: border-box;
+
+              color: rgba(black, 0.7);
+
+              @media (prefers-color-scheme: dark) {
+                color: rgba(white, 0.7);
+              }
+
+              width: $iconSize;
+              height: $iconSize;
+
+              display: flex;
+              justify-content: center;
+              align-items: center;
+
+              cursor: pointer;
+
+              &:hover {
+                background-color: rgba(black, 0.08);
+
+                @media (prefers-color-scheme: dark) {
+                  background-color: rgba(white, 0.1);
+                }
+              }
+            }
+
+            .message-action-title-container {
+              box-sizing: border-box;
+
+              position: absolute;
+              top: -8px;
+              transform: translateY(-100%) translateX(calc(-50% + #{$iconSize / 2}));
+
+              background-color: black;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+
+              box-shadow: 0 3px 10px rgba(black, 0.3);
+              border-radius: 5px;
+
+              visibility: hidden;
+              opacity: 0;
+
+              transition: visibility 0.1s ease, opacity 0.1s ease;
+
+              &:before, &:after {
+                content: "";
+                position: absolute;
+                bottom: -5px;
+                z-index: 12;
+                width: 0;
+                height: 0;
+                border: solid 5px transparent;
+                border-bottom: 0;
+                border-top-color: black;
+              }
+
+              .message-action-title {
+                color: $lightTextColor;
+                text-align: right;
+                padding: 5px 6px;
+                font-size: 0.9em;
+                font-weight: 500;
+              }
+            }
+
+            &.hovered {
+              .message-action-title-container {
+                visibility: visible;
+                opacity: 1;
+              }
+            }
           }
+        }
+      }
+
+      &:hover {
+        .message-actions-container {
+          visibility: visible;
         }
       }
 
       &.system-msg {
-        .message-content {
+        .message-container .message-content {
           color: rgba(black, 0.5);
 
           @media (prefers-color-scheme: dark) {
@@ -56,8 +191,10 @@
       }
     }
   }
+
   #chat-input-container {
     margin: 10px;
+
     #chat-input {
       box-sizing: border-box;
       width: 100%;
