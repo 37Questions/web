@@ -112,8 +112,10 @@ class QuestionsGame extends React.Component {
     let room = this.state.room;
     if (!room) return console.warn(`Received join data when not in a room:`, this.state);
 
-    console.info(`User #${user.id} joined the room:`, user);
+    console.info(`User #${user.id} joined the room:`, data);
     room.users[user.id] = user;
+
+    if (data.message) room.addMessage(data.message);
 
     this.setState({ room: room });
   };
@@ -137,7 +139,8 @@ class QuestionsGame extends React.Component {
       if (userName) user.name = userName;
       if (userIcon) user.icon = userIcon;
 
-      console.info(`Updated user #${userId}:`, user);
+      console.info(`Updated user #${userId}:`, data);
+      if (data.message) room.addMessage(data.message);
 
       this.setState({
         room: room
@@ -157,8 +160,7 @@ class QuestionsGame extends React.Component {
     if (data.message) room.addMessage(data.message);
 
     room.users[userId].active = false;
-    console.info(`User #${userId} left:`, room.users[userId]);
-
+    console.info(`User #${userId} left:`, data);
 
     this.setState({
       room: room

@@ -36,6 +36,7 @@
     .scrollable-item {
       display: flex;
       width: calc(100% - 5px);
+      flex-shrink: 0;
 
       &:hover {
         background-color: rgba(black, 0.1);
