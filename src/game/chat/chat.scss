@@ -24,6 +24,7 @@
   .chat-history {
     .chat-message {
       position: relative;
+      margin-top: 10px;
 
       &:first-child {
         margin-top: auto !important;
@@ -37,6 +38,23 @@
           height: 40px;
           border-radius: 10px;
           margin: 5px;
+        }
+
+        .chained-msg-time-container {
+          width: 45px;
+          margin-top: 7px;
+          margin-left: 5px;
+          visibility: hidden;
+
+          .chained-msg-time {
+            font-size: 0.60em;
+            font-weight: 300;
+            color: rgba(black, 0.5);
+
+            @media (prefers-color-scheme: dark) {
+              color: rgba(white, 0.5);
+            }
+          }
         }
 
         .message-info {
@@ -64,7 +82,7 @@
           }
 
           .message-content {
-            padding-right: 5px;
+            padding: 3px 5px 3px 0;
 
             color: rgba(black, 0.7);
 
@@ -232,6 +250,10 @@
       }
 
       &:hover {
+        .chained-msg-time-container {
+          visibility: visible;
+        }
+
         .message-actions-container {
           visibility: visible;
         }
@@ -245,6 +267,10 @@
             color: rgba(white, 0.4);
           }
         }
+      }
+
+      &.chained-msg {
+        margin-top: 0;
       }
     }
   }

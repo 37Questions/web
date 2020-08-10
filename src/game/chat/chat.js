@@ -31,22 +31,33 @@ class Message extends React.Component {
   constructor(props) {
     super(props);
 
-    let today = this.props.today;
     let createdAt = new Date(this.props.message.created_at * 1000);
+
+    let today = this.props.today;
 
     if (today.year === createdAt.getFullYear() && today.month === createdAt.getMonth()) {
       let msgDate = createdAt.getDate()
       if (today.date === msgDate || today.date - 1 === msgDate) {
-        let prefix = (today.date === msgDate) ? "Today" : "Yesterday";
-        this.timeString = prefix + " at " + createdAt.toLocaleTimeString("en-US", {
+        this.timeString = createdAt.toLocaleTimeString("en-US", {
           hour: "numeric",
           minute: "numeric",
           hour12: true
         });
+
+        if (!this.props.message.isChained) {
+          let prefix = (today.date === msgDate) ? "Today" : "Yesterday";
+          this.timeString = prefix + " at " + this.timeString;
+        }
       }
     }
 
-    if (!this.timeString) this.timeString = createdAt.toLocaleDateString();
+    if (!this.timeString) {
+      this.timeString = createdAt.toLocaleDateString("en-US", {
+        year: this.props.message.isChained? "2-digit" : "numeric",
+        month: "numeric",
+        day: "numeric"
+      });
+    }
   }
 
   editingInput = React.createRef();
@@ -88,7 +99,29 @@ class Message extends React.Component {
     let user = this.props.user;
     let editing = this.props.currentlyEditing;
 
+    let messageIcon = <Icon icon={user.icon} className="message-icon" />;
     let messageContent = <div className="message-content">{message.body}</div>;
+
+    let messageClass = "scrollable-item chat-message " + (message.isSystemMsg ? "system-msg" : "user-msg");
+
+    let messageTitle = (
+      <div className="message-title">
+        <div className="message-user">{user.name}</div>
+        <div className="message-time">{this.timeString}</div>
+      </div>
+    );
+
+    if (message.isChained) {
+      messageIcon = (
+        <div className="chained-msg-time-container">
+          <div className="chained-msg-time">
+            {this.timeString}
+          </div>
+        </div>
+      );
+      messageTitle = null;
+      messageClass += " chained-msg";
+    }
 
     if (editing) {
       messageContent = (
@@ -115,14 +148,11 @@ class Message extends React.Component {
     }
 
     return (
-      <div className={"scrollable-item chat-message " + (message.isSystemMsg ? "system-msg" : "user-msg")}>
+      <div className={messageClass}>
         <div className="message-container">
-          <Icon icon={user.icon} className="message-icon" />
+          {messageIcon}
           <div className="message-info">
-            <div className="message-title">
-              <div className="message-user">{user.name}</div>
-              <div className="message-time">{this.timeString}</div>
-            </div>
+            {messageTitle}
             {messageContent}
           </div>
         </div>
