@@ -53,7 +53,7 @@ class Message extends React.Component {
 
     if (!this.timeString) {
       this.timeString = createdAt.toLocaleDateString("en-US", {
-        year: this.props.message.isChained? "2-digit" : "numeric",
+        year: this.props.message.isChained ? "2-digit" : "numeric",
         month: "numeric",
         day: "numeric"
       });
@@ -61,6 +61,10 @@ class Message extends React.Component {
   }
 
   editingInput = React.createRef();
+
+  state = {
+    hovered: false
+  };
 
   saveEdit = () => {
     let input = this.editingInput.current;
@@ -94,15 +98,23 @@ class Message extends React.Component {
     });
   }
 
+  setHovered = (hovered) => {
+    if (this.state.hovered === hovered) return;
+    this.setState({hovered: hovered});
+  }
+
   render = () => {
     let message = this.props.message;
     let user = this.props.user;
+
     let editing = this.props.currentlyEditing;
+    let hovered = this.state.hovered;
 
     let messageIcon = <Icon icon={user.icon} className="message-icon" />;
     let messageContent = <div className="message-content">{message.body}</div>;
 
     let messageClass = "scrollable-item chat-message " + (message.isSystemMsg ? "system-msg" : "user-msg");
+    if (hovered) messageClass += " hovered";
 
     let messageTitle = (
       <div className="message-title">
@@ -114,9 +126,11 @@ class Message extends React.Component {
     if (message.isChained) {
       messageIcon = (
         <div className="chained-msg-time-container">
-          <div className="chained-msg-time">
-            {this.timeString}
-          </div>
+          {hovered &&
+            <div className="chained-msg-time">
+              {this.timeString}
+            </div>
+          }
         </div>
       );
       messageTitle = null;
@@ -148,7 +162,11 @@ class Message extends React.Component {
     }
 
     return (
-      <div className={messageClass}>
+      <div
+        className={messageClass}
+        onMouseEnter={() => this.setHovered(true)}
+        onMouseLeave={() => this.setHovered(false)}
+      >
         <div className="message-container">
           {messageIcon}
           <div className="message-info">
@@ -156,7 +174,7 @@ class Message extends React.Component {
             {messageContent}
           </div>
         </div>
-        {!editing && !message.isSystemMsg &&
+        {hovered && !editing && !message.isSystemMsg &&
           <div className="message-actions-container">
             <div className="message-actions">
               <MessageAction icon="heart" title="Like" />
