@@ -17,6 +17,7 @@ function MessageAction(props) {
         className="message-action-icon-container"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        onClick={props.onClick}
       >
         <div className="message-action-icon">
           <i className={"fas fa-" + props.icon} />
@@ -48,9 +49,70 @@ class Message extends React.Component {
     if (!this.timeString) this.timeString = createdAt.toLocaleDateString();
   }
 
+  editingInput = React.createRef();
+
+  saveEdit = () => {
+    let input = this.editingInput.current;
+    if (!input) return console.warn("Tried to save edit but the input ref was null!");
+
+    let body = input.value;
+    if (body.length < 1) return;
+
+    this.props.saveEdit(body);
+  }
+
+  onInput = (e) => {
+    if (e.keyCode === 13) {
+      // Enter key was pressed
+      e.preventDefault();
+      this.saveEdit();
+    } else if (e.keyCode === 27) {
+      // Escape key was pressed
+      e.preventDefault();
+      this.props.setEditing(false);
+    }
+  }
+
+  startEditing = () => {
+    this.props.setEditing(true, () => {
+      let input = this.editingInput.current;
+      if (!input) return console.warn("Failed to focus textarea when starting editing");
+
+      input.focus();
+      input.selectionStart = input.selectionEnd = input.value.length;
+    });
+  }
+
   render = () => {
     let message = this.props.message;
     let user = this.props.user;
+    let editing = this.props.currentlyEditing;
+
+    let messageContent = <div className="message-content">{message.body}</div>;
+
+    if (editing) {
+      messageContent = (
+        <div className="editable-message-content">
+          <TextareaAutosize
+            className="text-input edit-message-input"
+            maxLength={200}
+            onKeyDown={this.onInput}
+            defaultValue={message.body}
+            async={true}
+            ref={this.editingInput}
+          />
+          <div className="edit-message-footer">
+            <div className="text-container">
+              escape to <span className="link" onClick={() => this.props.setEditing(false)}>cancel</span>
+            </div>
+            <div className="divider-icon"><i className="fas fa-circle" /></div>
+            <div className="text-container">
+              enter to <span className="link" onClick={this.saveEdit}>save</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className={"scrollable-item chat-message " + (message.isSystemMsg ? "system-msg" : "user-msg")}>
@@ -61,24 +123,30 @@ class Message extends React.Component {
               <div className="message-user">{user.name}</div>
               <div className="message-time">{this.timeString}</div>
             </div>
-            <div className="message-content">{message.body}</div>
+            {messageContent}
           </div>
         </div>
-        {!message.isSystemMsg &&
+        {!editing && !message.isSystemMsg &&
           <div className="message-actions-container">
             <div className="message-actions">
               <MessageAction icon="heart" title="Like" />
-              {this.props.postedBySelf && <MessageAction icon="pencil" title="Edit" />}
+              {this.props.postedBySelf &&
+                <MessageAction icon="pencil" title="Edit" onClick={this.startEditing} />
+              }
               <MessageAction icon="ellipsis-h" title="More" />
             </div>
           </div>
         }
       </div>
     );
-  }
+  };
 }
 
 class Chat extends React.Component {
+  state = {
+    editingMessageId: null
+  };
+
   chatEndRef = React.createRef();
 
   onInput = (e) => {
@@ -99,12 +167,61 @@ class Chat extends React.Component {
     }
   }
 
-  render() {
+  setEditingMessage = (message, editing, fn) => {
+    if (message.user_id === this.props.user.id) {
+      this.setState({
+        editingMessageId: editing ? message.id : null
+      }, fn);
+    }
+  };
+
+  editMessage = (message, body) => {
+    if (!this.state.editingMessageId || this.state.editingMessageId !== message.id) {
+      console.warn(`Tried to edit message ${message.id} when in invalid state:`, this.state);
+    }
+
+    let oldBody = message.body;
+
+    let room = this.props.room;
+
+    message.body = body;
+    room.messages[message.id] = message;
+
+    this.setState({
+      editingMessageId: null,
+      room: room
+    });
+
+    this.props.socket.editMessage(message.id, body).then((newMessage) => {
+      if (newMessage.id !== message.id) throw new Error("ID Mismatch");
+      if (newMessage.user_id !== message.user_id) throw new Error("User Mismatch");
+      if (newMessage.room_id !== message.room_id) throw new Error("Room Mismatch");
+      if (!!newMessage.isSystemMsg !== !!message.isSystemMsg) throw new Error("Message Type Mismatch");
+
+      if (newMessage.body !== message.body) {
+        let room = this.props.room;
+        room.messages[newMessage.id] = newMessage;
+
+        this.setState({room: room});
+      }
+    }).catch((error) => {
+      console.warn(`Failed to edit message #${message.id}:`, error.message);
+
+      let room = this.props.room;
+      room.messages[message.id].body = oldBody;
+
+      this.setState({room: room});
+    })
+  };
+
+  render = () => {
     if (!this.props.room) return null;
 
     let users = this.props.room.users;
     let messages = this.props.room.messages;
+
     let ownUserId = this.props.user.id;
+    let editingMessageId = this.state.editingMessageId;
 
     let date = new Date();
     let today = {
@@ -127,8 +244,20 @@ class Chat extends React.Component {
               let user = users[message.user_id];
 
               let postedBySelf = user.id === ownUserId;
+              let currentlyEditing = editingMessageId === message.id;
 
-              return <Message key={key} message={message} user={user} today={today} postedBySelf={postedBySelf} />;
+              return (
+                <Message
+                  key={key}
+                  message={message}
+                  user={user}
+                  today={today}
+                  postedBySelf={postedBySelf}
+                  currentlyEditing={currentlyEditing}
+                  setEditing={(editing, fn) => this.setEditingMessage(message, editing, fn)}
+                  saveEdit={(body) => this.editMessage(message, body)}
+                />
+              );
             })
           }
           <div ref={this.chatEndRef} />
@@ -136,6 +265,7 @@ class Chat extends React.Component {
         <div id="chat-input-container">
           <TextareaAutosize
             id="chat-input"
+            className="text-input"
             placeholder="Type a message..."
             maxLength={200}
             onKeyDown={this.onInput}

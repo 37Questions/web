@@ -52,7 +52,15 @@ class Socket {
     return this.emit("sendMessage", {
       body: body
     }).then((res) => {
-      if (res.error) throw new Error(res.error);
+      return res.message;
+    })
+  }
+
+  async editMessage(id, body) {
+    return this.emit("editMessage", {
+      id: id,
+      body: body
+    }).then((res) => {
       return res.message;
     })
   }

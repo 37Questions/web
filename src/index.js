@@ -46,7 +46,7 @@ class QuestionsGame extends React.Component {
       let stage = Stage.LOADED;
       if (this.state.user.name) stage = this.state.room ? Stage.JOINED_ROOM : Stage.SIGNED_UP;
 
-      this.setState({ stage: stage });
+      this.setState({stage: stage});
     }
   };
 
@@ -117,7 +117,7 @@ class QuestionsGame extends React.Component {
 
     if (data.message) room.addMessage(data.message);
 
-    this.setState({ room: room });
+    this.setState({room: room});
   };
 
   onUserUpdated = (data) => {
@@ -142,9 +142,7 @@ class QuestionsGame extends React.Component {
       console.info(`Updated user #${userId}:`, data);
       if (data.message) room.addMessage(data.message);
 
-      this.setState({
-        room: room
-      });
+      this.setState({room: room});
     }
   };
 
@@ -162,12 +160,10 @@ class QuestionsGame extends React.Component {
     room.users[userId].active = false;
     console.info(`User #${userId} left:`, data);
 
-    this.setState({
-      room: room
-    });
+    this.setState({room: room});
   };
 
-  onChatMessage = (data) => {
+  onMessageSent = (data) => {
     let room = this.state.room;
     if (!room) return console.warn(`Received chat message when not in a room:`, this.state);
 
@@ -178,9 +174,26 @@ class QuestionsGame extends React.Component {
 
     room.addMessage(data.message);
 
-    this.setState({
-      room: room
-    });
+    this.setState({room: room});
+  }
+
+  onMessageEdited = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received chat message when not in a room:`, this.state);
+
+    let userId = data.message.user_id;
+    if (!room.users.hasOwnProperty(userId)) {
+      return console.warn(`Received edited message from unknown user #${userId}:`, data, room.users)
+    }
+
+    let message = data.message;
+    if (!room.messages.hasOwnProperty(message.id)) {
+      return console.warn(`Received edited message that was not previously recorded:`, data);
+    }
+
+    room.messages[message.id] = message;
+
+    this.setState({room: room});
   }
 
   onLogin = (data) => {
@@ -201,27 +214,28 @@ class QuestionsGame extends React.Component {
         console.info(`Failed to join room #${roomId}:`, error.message);
         Room.resetLink();
 
-        this.setState({ user: user });
+        this.setState({user: user});
       });
-    } else this.setState({ user: user });
+    } else this.setState({user: user});
   };
 
   componentDidMount() {
-    setTimeout(function() {
-      this.setState({ canRender: true });
+    setTimeout(function () {
+      this.setState({canRender: true});
     }.bind(this), 1000);
     Api.getUser().then((user) => {
       console.info("User:", user);
 
       let socket = new Socket(user);
-      this.setState({ socket: socket });
+      this.setState({socket: socket});
 
       socket.on("init", this.onLogin);
       socket.on("forceLogout", this.onForcedLogout);
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
-      socket.on("chatMessage", this.onChatMessage);
+      socket.on("messageSent", this.onMessageSent);
+      socket.on("messageEdited", this.onMessageEdited);
     });
   }
 
@@ -233,30 +247,33 @@ class QuestionsGame extends React.Component {
     return (
       <div id="app-wrapper">
         {stage < Stage.LOADED &&
-          <WrapperContainer visible={!this.state.user} onTransitionEnd={this.loadingUpdate} >
-            <LoadingScreen />
-          </WrapperContainer>
+        <WrapperContainer visible={!this.state.user} onTransitionEnd={this.loadingUpdate}>
+          <LoadingScreen/>
+        </WrapperContainer>
         }
         {stage < Stage.SIGNED_UP &&
-          <WrapperContainer visible={canRender && !loggedOut && !this.state.user.name} onTransitionEnd={this.signupUpdate}>
-            <Signup user={this.state.user} onComplete={this.finishSignup} />
-          </WrapperContainer>
+        <WrapperContainer visible={canRender && !loggedOut && !this.state.user.name}
+                          onTransitionEnd={this.signupUpdate}>
+          <Signup user={this.state.user} onComplete={this.finishSignup}/>
+        </WrapperContainer>
         }
         {stage < Stage.JOINED_ROOM &&
-          <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && (!this.state.room || !this.state.room.finishedCreation)}>
-            <RoomSetup
-              socket={this.state.socket}
-              user={this.state.user}
-              onRoomCreated={this.setRoom}
-              onComplete={this.startGame}
-            />
-          </WrapperContainer>
+        <WrapperContainer
+          visible={canRender && !loggedOut && this.state.user.name && (!this.state.room || !this.state.room.finishedCreation)}>
+          <RoomSetup
+            socket={this.state.socket}
+            user={this.state.user}
+            onRoomCreated={this.setRoom}
+            onComplete={this.startGame}
+          />
+        </WrapperContainer>
         }
-        <WrapperContainer visible={canRender && !loggedOut && this.state.user.name && this.state.room && this.state.room.finishedCreation}>
-          <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} />
+        <WrapperContainer
+          visible={canRender && !loggedOut && this.state.user.name && this.state.room && this.state.room.finishedCreation}>
+          <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room}/>
         </WrapperContainer>
         <WrapperContainer visible={loggedOut}>
-          <LogoutScreen />
+          <LogoutScreen/>
         </WrapperContainer>
       </div>
     );
@@ -265,7 +282,7 @@ class QuestionsGame extends React.Component {
 
 ReactDOM.render(
   <React.StrictMode>
-    <QuestionsGame />
+    <QuestionsGame/>
   </React.StrictMode>,
   document.getElementById('root')
 );
