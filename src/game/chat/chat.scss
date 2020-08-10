@@ -1,7 +1,7 @@
 @import "../../theme";
 
 #chat-wrapper {
-  #chat-history {
+  .chat-history {
     .chat-message {
       &:first-child {
         margin-top: auto !important;

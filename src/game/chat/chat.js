@@ -1,10 +1,13 @@
 import React from "react";
 import TextareaAutosize from 'react-textarea-autosize';
+import ScrollableFeed from "react-scrollable-feed";
+import Icon from "../../setup/icon";
 import "../panel.scss";
 import "./chat.scss";
-import Icon from "../../setup/icon";
 
 class Chat extends React.Component {
+  chatEndRef = React.createRef();
+
   onInput = (e) => {
     // Enter key is pressed
     if (e.keyCode === 13) {
@@ -15,6 +18,7 @@ class Chat extends React.Component {
       this.props.socket.sendMessage(body).then((message) => {
         this.props.room.addMessage(message);
         this.setState({});
+        this.chatEndRef.current.scrollIntoView();
       }).catch((error) => {
         console.warn(`Failed to send message:`, error);
       })
@@ -38,7 +42,7 @@ class Chat extends React.Component {
         <div className="panel-header" id="chat-header">
           <h1>Chat</h1>
         </div>
-        <div className="panel-scrollable" id="chat-history">
+        <ScrollableFeed className="panel-scrollable chat-history">
           {
             Object.keys(messages).map((messageId, key) => {
               let message = messages[messageId];
@@ -78,7 +82,8 @@ class Chat extends React.Component {
               );
             })
           }
-        </div>
+          <div ref={this.chatEndRef} />
+        </ScrollableFeed>
         <div id="chat-input-container">
           <TextareaAutosize
             id="chat-input"
