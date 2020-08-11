@@ -90,6 +90,29 @@ class QuestionsGame extends React.Component {
     }
   };
 
+  onLogin = (data) => {
+    console.info("Socket Init:", data);
+    let user = data.user;
+
+    let roomId = getURLParam("room");
+    let token = getURLParam("token");
+
+    if (roomId && token) {
+      this.state.socket.joinRoom(roomId, token).then((room) => {
+        console.info(`Joined room #${roomId}:`, room);
+        this.setState({
+          user: user,
+          room: room
+        });
+      }).catch((error) => {
+        console.info(`Failed to join room #${roomId}:`, error.message);
+        Room.resetLink();
+
+        this.setState({user: user});
+      });
+    } else this.setState({user: user});
+  };
+
   onForcedLogout = () => {
     this.state.socket.emit("forcedLogout");
 
@@ -173,7 +196,6 @@ class QuestionsGame extends React.Component {
     }
 
     room.addMessage(data.message);
-
     this.setState({room: room});
   }
 
@@ -191,33 +213,49 @@ class QuestionsGame extends React.Component {
       return console.warn(`Received edited message that was not previously recorded:`, data);
     }
 
-    room.messages[message.id] = message;
-
+    room.messages[message.id].body = message.body;
     this.setState({room: room});
   }
 
-  onLogin = (data) => {
-    console.info("Socket Init:", data);
-    let user = data.user;
+  onMessageLiked = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received message like when not in a room:`, this.state);
 
-    let roomId = getURLParam("room");
-    let token = getURLParam("token");
+    let messageId = data.message_id;
+    if (!room.messages.hasOwnProperty(messageId)) {
+      return console.warn(`Received like for unknown message #${messageId}:`, data);
+    }
 
-    if (roomId && token) {
-      this.state.socket.joinRoom(roomId, token).then((room) => {
-        console.info(`Joined room #${roomId}:`, room);
-        this.setState({
-          user: user,
-          room: room
-        });
-      }).catch((error) => {
-        console.info(`Failed to join room #${roomId}:`, error.message);
-        Room.resetLink();
+    let message = room.messages[messageId];
+    let like = data.like;
 
-        this.setState({user: user});
-      });
-    } else this.setState({user: user});
+    if (message.likes.hasOwnProperty(like.user_id)) {
+      return console.warn(`Received like for message #${messageId} by user #${like.user_id} that was already recorded:`, message);
+    }
+
+    message.likes[like.user_id] = like;
+    this.setState({room: room});
   };
+
+  onMessageUnliked = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received message unlike when not in a room:`, this.state);
+
+    let messageId = data.message_id;
+    if (!room.messages.hasOwnProperty(messageId)) {
+      return console.warn(`Received unlike for unknown message #${messageId}:`, data);
+    }
+
+    let message = room.messages[messageId];
+    let userId = data.user_id;
+
+    if (!message.likes.hasOwnProperty(userId)) {
+      return console.warn(`Received unlike for message #${messageId} by user #${userId}, but no like was recorded:`, message);
+    }
+
+    delete message.likes[userId];
+    this.setState({room: room});
+  }
 
   componentDidMount() {
     setTimeout(function () {
@@ -231,11 +269,15 @@ class QuestionsGame extends React.Component {
 
       socket.on("init", this.onLogin);
       socket.on("forceLogout", this.onForcedLogout);
+
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
+
       socket.on("messageSent", this.onMessageSent);
       socket.on("messageEdited", this.onMessageEdited);
+      socket.on("messageLiked", this.onMessageLiked);
+      socket.on("messageUnliked", this.onMessageUnliked);
     });
   }
 

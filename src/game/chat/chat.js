@@ -8,6 +8,11 @@ import "./chat.scss";
 function MessageAction(props) {
   const [hovered, setHovered] = React.useState(false);
 
+  const onClick = () => {
+    //setHovered(false);
+    if (props.onClick) props.onClick();
+  }
+
   return (
     <div className={"message-action" + (hovered ? " hovered" : "")}>
       <div className="message-action-title-container">
@@ -17,10 +22,10 @@ function MessageAction(props) {
         className="message-action-icon-container"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={props.onClick}
+        onClick={onClick}
       >
         <div className="message-action-icon">
-          <i className={"fas fa-" + props.icon} />
+          <i className={"fa" + (props.type || "s") + " fa-" + props.icon} />
         </div>
       </div>
     </div>
@@ -103,11 +108,18 @@ class Message extends React.Component {
     this.setState({hovered: hovered});
   }
 
+  toggleLiked = () => {
+    if (this.props.likedBySelf) this.props.removeLike();
+    else this.props.addLike();
+  }
+
   render = () => {
     let message = this.props.message;
-    let user = this.props.user;
+    let users = this.props.users;
+    let user = users[this.props.userId];
 
     let editing = this.props.currentlyEditing;
+    let likedBySelf = this.props.likedBySelf;
     let hovered = this.state.hovered;
 
     let messageIcon = <Icon icon={user.icon} className="message-icon" />;
@@ -161,6 +173,8 @@ class Message extends React.Component {
       );
     }
 
+    let likeKeys = Object.keys(message.likes);
+
     return (
       <div
         className={messageClass}
@@ -174,14 +188,41 @@ class Message extends React.Component {
             {messageContent}
           </div>
         </div>
-        {hovered && !editing && !message.isSystemMsg &&
+        {hovered && !message.isSystemMsg && !editing &&
           <div className="message-actions-container">
             <div className="message-actions">
-              <MessageAction icon="heart" title="Like" />
+              {!likedBySelf && <MessageAction icon="heart" title="Like" onClick={this.props.addLike} />}
+              {likedBySelf && <MessageAction icon="heart" type="r" title="Unlike" onClick={this.props.removeLike} />}
               {this.props.postedBySelf &&
                 <MessageAction icon="pencil" title="Edit" onClick={this.startEditing} />
               }
               <MessageAction icon="ellipsis-h" title="More" />
+            </div>
+          </div>
+        }
+        {likeKeys.length > 0 &&
+          <div className="message-likes-container">
+            <div className="message-likes">
+              <div className="heart-icon-container">
+                <div
+                  className={"heart-icon" + (likedBySelf ? " filled" : "")}
+                  onClick={this.toggleLiked}
+                  title={(likedBySelf ? "Unlike Message" : "Like Message")}
+                >
+                  <i className="fas fa-heart" />
+                </div>
+              </div>
+              {
+                likeKeys.map((userId) => {
+                  let likeUser = users[userId];
+
+                  return (
+                    <div className="like-container" key={userId} title={"Liked by " + likeUser.name}>
+                      <Icon className="like" icon={likeUser.icon} />
+                    </div>
+                  );
+                })
+              }
             </div>
           </div>
         }
@@ -209,7 +250,7 @@ class Chat extends React.Component {
         this.setState({});
         this.chatEndRef.current.scrollIntoView();
       }).catch((error) => {
-        console.warn(`Failed to send message:`, error);
+        console.warn(`Failed to send message:`, error.message);
       })
       e.target.value = "";
     }
@@ -243,7 +284,6 @@ class Chat extends React.Component {
     this.props.socket.editMessage(message.id, body).then((newMessage) => {
       if (newMessage.id !== message.id) throw new Error("ID Mismatch");
       if (newMessage.user_id !== message.user_id) throw new Error("User Mismatch");
-      if (newMessage.room_id !== message.room_id) throw new Error("Room Mismatch");
       if (!!newMessage.isSystemMsg !== !!message.isSystemMsg) throw new Error("Message Type Mismatch");
 
       if (newMessage.body !== message.body) {
@@ -259,8 +299,54 @@ class Chat extends React.Component {
       room.messages[message.id].body = oldBody;
 
       this.setState({room: room});
+    });
+  };
+
+  likeMessage = (message) => {
+    let userId = this.props.user.id;
+    let messageId = message.id;
+
+    let curLiked = message.likes.hasOwnProperty(userId);
+    if (curLiked) return console.warn(`Tried to like message which was already liked:`, message);
+
+    message.likes[this.props.user.id] = {
+      user_id: userId,
+      since: Math.floor(new Date().getTime() / 1000)
+    };
+
+    this.setState({});
+
+    this.props.socket.likeMessage(messageId).then((like) => {
+      console.info(`Liked message #${messageId}:`, like);
+    }).catch((error) => {
+      console.warn(`Failed to like message #${messageId}:`, error.message);
+      let message = this.props.room.messages[messageId];
+      delete message.likes[userId];
+      this.setState({})
     })
   };
+
+  unlikeMessage = (message) => {
+    let userId = this.props.user.id;
+    let messageId = message.id;
+
+    let existingLike = message.likes[userId];
+    if (!existingLike) return console.warn(`Tried to unlike message that wasn't already liked:`, message);
+
+    delete message.likes[userId];
+    this.setState({});
+
+    console.info(`Deleted like from message #${messageId}:`, existingLike);
+
+    this.props.socket.unlikeMessage(messageId).then((success) => {
+      console.info(`Unliked message #${messageId}:`, success);
+    }).catch((error) => {
+      console.warn(`Failed to unlike message #${messageId}:`, error.message);
+      let message = this.props.room.messages[messageId];
+      message.likes[userId] = existingLike;
+      this.setState({})
+    });
+  }
 
   render = () => {
     if (!this.props.room) return null;
@@ -288,22 +374,28 @@ class Chat extends React.Component {
             Object.keys(messages).map((messageId, key) => {
               let message = messages[messageId];
 
-              if (!users.hasOwnProperty(message.user_id)) return null;
-              let user = users[message.user_id];
+              let userId = message.user_id;
+              if (!users.hasOwnProperty(userId)) return null;
 
-              let postedBySelf = user.id === ownUserId;
+              let postedBySelf = userId === ownUserId;
+              let likedBySelf = message.likes.hasOwnProperty(ownUserId);
+
               let currentlyEditing = editingMessageId === message.id;
 
               return (
                 <Message
                   key={key}
                   message={message}
-                  user={user}
+                  userId={message.user_id}
+                  users={users}
                   today={today}
                   postedBySelf={postedBySelf}
+                  likedBySelf={likedBySelf}
                   currentlyEditing={currentlyEditing}
                   setEditing={(editing, fn) => this.setEditingMessage(message, editing, fn)}
                   saveEdit={(body) => this.editMessage(message, body)}
+                  addLike={() => this.likeMessage(message)}
+                  removeLike={() => this.unlikeMessage(message)}
                 />
               );
             })

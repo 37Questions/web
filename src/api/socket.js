@@ -51,18 +51,26 @@ class Socket {
   async sendMessage(body) {
     return this.emit("sendMessage", {
       body: body
-    }).then((res) => {
-      return res.message;
-    })
+    }).then((res) => res.message);
   }
 
   async editMessage(id, body) {
     return this.emit("editMessage", {
       id: id,
       body: body
-    }).then((res) => {
-      return res.message;
-    })
+    }).then((res) => res.message);
+  }
+
+  async likeMessage(id) {
+    return this.emit("likeMessage", {
+      id: id
+    }).then((res) => res.like);
+  }
+
+  async unlikeMessage(id) {
+    return this.emit("unlikeMessage", {
+      id: id
+    }).then((res) => res.success);
   }
 }
 
