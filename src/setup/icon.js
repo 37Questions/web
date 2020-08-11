@@ -6,8 +6,8 @@ class Icon extends React.Component {
     if (!this.props.icon) {
       return <Icon className={this.props.className} icon={{
         name: "exclamation-triangle",
-        color: 50,
-        backgroundColor: 120
+        color: 250,
+        backgroundColor: 0
       }} />;
     }
     return (

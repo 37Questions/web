@@ -182,6 +182,7 @@ class RoomCreationMenu extends React.Component {
               ref={this.roomLink}
               readOnly={true}
               value={this.state.room.link}
+              aria-hidden={true}
             />
             <div className="room-link-text">
               {this.state.room.link}
