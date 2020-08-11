@@ -161,7 +161,6 @@
     align-items: center;
     color: dodgerblue;
 
-
     .room-link-icon-container {
       display: flex;
       justify-content: center;
@@ -197,6 +196,73 @@
     .room-link-text {
       display: inline-block;
       word-wrap: break-word;
+    }
+  }
+
+  .rooms-list-container {
+    .rooms-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      max-height: 200px;
+      overflow-y: scroll;
+
+      .room-card {
+        box-sizing: border-box;
+        width: 220px;
+
+        @media (max-width: $initialWidth + 20px) {
+          width: 90%;
+        }
+
+        display: flex;
+        flex-flow: column;
+
+        border: 2px solid black;
+        border-radius: 5px;
+
+        margin: 5px;
+        padding: 5px;
+
+        text-align: left;
+
+        background-color: $lightSidebarColor;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: rgba(white, 0.12);
+        }
+
+        .room-header {
+          font-size: 1.3em;
+        }
+
+        .room-info {
+          flex: 1;
+          min-height: 80px;
+
+          p {
+            margin: 4px 0;
+
+            font-size: 0.8em;
+            font-weight: 300;
+          }
+        }
+
+        .join-room-button {
+          text-align: center;
+          width: 50px;
+
+          padding: 5px 10px;
+          margin: 0;
+
+          background-color: dodgerblue;
+
+          &:hover {
+            background-color: cornflowerblue;
+          }
+        }
+      }
     }
   }
 }

@@ -3,6 +3,7 @@ import Select from 'react-select';
 import SetupFooter from "./footer";
 import {LoadingSpinner} from "../splash";
 import "./rooms.scss";
+import Api from "../api/api";
 
 const SELECT_OPTION = 0;
 const CREATE_ROOM = 1;
@@ -197,6 +198,65 @@ class RoomCreationMenu extends React.Component {
   }
 }
 
+function RoomCard(props) {
+  let room = props.room;
+
+  return (
+    <div className="room-card">
+      <div className="room-header">{"Room #" + room.id}</div>
+      <div className="room-info">
+        <p>Last active: {new Date(room.last_active).toLocaleString()}</p>
+        <p>Voting method: {room.votingMethod}</p>
+      </div>
+      <div className="setup-button join-room-button" onClick={() => props.joinRoom(room.id, room.token)}>Join</div>
+    </div>
+  );
+}
+
+class RoomJoinMenu extends React.Component {
+  state = {
+    rooms: null
+  };
+
+  componentDidMount = () => {
+    Api.getRooms().then((rooms) => {
+      this.setState({
+        rooms: rooms
+      });
+    })
+  };
+
+  render = () => {
+    let roomList = (
+      <div className="rooms-list-loading">
+        <LoadingSpinner />
+      </div>
+    );
+
+    if (this.state.rooms) {
+      roomList = (
+        <div className="rooms-list-container">
+          <div className="rooms-list">
+            {
+              this.state.rooms.map((room) => <RoomCard room={room} joinRoom={this.props.joinRoom} key={room.id} />)
+            }
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <RoomSetupWrapper>
+        <h1>Join Room</h1>
+        <h2>If you're trying to play with a friend, ask them for the link to their room.</h2>
+        <br />
+        {roomList}
+        <div className="setup-button" onClick={() => this.props.changeMode(SELECT_OPTION)}>Back</div>
+      </RoomSetupWrapper>
+    );
+  };
+}
+
 class RoomSetup extends React.Component {
   state = {
     mode: SELECT_OPTION
@@ -210,7 +270,7 @@ class RoomSetup extends React.Component {
     }
   }
 
-  render() {
+  render = () => {
     let mode = this.state.mode;
     if (mode === SELECT_OPTION) {
       return (
@@ -235,14 +295,10 @@ class RoomSetup extends React.Component {
       );
     } else if (mode === JOIN_ROOM) {
       return (
-        <RoomSetupWrapper>
-          <h1>Join Room</h1>
-          <h2>If you're trying to play with a friend, ask them for the link to their room.</h2>
-          <div className="buttons-list">
-            <div className="setup-button disabled">Join Room</div>
-            <div className="setup-button" onClick={() => this.setMode(SELECT_OPTION)}>Back</div>
-          </div>
-        </RoomSetupWrapper>
+        <RoomJoinMenu
+          changeMode={this.setMode}
+          joinRoom={this.props.joinRoom}
+        />
       );
     }
   }

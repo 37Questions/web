@@ -1,3 +1,5 @@
+import Room from "./struct/room";
+
 class Api {
   static ENDPOINT = "http://questions.ddns.net:3000";
 
@@ -48,6 +50,18 @@ class Api {
         return icons;
       });
     });
+  }
+
+  static async getRooms() {
+    return fetch(Api.ENDPOINT + "/rooms", {method: "GET"}).then((res) => {
+      return res.json().then((res) => {
+        const rooms = [];
+        res.rooms.forEach((room) => {
+          rooms.push(new Room(room));
+        });
+        return rooms;
+      })
+    })
   }
 
   static async setupUser(user, name, icon) {

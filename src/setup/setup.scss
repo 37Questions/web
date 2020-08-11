@@ -61,19 +61,6 @@ $initialWidth: 570px;
 
       text-align: center;
 
-      &::-webkit-scrollbar {
-        width: 5px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background-color: transparent;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background-color: darkgrey;
-        border-radius: 30px;
-      }
-
       h1 {
         margin: 0;
       }
@@ -91,6 +78,7 @@ $initialWidth: 570px;
 
       .setup-button {
         background-color: $lightSidebarColor;
+        transition: background-color 0.1s ease;
 
         @media (prefers-color-scheme: dark) {
           background-color: $darkButtonColor;

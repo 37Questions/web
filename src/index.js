@@ -24,7 +24,9 @@ class Stage {
   static LOADING = 0;
   static LOADED = 1;
   static SIGNED_UP = 2;
-  static JOINED_ROOM = 3;
+  static JOINING_ROOM = 3;
+  static JOINING_ROOM_COMPLETE = 4;
+  static JOINED_ROOM = 5;
 }
 
 export function getURLParam(name) {
@@ -47,6 +49,8 @@ class QuestionsGame extends React.Component {
       if (this.state.user.name) stage = this.state.room ? Stage.JOINED_ROOM : Stage.SIGNED_UP;
 
       this.setState({stage: stage});
+    } else if (this.state.room && this.state.stage === Stage.JOINING_ROOM_COMPLETE && this.state.canRender) {
+      this.setState({stage: Stage.JOINED_ROOM});
     }
   };
 
@@ -59,10 +63,13 @@ class QuestionsGame extends React.Component {
     user.score = 0;
     user.active = true;
 
-    if (this.state.room) this.state.room.users[user.id] = user;
+    let room = this.state.room;
+
+    if (room) room.users[user.id] = user;
 
     this.setState({
-      user: user
+      user: user,
+      room: room
     });
   };
 
@@ -96,6 +103,28 @@ class QuestionsGame extends React.Component {
       });
     }
   };
+
+  joinRoom = (id, token) => {
+    this.setState({
+      stage: Stage.JOINING_ROOM,
+      canRender: false
+    });
+    setTimeout(function () {
+      this.setState({
+        stage: Stage.JOINING_ROOM_COMPLETE,
+        canRender: true
+      });
+    }.bind(this), 1000);
+    this.state.socket.joinRoom(id, token).then((room) => {
+      console.info(`Joined room #${id}:`, room);
+      this.setState({
+        room: room
+      });
+    }).catch((error) => {
+      console.info(`Failed to join room #${id}:`, error.message);
+      Room.resetLink();
+    })
+  }
 
   onLogin = (data) => {
     console.info("Socket Init:", data);
@@ -315,8 +344,8 @@ class QuestionsGame extends React.Component {
 
     return (
       <div id="app-wrapper">
-        {stage < Stage.LOADED &&
-        <WrapperContainer visible={!this.state.user} onTransitionEnd={this.loadingUpdate}>
+        {stage < Stage.JOINED_ROOM &&
+        <WrapperContainer visible={!this.state.user || stage === Stage.JOINING_ROOM} onTransitionEnd={this.loadingUpdate}>
           <LoadingScreen/>
         </WrapperContainer>
         }
@@ -328,12 +357,13 @@ class QuestionsGame extends React.Component {
         }
         {stage < Stage.JOINED_ROOM &&
         <WrapperContainer
-          visible={canRender && !loggedOut && this.state.user.name && (!this.state.room || !this.state.room.finishedCreation)}>
+          visible={canRender && stage < Stage.JOINING_ROOM && !loggedOut && this.state.user.name && (!this.state.room || !this.state.room.finishedCreation)}>
           <RoomSetup
             socket={this.state.socket}
             user={this.state.user}
             onRoomCreated={this.setRoom}
             onComplete={this.startGame}
+            joinRoom={this.joinRoom}
           />
         </WrapperContainer>
         }

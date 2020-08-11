@@ -15,12 +15,12 @@ class Scoreboard extends React.Component {
         </div>
         <div className="panel-scrollable">
           {
-            Object.keys(users).map((userId, key) => {
+            Object.keys(users).map((userId) => {
               let user = users[userId];
               if (!user.name || !user.icon) return null;
 
               return (
-                <div className="scrollable-item scoreboard-user" key={key}>
+                <div className="scrollable-item scoreboard-user" key={user.id}>
                   <Icon icon={user.icon} className="user-icon" />
                   <div className="user-info">
                     <div className="user-name">{user.name}</div>

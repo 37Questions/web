@@ -45,8 +45,8 @@ class Message extends React.Component {
         });
 
         if (!this.props.message.isChained) {
-          let prefix = (today.date === msgDate) ? "Today" : "Yesterday";
-          this.timeString = prefix + " at " + this.timeString;
+          let prefix = (today.date === msgDate) ? "" : " Yesterday";
+          this.timeString = this.timeString + prefix;
         }
       }
     }
@@ -391,7 +391,7 @@ class Chat extends React.Component {
         </div>
         <ScrollableFeed className="panel-scrollable chat-history">
           {
-            Object.keys(messages).map((messageId, key) => {
+            Object.keys(messages).map((messageId) => {
               let message = messages[messageId];
 
               let userId = message.user_id;

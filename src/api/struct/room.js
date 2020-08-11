@@ -1,6 +1,7 @@
 class Room {
   constructor(room, finishedCreation = true) {
     this.id = room.id;
+    this.last_active = room.last_active;
     this.token = room.token;
     this.visibility = room.visibility;
     this.votingMethod = room.votingMethod;
