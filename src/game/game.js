@@ -8,7 +8,7 @@ class Game extends React.Component {
       <div id="game-wrapper">
         <div className="card-list">
           <QuestionCard text="What should they offer at the concession stands in movie theaters?" />
-          <ResponseCard text="An assault rifle." />
+          <ResponseCard text="Popcorn? There will be a fun card game here one day..." />
           <InputCard />
         </div>
       </div>

@@ -8,11 +8,6 @@ import "./chat.scss";
 function MessageAction(props) {
   const [hovered, setHovered] = React.useState(false);
 
-  const onClick = () => {
-    //setHovered(false);
-    if (props.onClick) props.onClick();
-  }
-
   return (
     <div className={"message-action" + (hovered ? " hovered" : "")}>
       <div className="message-action-title-container">
@@ -22,7 +17,7 @@ function MessageAction(props) {
         className="message-action-icon-container"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={onClick}
+        onClick={props.onClick}
       >
         <div className="message-action-icon">
           <i className={"fa" + (props.type || "s") + " fa-" + props.icon} />
@@ -119,8 +114,10 @@ class Message extends React.Component {
     let user = users[this.props.userId];
 
     let editing = this.props.currentlyEditing;
-    let likedBySelf = this.props.likedBySelf;
     let hovered = this.state.hovered;
+
+    let likedBySelf = this.props.likedBySelf;
+    let postedBySelf = this.props.postedBySelf;
 
     let messageIcon = <Icon icon={user.icon} className="message-icon" />;
     let messageContent = <div className="message-content">{message.body}</div>;
@@ -193,10 +190,9 @@ class Message extends React.Component {
             <div className="message-actions">
               {!likedBySelf && <MessageAction icon="heart" title="Like" onClick={this.props.addLike} />}
               {likedBySelf && <MessageAction icon="heart" type="r" title="Unlike" onClick={this.props.removeLike} />}
-              {this.props.postedBySelf &&
-                <MessageAction icon="pencil" title="Edit" onClick={this.startEditing} />
-              }
-              <MessageAction icon="ellipsis-h" title="More" />
+              {postedBySelf && <MessageAction icon="pencil" title="Edit" onClick={this.startEditing} />}
+              {postedBySelf && <MessageAction icon="trash" title="Delete" onClick={this.props.deleteSelf} />}
+              {!postedBySelf && <MessageAction icon="exclamation-triangle" title="Report" />}
             </div>
           </div>
         }
@@ -348,6 +344,30 @@ class Chat extends React.Component {
     });
   }
 
+  deleteMessage = (message) => {
+    let userId = this.props.user.id;
+    if (message.user_id !== userId) return console.warn(`Tried to delete message posted by other user:`, message);
+
+    delete this.props.room.messages[message.id];
+    this.setState({});
+
+    this.props.socket.deleteMessage(message.id).then((unchainMessageId) => {
+      console.info(`Deleted message #${message.id}:`, message);
+      if (unchainMessageId) {
+        let messages = this.props.room.messages;
+        if (!messages.hasOwnProperty(unchainMessageId)) {
+          return console.warn(`Tried to unchain unknown message #${unchainMessageId}:`, this.props.room);
+        }
+        messages[unchainMessageId].isChained = false;
+        this.setState({});
+      }
+    }).catch((error) => {
+      console.warn(`Failed to delete message #${message.id}:`, error.message);
+      this.props.room.messages[message.id] = message;
+      this.setState({});
+    })
+  }
+
   render = () => {
     if (!this.props.room) return null;
 
@@ -384,7 +404,7 @@ class Chat extends React.Component {
 
               return (
                 <Message
-                  key={key}
+                  key={message.id}
                   message={message}
                   userId={message.user_id}
                   users={users}
@@ -396,6 +416,7 @@ class Chat extends React.Component {
                   saveEdit={(body) => this.editMessage(message, body)}
                   addLike={() => this.likeMessage(message)}
                   removeLike={() => this.unlikeMessage(message)}
+                  deleteSelf={() => this.deleteMessage(message)}
                 />
               );
             })

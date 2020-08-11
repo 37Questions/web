@@ -257,6 +257,25 @@ class QuestionsGame extends React.Component {
     this.setState({room: room});
   }
 
+  onMessageDeleted = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received message deletion when not in a room:`, this.state);
+
+    let messageId = data.message_id;
+    if (!room.messages.hasOwnProperty(messageId)) {
+      return console.warn(`Received deletion for unknown message #${messageId}:`, data);
+    }
+
+    delete room.messages[messageId];
+
+    let unchainMessageId = data.unchain_message_id;
+    if (room.messages.hasOwnProperty(unchainMessageId)) {
+      room.messages[unchainMessageId].isChained = false;
+    }
+
+    this.setState({room: room});
+  }
+
   componentDidMount() {
     setTimeout(function () {
       this.setState({canRender: true});
@@ -278,6 +297,7 @@ class QuestionsGame extends React.Component {
       socket.on("messageEdited", this.onMessageEdited);
       socket.on("messageLiked", this.onMessageLiked);
       socket.on("messageUnliked", this.onMessageUnliked);
+      socket.on("messageDeleted", this.onMessageDeleted);
     });
   }
 
