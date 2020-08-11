@@ -52,8 +52,15 @@ class QuestionsGame extends React.Component {
 
   finishSignup = (name, icon) => {
     let user = this.state.user;
+
     user.name = name;
     user.icon = icon;
+
+    user.score = 0;
+    user.active = true;
+
+    if (this.state.room) this.state.room.users[user.id] = user;
+
     this.setState({
       user: user
     });

@@ -27,7 +27,7 @@ const votingMethods = [
 ];
 
 const visibilityOptions = [
-  { value: "private", label: "Public" },
+  { value: "private", label: "Private" },
   { value: "public", label: "Public" }
 ];
 

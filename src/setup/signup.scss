@@ -87,6 +87,12 @@
       }
     }
 
+    @media (min-width: 430px) {
+      :nth-child(n+16) {
+        display: none;
+      }
+    }
+
     @media (max-width: 348px) {
       :nth-child(n+13) {
         display: none;
