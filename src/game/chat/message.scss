@@ -1,0 +1,312 @@
+@import "../../theme";
+
+.chat-message {
+  position: relative;
+  margin-top: 10px;
+
+  &:first-child {
+    margin-top: auto !important;
+  }
+
+  .message-container {
+    display: flex;
+
+    .message-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      margin: 5px;
+    }
+
+    .chained-msg-time-container {
+      width: 45px;
+      margin-top: 7px;
+      margin-left: 5px;
+      visibility: hidden;
+
+      .chained-msg-time {
+        font-size: 0.60em;
+        font-weight: 300;
+        color: rgba(black, 0.5);
+
+        @media (prefers-color-scheme: dark) {
+          color: rgba(white, 0.5);
+        }
+      }
+    }
+
+    .message-info {
+      flex: 1;
+
+      .message-title {
+        display: flex;
+        align-items: flex-end;
+        font-size: 0.85em;
+
+        .message-user {
+          margin-right: 5px;
+          font-weight: 700;
+          margin-top: 5px;
+        }
+
+        .message-time {
+          font-weight: 300;
+          color: rgba(black, 0.5);
+
+          @media (prefers-color-scheme: dark) {
+            color: rgba(white, 0.5);
+          }
+        }
+      }
+
+      .message-content {
+        padding: 3px 5px 3px 0;
+
+        color: rgba(black, 0.7);
+
+        @media (prefers-color-scheme: dark) {
+          color: rgba(white, 0.7);
+        }
+      }
+
+      .editable-message-content {
+        margin: 5px 5px 5px 0;
+
+        .edit-message-input {
+          box-sizing: border-box;
+          width: 100%;
+          padding: 5px;
+        }
+
+        .edit-message-footer {
+          display: flex;
+          align-items: center;
+
+          font-size: 0.7em;
+          font-weight: 400;
+
+          color: rgba(black, 0.5);
+          @media (prefers-color-scheme: dark) {
+            color: rgba(white, 0.5);
+          }
+
+          .text-container .link {
+            cursor: pointer;
+            color: dodgerblue;
+          }
+
+          .divider-icon {
+            font-size: 0.25em;
+            padding: 0 5px;
+          }
+        }
+      }
+    }
+  }
+
+  .message-actions-container {
+    position: absolute;
+    top: 0;
+    right: 8px;
+    transform: translateY(-75%);
+
+    visibility: hidden;
+
+    $borderRadius: 5px;
+
+    border-radius: $borderRadius;
+    border: 1px solid rgba(black, 0.2);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: rgba(black, 0.4);
+    }
+
+    background-color: $lightSidebarColor;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: $darkBackgroundColor;
+    }
+
+    transition: box-shadow 0.1s ease;
+
+    &:hover {
+      box-shadow: 0 3px 10px rgba(black, 0.2);
+    }
+
+    .message-actions {
+      display: flex;
+
+      .message-action {
+        $iconSize: 30px;
+
+        &:first-child .message-action-icon-container {
+          border-top-left-radius: $borderRadius;
+          border-bottom-left-radius: $borderRadius;
+        }
+
+        &:last-child .message-action-icon-container {
+          border-top-right-radius: $borderRadius;
+          border-bottom-right-radius: $borderRadius;
+        }
+
+        .message-action-icon-container {
+          box-sizing: border-box;
+
+          color: rgba(black, 0.7);
+
+          @media (prefers-color-scheme: dark) {
+            color: rgba(white, 0.7);
+          }
+
+          width: $iconSize;
+          height: $iconSize;
+
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          cursor: pointer;
+
+          &:hover {
+            background-color: rgba(black, 0.08);
+
+            @media (prefers-color-scheme: dark) {
+              background-color: rgba(white, 0.1);
+            }
+          }
+        }
+
+        .message-action-title-container {
+          box-sizing: border-box;
+
+          position: absolute;
+          top: -8px;
+          transform: translateY(-100%) translateX(calc(-50% + #{$iconSize / 2}));
+
+          background-color: black;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          box-shadow: 0 3px 10px rgba(black, 0.3);
+          border-radius: 5px;
+
+          visibility: hidden;
+          opacity: 0;
+
+          transition: visibility 0.1s ease, opacity 0.1s ease;
+
+          &:before, &:after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            z-index: 12;
+            width: 0;
+            height: 0;
+            border: solid 5px transparent;
+            border-bottom: 0;
+            border-top-color: black;
+          }
+
+          .message-action-title {
+            color: $lightTextColor;
+            text-align: right;
+            padding: 5px 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+          }
+        }
+
+        &.hovered {
+          .message-action-title-container {
+            visibility: visible;
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+
+  .message-likes-container {
+    margin-bottom: 3px;
+    margin-left: 50px;
+
+    .message-likes {
+      display: inline-flex;
+      align-items: center;
+
+      padding: 2px 4px;
+      border-radius: 10px;
+
+      background-color: rgba(black, 0.1);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: rgba(white, 0.1);
+      }
+
+      .heart-icon-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 20px;
+        height: 20px;
+
+        .heart-icon {
+          margin: 0 2px;
+          font-size: 1em;
+
+          cursor: pointer;
+
+          color: $darkButtonColor;
+
+          @media (prefers-color-scheme: dark) {
+            color: $lightButtonColor;
+          }
+
+          &.filled {
+            color: $errorColor;
+          }
+        }
+      }
+
+      .like-container {
+        .like {
+          width: 20px;
+          height: 20px;
+          border-width: 1px;
+          border-radius: 50%;
+          margin: 0 2px;
+
+          .icon {
+            font-size: 0.7em;
+          }
+        }
+      }
+    }
+  }
+
+  &:hover {
+    .chained-msg-time-container {
+      visibility: visible;
+    }
+
+    .message-actions-container {
+      visibility: visible;
+    }
+  }
+
+  &.system-msg {
+    .message-container .message-content {
+      color: rgba(black, 0.5);
+
+      @media (prefers-color-scheme: dark) {
+        color: rgba(white, 0.4);
+      }
+    }
+  }
+
+  &.chained-msg {
+    margin-top: 0;
+  }
+}

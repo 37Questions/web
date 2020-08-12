@@ -2,8 +2,8 @@ import React, {createRef} from 'react';
 import Select from 'react-select';
 import SetupFooter from "./footer";
 import {LoadingSpinner} from "../splash";
-import "./rooms.scss";
 import Api from "../api/api";
+import "./rooms.scss";
 
 const SELECT_OPTION = 0;
 const CREATE_ROOM = 1;
@@ -56,6 +56,14 @@ class RoomCreationMenu extends React.Component {
         for: "votingMethod"
       };
     } else return null;
+  }
+
+  onNameInput = (e) => {
+    // Enter key was pressed
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      this.createRoom();
+    }
   }
 
   changeVotingMethod = (method) => {
@@ -136,6 +144,7 @@ class RoomCreationMenu extends React.Component {
               autoComplete="off"
               spellCheck="false"
               ref={this.roomName}
+              onKeyDown={this.onNameInput}
               placeholder={(this.props.user ? this.fallbackRoomName : "Room Name...")}
               maxLength={32}
             />
@@ -220,8 +229,6 @@ class RoomCard extends React.Component {
     super(props);
 
     let room = props.room;
-
-    console.info("Room:", room);
 
     this.votingString = room.votingMethod[0].toUpperCase() + room.votingMethod.slice(1) + " Voting";
 

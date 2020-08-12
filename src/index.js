@@ -174,8 +174,6 @@ class QuestionsGame extends React.Component {
     console.info(`User #${user.id} joined the room:`, data);
     room.users[user.id] = user;
 
-    if (data.message) room.addMessage(data.message);
-
     this.setState({room: room});
   };
 
@@ -199,7 +197,6 @@ class QuestionsGame extends React.Component {
       if (userIcon) user.icon = userIcon;
 
       console.info(`Updated user #${userId}:`, data);
-      if (data.message) room.addMessage(data.message);
 
       this.setState({room: room});
     }
@@ -214,103 +211,11 @@ class QuestionsGame extends React.Component {
       return console.warn(`Received leave notification for unknown user #${userId}:`, data, room.users)
     }
 
-    if (data.message) room.addMessage(data.message);
-
     room.users[userId].active = false;
     console.info(`User #${userId} left:`, data);
 
     this.setState({room: room});
   };
-
-  onMessageSent = (data) => {
-    let room = this.state.room;
-    if (!room) return console.warn(`Received chat message when not in a room:`, this.state);
-
-    let userId = data.message.userId;
-    if (!room.users.hasOwnProperty(userId)) {
-      return console.warn(`Received chat message from unknown user #${userId}:`, data, room.users)
-    }
-
-    room.addMessage(data.message);
-    this.setState({room: room});
-  }
-
-  onMessageEdited = (data) => {
-    let room = this.state.room;
-    if (!room) return console.warn(`Received chat message when not in a room:`, this.state);
-
-    let userId = data.message.userId;
-    if (!room.users.hasOwnProperty(userId)) {
-      return console.warn(`Received edited message from unknown user #${userId}:`, data, room.users)
-    }
-
-    let message = data.message;
-    if (!room.messages.hasOwnProperty(message.id)) {
-      return console.warn(`Received edited message that was not previously recorded:`, data);
-    }
-
-    room.messages[message.id].body = message.body;
-    this.setState({room: room});
-  }
-
-  onMessageLiked = (data) => {
-    let room = this.state.room;
-    if (!room) return console.warn(`Received message like when not in a room:`, this.state);
-
-    let messageId = data.messageId;
-    if (!room.messages.hasOwnProperty(messageId)) {
-      return console.warn(`Received like for unknown message #${messageId}:`, data);
-    }
-
-    let message = room.messages[messageId];
-    let like = data.like;
-
-    if (message.likes.hasOwnProperty(like.userId)) {
-      return console.warn(`Received like for message #${messageId} by user #${like.userId} that was already recorded:`, message);
-    }
-
-    message.likes[like.userId] = like;
-    this.setState({room: room});
-  };
-
-  onMessageUnliked = (data) => {
-    let room = this.state.room;
-    if (!room) return console.warn(`Received message unlike when not in a room:`, this.state);
-
-    let messageId = data.messageId;
-    if (!room.messages.hasOwnProperty(messageId)) {
-      return console.warn(`Received unlike for unknown message #${messageId}:`, data);
-    }
-
-    let message = room.messages[messageId];
-    let userId = data.userId;
-
-    if (!message.likes.hasOwnProperty(userId)) {
-      return console.warn(`Received unlike for message #${messageId} by user #${userId}, but no like was recorded:`, message);
-    }
-
-    delete message.likes[userId];
-    this.setState({room: room});
-  }
-
-  onMessageDeleted = (data) => {
-    let room = this.state.room;
-    if (!room) return console.warn(`Received message deletion when not in a room:`, this.state);
-
-    let messageId = data.messageId;
-    if (!room.messages.hasOwnProperty(messageId)) {
-      return console.warn(`Received deletion for unknown message #${messageId}:`, data);
-    }
-
-    delete room.messages[messageId];
-
-    let unchainMessageId = data.unchainMessageId;
-    if (room.messages.hasOwnProperty(unchainMessageId)) {
-      room.messages[unchainMessageId].isChained = false;
-    }
-
-    this.setState({room: room});
-  }
 
   componentDidMount() {
     setTimeout(function () {
@@ -328,12 +233,6 @@ class QuestionsGame extends React.Component {
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
-
-      socket.on("messageSent", this.onMessageSent);
-      socket.on("messageEdited", this.onMessageEdited);
-      socket.on("messageLiked", this.onMessageLiked);
-      socket.on("messageUnliked", this.onMessageUnliked);
-      socket.on("messageDeleted", this.onMessageDeleted);
     });
   }
 

@@ -1,5 +1,3 @@
-import Room from "./struct/room";
-
 class Api {
   static ENDPOINT = "http://questions.ddns.net:3000";
 
