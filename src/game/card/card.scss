@@ -115,46 +115,22 @@ $cardHeight: 204px;
       &.back {
         transform: rotateY(180deg);
 
-        $topColor: #fa3939;
-        $bottomColor: #383838;
-
-        background-image: linear-gradient(-10deg, $topColor, $topColor 49%, $bottomColor 51%, $bottomColor);
-        background-size: cover;
-        background-repeat: no-repeat;
+        background-color: $darkSidebarColor;
 
         display: flex;
+        flex-flow: column;
         justify-content: center;
         align-items: center;
 
-        .title-wrapper {
-          background-color: white;
+        .card-logo {
+          width: 110px;
+          height: 110px;
+        }
 
-          width: 100px;
-          height: 100px;
-
-          border-radius: 50%;
-
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-
-          .big, .small {
-            margin: 0;
-          }
-
-          .big {
-            font-weight: 700;
-            font-size: 2em;
-
-            margin-top: -10px;
-            margin-bottom: -8px;
-          }
-
-          .small {
-            font-size: 1.1em;
-            font-weight: 500;
-          }
+        .card-title {
+          color: rgba(white, 0.9);
+          font-size: 1.45em;
+          font-weight: 500;
         }
       }
     }

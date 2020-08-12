@@ -29,6 +29,8 @@ class Stage {
   static JOINED_ROOM = 5;
 }
 
+const LOADING_DELAY = 5000;
+
 export function getURLParam(name) {
   let results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
   return results ? results[1] : null;
@@ -114,7 +116,7 @@ class QuestionsGame extends React.Component {
         stage: Stage.JOINING_ROOM_COMPLETE,
         canRender: true
       });
-    }.bind(this), 1000);
+    }.bind(this), LOADING_DELAY);
     this.state.socket.joinRoom(id, token).then((room) => {
       console.info(`Joined room #${id}:`, room);
       this.setState({
@@ -220,7 +222,7 @@ class QuestionsGame extends React.Component {
   componentDidMount() {
     setTimeout(function () {
       this.setState({canRender: true});
-    }.bind(this), 1000);
+    }.bind(this), LOADING_DELAY);
     Api.getUser().then((user) => {
       console.info("User:", user);
 
@@ -244,7 +246,7 @@ class QuestionsGame extends React.Component {
     return (
       <div id="app-wrapper">
         {stage < Stage.JOINED_ROOM &&
-        <WrapperContainer visible={!this.state.user || stage === Stage.JOINING_ROOM} onTransitionEnd={this.loadingUpdate}>
+        <WrapperContainer visible={!canRender || (!this.state.user || stage === Stage.JOINING_ROOM)} onTransitionEnd={this.loadingUpdate}>
           <LoadingScreen/>
         </WrapperContainer>
         }

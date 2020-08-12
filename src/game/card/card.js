@@ -1,13 +1,12 @@
 import React from 'react';
+import logo from "../../logo.svg";
 import './card.scss';
 
 function CardBacking() {
   return (
     <div className="card back">
-      <div className="title-wrapper">
-        <h1 className="big">37</h1>
-        <h2 className="small">Questions</h2>
-      </div>
+      <img src={logo} className="card-logo" alt="37 Questions" />
+      <div className="card-title">37 Questions</div>
     </div>
   );
 }
