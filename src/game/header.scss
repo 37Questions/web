@@ -1,6 +1,16 @@
 #header-wrapper {
-  h1 {
-    margin: 10px;
-    font-size: 1.2em;
+  #header-title {
+    display: flex;
+    align-items: center;
+
+    .header-logo {
+      height: 30px;
+      margin: 0 10px;
+    }
+
+    h1 {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
   }
 }

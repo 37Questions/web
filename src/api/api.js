@@ -1,5 +1,5 @@
 class Api {
-  static ENDPOINT = "http://questions.ddns.net:3000";
+  static ENDPOINT = "https://server.37questions.com";
 
   static async getUser(attempt = 0) {
     const USER_KEY = "questions-user";

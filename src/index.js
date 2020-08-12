@@ -29,7 +29,7 @@ class Stage {
   static JOINED_ROOM = 5;
 }
 
-const LOADING_DELAY = 5000;
+const LOADING_DELAY = 1000;
 
 export function getURLParam(name) {
   let results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
