@@ -1,6 +1,7 @@
 class Room {
   constructor(room, finishedCreation = true) {
     this.id = room.id;
+    this.name = room.name;
     this.lastActive = room.lastActive;
     this.token = room.token;
     this.visibility = room.visibility;
@@ -12,7 +13,7 @@ class Room {
     this.finishedCreation = finishedCreation;
 
     let url = window.location.href.split("?")[0];
-    this.link = url + `?room=${this.id}&token=${this.token}`;
+    this.link = url + `?room=${this.id}${this.token ? `&token=${this.token}` : ""}`;
   }
 
   // Add room metadata to the current URL

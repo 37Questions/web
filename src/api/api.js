@@ -57,7 +57,7 @@ class Api {
       return res.json().then((res) => {
         const rooms = [];
         res.rooms.forEach((room) => {
-          rooms.push(new Room(room));
+          rooms.push(room);
         });
         return rooms;
       })

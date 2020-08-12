@@ -91,7 +91,7 @@ class Signup extends React.Component {
             <input
               type="text"
               id="name-input"
-              className={(this.state.usernameError ? "with-error" : "")}
+              className={"setup-input" + (this.state.usernameError ? " with-error" : "")}
               autoComplete="off"
               spellCheck="false"
               placeholder="Username..."

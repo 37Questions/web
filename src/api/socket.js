@@ -26,8 +26,9 @@ class Socket {
     this.socket.on(message, callback);
   }
 
-  async createRoom(visibility, votingMethod) {
+  async createRoom(name, visibility, votingMethod) {
     return this.emit("createRoom", {
+      name: name,
       visibility: visibility,
       votingMethod: votingMethod
     }).then((res) => {

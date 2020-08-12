@@ -133,7 +133,7 @@ class QuestionsGame extends React.Component {
     let roomId = getURLParam("room");
     let token = getURLParam("token");
 
-    if (roomId && token) {
+    if (roomId) {
       this.state.socket.joinRoom(roomId, token).then((room) => {
         console.info(`Joined room #${roomId}:`, room);
         this.setState({

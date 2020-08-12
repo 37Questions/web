@@ -31,7 +31,7 @@ class Message extends React.Component {
   constructor(props) {
     super(props);
 
-    let createdAt = new Date(this.props.message.created_at * 1000);
+    let createdAt = new Date(this.props.message.createdAt * 1000);
 
     let today = this.props.today;
 
@@ -111,7 +111,7 @@ class Message extends React.Component {
   render = () => {
     let message = this.props.message;
     let users = this.props.users;
-    let user = users[this.props.userId];
+    let user = users[message.userId];
 
     let editing = this.props.currentlyEditing;
     let hovered = this.state.hovered;
@@ -253,7 +253,7 @@ class Chat extends React.Component {
   }
 
   setEditingMessage = (message, editing, fn) => {
-    if (message.user_id === this.props.user.id) {
+    if (message.userId === this.props.user.id) {
       this.setState({
         editingMessageId: editing ? message.id : null
       }, fn);
@@ -279,7 +279,7 @@ class Chat extends React.Component {
 
     this.props.socket.editMessage(message.id, body).then((newMessage) => {
       if (newMessage.id !== message.id) throw new Error("ID Mismatch");
-      if (newMessage.user_id !== message.user_id) throw new Error("User Mismatch");
+      if (newMessage.userId !== message.userId) throw new Error("User Mismatch");
       if (!!newMessage.isSystemMsg !== !!message.isSystemMsg) throw new Error("Message Type Mismatch");
 
       if (newMessage.body !== message.body) {
@@ -306,7 +306,7 @@ class Chat extends React.Component {
     if (curLiked) return console.warn(`Tried to like message which was already liked:`, message);
 
     message.likes[this.props.user.id] = {
-      user_id: userId,
+      userId: userId,
       since: Math.floor(new Date().getTime() / 1000)
     };
 
@@ -346,7 +346,7 @@ class Chat extends React.Component {
 
   deleteMessage = (message) => {
     let userId = this.props.user.id;
-    if (message.user_id !== userId) return console.warn(`Tried to delete message posted by other user:`, message);
+    if (message.userId !== userId) return console.warn(`Tried to delete message posted by other user:`, message);
 
     delete this.props.room.messages[message.id];
     this.setState({});
@@ -394,7 +394,7 @@ class Chat extends React.Component {
             Object.keys(messages).map((messageId) => {
               let message = messages[messageId];
 
-              let userId = message.user_id;
+              let userId = message.userId;
               if (!users.hasOwnProperty(userId)) return null;
 
               let postedBySelf = userId === ownUserId;
@@ -406,7 +406,6 @@ class Chat extends React.Component {
                 <Message
                   key={message.id}
                   message={message}
-                  userId={message.user_id}
                   users={users}
                   today={today}
                   postedBySelf={postedBySelf}

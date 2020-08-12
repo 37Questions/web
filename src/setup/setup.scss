@@ -76,6 +76,38 @@ $initialWidth: 570px;
         font-weight: 500;
       }
 
+      .setup-input {
+        box-sizing: border-box;
+
+        background-color: $lightSidebarColor;
+        width: 95%;
+        height: 40px;
+
+        border: 2px solid black;
+        border-radius: 10px;
+
+        &.with-error {
+          border-color: $errorColor;
+        }
+
+        font-family: 'Indie Flower', cursive;
+
+        color: black;
+        outline: none;
+
+        padding: 5px 10px;
+        font-size: 1.1em;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: $darkButtonColor;
+          color: white;
+
+          &::placeholder {
+            color: rgba(white, 0.55);
+          }
+        }
+      }
+
       .setup-button {
         background-color: $lightSidebarColor;
         transition: background-color 0.1s ease;

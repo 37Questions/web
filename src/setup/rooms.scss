@@ -23,23 +23,44 @@
     margin: 20px 0 15px;
   }
 
+  #room-input-container {
+    box-sizing: border-box;
+    width: 100%;
+
+    padding: 0 20px;
+
+    @media (max-width: 430px) {
+      padding: 0;
+    }
+  }
+
   .room-option {
     display: flex;
     justify-content: center;
     align-items: center;
 
-    margin: 5px;
+    box-sizing: border-box;
+    padding: 5px 30px;
+    width: 100%;
+
+    @media (max-width: 430px) {
+      padding: 5px;
+    }
 
     .room-option-label {
+      flex: 1;
+      flex-shrink: 0;
+
+      min-width: 105px;
       margin: 0;
+
       font-size: 0.9em;
       font-weight: 400;
-      width: 105px;
       text-align: right;
     }
 
     .room-option-dropdown {
-      width: 180px;
+      flex: 2;
       margin-left: 20px;
 
       @media (max-width: 370px) {
@@ -205,12 +226,12 @@
       flex-wrap: wrap;
       justify-content: center;
 
-      max-height: 200px;
+      max-height: 175px;
       overflow-y: scroll;
 
       .room-card {
         box-sizing: border-box;
-        width: 220px;
+        width: 215px;
 
         @media (max-width: $initialWidth + 20px) {
           width: 90%;
@@ -224,6 +245,7 @@
 
         margin: 5px;
         padding: 5px;
+        min-height: 160px;
 
         text-align: left;
 
@@ -239,7 +261,6 @@
 
         .room-info {
           flex: 1;
-          min-height: 80px;
 
           p {
             margin: 4px 0;

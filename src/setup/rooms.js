@@ -23,8 +23,8 @@ function RoomSetupWrapper(props) {
 }
 
 const votingMethods = [
-  { value: "rotate", label: "Rotate" },
-  { value: "democratic", label: "Democratic" }
+  { value: "rotate", label: "Rotate", desc: "Rotational Voting" },
+  { value: "democratic", label: "Democratic", desc: "Democratic Voting" }
 ];
 
 const visibilityOptions = [
@@ -46,6 +46,8 @@ class RoomCreationMenu extends React.Component {
     warning: null,
     room: null
   };
+
+  fallbackRoomName = this.props.user ? (this.props.user.name + "'s Room") : undefined;
 
   getWarning = (votingMethod, visibility) => {
     if (votingMethod.value === "rotate" && visibility.value === "public") {
@@ -75,15 +77,16 @@ class RoomCreationMenu extends React.Component {
   createRoom = () => {
     if (this.state.stage > RoomCreationStage.CONFIGURING) return;
 
+    let name = this.roomName.current.value || this.fallbackRoomName;
     let votingMethod = this.state.votingMethod.value;
     let visibility = this.state.visibility.value;
 
-    console.info("Voting method:", votingMethod, "Visibility:", visibility);
+    console.info("Creating Room with Name:", name, "Voting method:", votingMethod, "Visibility:", visibility);
     this.setState({
       stage: RoomCreationStage.LOADING
     });
 
-    this.props.socket.createRoom(visibility, votingMethod).then((room) => {
+    this.props.socket.createRoom(name, visibility, votingMethod).then((room) => {
       console.info("Created Room:", room);
       this.props.onRoomCreated(room);
       this.setState({
@@ -100,6 +103,7 @@ class RoomCreationMenu extends React.Component {
     });
   };
 
+  roomName = createRef();
   roomLink = createRef();
 
   copyRoomLink = (e) => {
@@ -121,9 +125,22 @@ class RoomCreationMenu extends React.Component {
     if (stage === RoomCreationStage.CONFIGURING) {
       return (
         <RoomSetupWrapper>
-          <h1>Room Settings</h1>
-          <h2>Adjust these settings to fine-tune your game.</h2>
-          <br/>
+          <h1>Room Setup</h1>
+          <h2>Personalize and configure your room</h2>
+          <p>Give your room a friendly name</p>
+          <div id="room-input-container">
+            <input
+              type="text"
+              id="room-name-input"
+              className="setup-input"
+              autoComplete="off"
+              spellCheck="false"
+              ref={this.roomName}
+              placeholder={(this.props.user ? this.fallbackRoomName : "Room Name...")}
+              maxLength={32}
+            />
+          </div>
+          <p>Customize your game</p>
           <div className="room-option">
             <p className="room-option-label">Privacy</p>
             <div className="room-option-dropdown">
@@ -151,7 +168,7 @@ class RoomCreationMenu extends React.Component {
           {this.state.warning && <div className={"setup-warning"}>{this.state.warning.message}</div>}
           <div className="buttons-list">
             <div className="setup-button" onClick={this.createRoom}>Create Room</div>
-            <div className="setup-button" onClick={() => this.props.changeMode(SELECT_OPTION)}>Back</div>
+            <div className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>Back</div>
           </div>
         </RoomSetupWrapper>
       );
@@ -198,19 +215,58 @@ class RoomCreationMenu extends React.Component {
   }
 }
 
-function RoomCard(props) {
-  let room = props.room;
+class RoomCard extends React.Component {
+  constructor(props) {
+    super(props);
 
-  return (
-    <div className="room-card">
-      <div className="room-header">{"Room #" + room.id}</div>
-      <div className="room-info">
-        <p>Last active: {new Date(room.lastActive * 1000).toLocaleString()}</p>
-        <p>Voting method: {room.votingMethod}</p>
+    let room = props.room;
+
+    console.info("Room:", room);
+
+    this.votingString = room.votingMethod[0].toUpperCase() + room.votingMethod.slice(1) + " Voting";
+
+    for (let i = 0; i < votingMethods.length; i++) {
+      let method = votingMethods[0];
+      if (method.value === room.votingMethod) {
+        this.votingString = method.desc;
+        break;
+      }
+    }
+
+    const sinceActive = (new Date().getTime() / 1000) - room.lastActive;
+    this.timeString = "Now";
+
+    if (sinceActive > 60 * 60 * 24) {
+      const days = Math.round(sinceActive / 60 / 60 / 24);
+      if (days < 2) this.timeString = "1 day ago";
+      else this.timeString = `${days} days ago`;
+    } else if (sinceActive > 60 * 60) {
+      const hrs = Math.round(sinceActive / 60 / 60);
+      if (hrs < 2) this.timeString = "1 hour ago";
+      else this.timeString = `${hrs} hrs ago`;
+    } else if (sinceActive > 60) {
+      const mins = Math.round(sinceActive / 60);
+      if (mins < 2) this.timeString = "1 min ago";
+      else this.timeString = `${mins} mins ago`;
+    } else if (sinceActive > 30) {
+      this.timeString = `${Math.round(sinceActive)} secs ago`;
+    }
+  }
+  render() {
+    let room = this.props.room;
+
+    return (
+      <div className="room-card">
+        <div className="room-header">{room.name}</div>
+        <div className="room-info">
+          <p><b>Active {this.timeString}</b></p>
+          <p>{room.players} Players ({room.activePlayers} Active)</p>
+          <p>{this.votingString}</p>
+        </div>
+        <div className="setup-button join-room-button" onClick={() => this.props.joinRoom(room.id, room.token)}>Join</div>
       </div>
-      <div className="setup-button join-room-button" onClick={() => props.joinRoom(room.id, room.token)}>Join</div>
-    </div>
-  );
+    );
+  }
 }
 
 class RoomJoinMenu extends React.Component {
@@ -234,15 +290,24 @@ class RoomJoinMenu extends React.Component {
     );
 
     if (this.state.rooms) {
-      roomList = (
-        <div className="rooms-list-container">
-          <div className="rooms-list">
-            {
-              this.state.rooms.map((room) => <RoomCard room={room} joinRoom={this.props.joinRoom} key={room.id} />)
-            }
+      if (this.state.rooms.length < 1) {
+        roomList = (
+          <p>
+            There are currently no rooms available to join!<br />
+            Try <span className="link" onClick={(e) => this.props.changeMode(e, CREATE_ROOM)}>creating a room</span>.
+          </p>
+        )
+      } else {
+        roomList = (
+          <div className="rooms-list-container">
+            <div className="rooms-list">
+              {
+                this.state.rooms.map((room) => <RoomCard room={room} joinRoom={this.props.joinRoom} key={room.id} />)
+              }
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
     }
 
     return (
@@ -251,7 +316,7 @@ class RoomJoinMenu extends React.Component {
         <h2>If you're trying to play with a friend, ask them for the link to their room.</h2>
         <br />
         {roomList}
-        <div className="setup-button" onClick={() => this.props.changeMode(SELECT_OPTION)}>Back</div>
+        <div className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>Back</div>
       </RoomSetupWrapper>
     );
   };
@@ -262,7 +327,8 @@ class RoomSetup extends React.Component {
     mode: SELECT_OPTION
   };
 
-  setMode = (mode) => {
+  setMode = (e, mode) => {
+    e.stopPropagation();
     if (mode !== this.state.mode && mode >= SELECT_OPTION && mode <= JOIN_ROOM) {
       this.setState({
         mode: mode
@@ -278,8 +344,8 @@ class RoomSetup extends React.Component {
           <h1>37 Questions</h1>
           <h2>Join or create a room to start playing.</h2>
           <div className="buttons-list">
-            <div className="setup-button" onClick={() => this.setMode(CREATE_ROOM)}>Create Room </div>
-            <div className="setup-button" onClick={() => this.setMode(JOIN_ROOM)}>Join Room</div>
+            <div className="setup-button" onClick={(e) => this.setMode(e, CREATE_ROOM)}>Create Room </div>
+            <div className="setup-button" onClick={(e) => this.setMode(e, JOIN_ROOM)}>Join Room</div>
           </div>
         </RoomSetupWrapper>
       );

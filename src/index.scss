@@ -30,6 +30,18 @@ html, body {
   border-radius: 30px;
 }
 
+a, span.link {
+  text-decoration: none;
+  font-weight: 500;
+
+  cursor: pointer;
+  color: dodgerblue;
+
+  &:hover {
+    color: cornflowerblue;
+  }
+}
+
 .wrapper-container {
   visibility: hidden;
   opacity: 0;
