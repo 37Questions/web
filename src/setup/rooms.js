@@ -205,7 +205,7 @@ function RoomCard(props) {
     <div className="room-card">
       <div className="room-header">{"Room #" + room.id}</div>
       <div className="room-info">
-        <p>Last active: {new Date(room.last_active).toLocaleString()}</p>
+        <p>Last active: {new Date(room.lastActive * 1000).toLocaleString()}</p>
         <p>Voting method: {room.votingMethod}</p>
       </div>
       <div className="setup-button join-room-button" onClick={() => props.joinRoom(room.id, room.token)}>Join</div>

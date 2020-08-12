@@ -153,9 +153,9 @@ class QuestionsGame extends React.Component {
     this.state.socket.emit("forcedLogout");
 
     let user = this.state.user;
-    if (!user || user.logged_out) return;
+    if (!user || user.loggedOut) return;
 
-    user.logged_out = true;
+    user.loggedOut = true;
 
     this.setState({
       socket: null,
@@ -226,7 +226,7 @@ class QuestionsGame extends React.Component {
     let room = this.state.room;
     if (!room) return console.warn(`Received chat message when not in a room:`, this.state);
 
-    let userId = data.message.user_id;
+    let userId = data.message.userId;
     if (!room.users.hasOwnProperty(userId)) {
       return console.warn(`Received chat message from unknown user #${userId}:`, data, room.users)
     }
@@ -239,7 +239,7 @@ class QuestionsGame extends React.Component {
     let room = this.state.room;
     if (!room) return console.warn(`Received chat message when not in a room:`, this.state);
 
-    let userId = data.message.user_id;
+    let userId = data.message.userId;
     if (!room.users.hasOwnProperty(userId)) {
       return console.warn(`Received edited message from unknown user #${userId}:`, data, room.users)
     }
@@ -257,7 +257,7 @@ class QuestionsGame extends React.Component {
     let room = this.state.room;
     if (!room) return console.warn(`Received message like when not in a room:`, this.state);
 
-    let messageId = data.message_id;
+    let messageId = data.messageId;
     if (!room.messages.hasOwnProperty(messageId)) {
       return console.warn(`Received like for unknown message #${messageId}:`, data);
     }
@@ -265,11 +265,11 @@ class QuestionsGame extends React.Component {
     let message = room.messages[messageId];
     let like = data.like;
 
-    if (message.likes.hasOwnProperty(like.user_id)) {
-      return console.warn(`Received like for message #${messageId} by user #${like.user_id} that was already recorded:`, message);
+    if (message.likes.hasOwnProperty(like.userId)) {
+      return console.warn(`Received like for message #${messageId} by user #${like.userId} that was already recorded:`, message);
     }
 
-    message.likes[like.user_id] = like;
+    message.likes[like.userId] = like;
     this.setState({room: room});
   };
 
@@ -277,13 +277,13 @@ class QuestionsGame extends React.Component {
     let room = this.state.room;
     if (!room) return console.warn(`Received message unlike when not in a room:`, this.state);
 
-    let messageId = data.message_id;
+    let messageId = data.messageId;
     if (!room.messages.hasOwnProperty(messageId)) {
       return console.warn(`Received unlike for unknown message #${messageId}:`, data);
     }
 
     let message = room.messages[messageId];
-    let userId = data.user_id;
+    let userId = data.userId;
 
     if (!message.likes.hasOwnProperty(userId)) {
       return console.warn(`Received unlike for message #${messageId} by user #${userId}, but no like was recorded:`, message);
@@ -297,14 +297,14 @@ class QuestionsGame extends React.Component {
     let room = this.state.room;
     if (!room) return console.warn(`Received message deletion when not in a room:`, this.state);
 
-    let messageId = data.message_id;
+    let messageId = data.messageId;
     if (!room.messages.hasOwnProperty(messageId)) {
       return console.warn(`Received deletion for unknown message #${messageId}:`, data);
     }
 
     delete room.messages[messageId];
 
-    let unchainMessageId = data.unchain_message_id;
+    let unchainMessageId = data.unchainMessageId;
     if (room.messages.hasOwnProperty(unchainMessageId)) {
       room.messages[unchainMessageId].isChained = false;
     }
@@ -340,7 +340,7 @@ class QuestionsGame extends React.Component {
   render() {
     let canRender = this.state.canRender && this.state.user;
     let stage = this.state.stage;
-    let loggedOut = canRender && this.state.user && this.state.user.logged_out;
+    let loggedOut = canRender && this.state.user && this.state.user.loggedOut;
 
     return (
       <div id="app-wrapper">

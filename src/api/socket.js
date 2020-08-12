@@ -76,7 +76,7 @@ class Socket {
   async deleteMessage(id) {
     return this.emit("deleteMessage", {
       id: id
-    }).then((res) => res.unchain_message_id);
+    }).then((res) => res.unchainMessageId);
   }
 }
 
