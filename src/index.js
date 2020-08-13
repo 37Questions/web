@@ -238,6 +238,21 @@ class QuestionsGame extends React.Component {
     });
   }
 
+  leaveRoom = () => {
+    if (!this.state.room) return console.warn("Tried to leave room when not in a room!", this.state);
+    this.state.socket.leaveRoom().then((success) => {
+      if (!success) return console.warn("Failed to leave current room");
+      console.info("Left active room");
+      Room.resetLink();
+      this.setState({
+        stage: Stage.SIGNED_UP,
+        room: undefined
+      });
+    }).catch((error) => {
+      console.warn("Failed to leave current room:", error.message);
+    });
+  }
+
   render() {
     let canRender = this.state.canRender && this.state.user;
     let stage = this.state.stage;
@@ -270,7 +285,7 @@ class QuestionsGame extends React.Component {
         }
         <WrapperContainer
           visible={canRender && !loggedOut && this.state.user.name && this.state.room && this.state.room.finishedCreation}>
-          <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room}/>
+          <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} leaveRoom={this.leaveRoom} />
         </WrapperContainer>
         <WrapperContainer visible={loggedOut}>
           <LogoutScreen/>

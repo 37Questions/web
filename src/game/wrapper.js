@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
+import {Header, HeaderMenu} from "./header";
 import Game from "./game";
 import Scoreboard from "./scoreboard/scoreboard";
 import Chat from "./chat/chat";
-import Header from "./header";
 import './wrapper.scss';
 
 function SidebarButton(props) {
@@ -57,6 +57,8 @@ function Wrapper(props) {
   const [panelStatus, setPanelStatus] = useState(PANELS_HIDDEN);
   const hidePanels = () => setPanelStatus(PANELS_HIDDEN);
 
+  const [headerMenuVisible, setHeaderMenuVisible] = useState(false);
+
   const toggleUserPanel = () => {
     setPanelStatus(panelStatus === USER_PANEL_VISIBLE ? PANELS_HIDDEN : USER_PANEL_VISIBLE);
   };
@@ -74,7 +76,7 @@ function Wrapper(props) {
   return (
     <div id="wrapper">
       <div id="top-bar">
-        <Header />
+        <Header withMenu={headerMenuVisible} toggleMenu={setHeaderMenuVisible} />
       </div>
       <div id="game-wrapper" className={getPanelString()}>
         <div id="game-layout">
@@ -107,6 +109,7 @@ function Wrapper(props) {
           className="overlay"
           onClick={hidePanels}
         />
+        <HeaderMenu visible={headerMenuVisible} setVisible={setHeaderMenuVisible} leaveRoom={props.leaveRoom} />
       </div>
     </div>
   );

@@ -49,6 +49,12 @@ class Socket {
     });
   }
 
+  async leaveRoom() {
+    return this.emit("leaveRoom").then((res) => {
+      return res.success;
+    });
+  }
+
   async sendMessage(body) {
     return this.emit("sendMessage", {
       body: body
