@@ -1,5 +1,7 @@
 class Api {
-  static ENDPOINT = "https://server.37questions.com";
+  static CLIENT_URL = window.location.href.split("?")[0];
+  static IS_DEV_ENV = !Api.CLIENT_URL.includes("37questions.com");
+  static ENDPOINT = Api.IS_DEV_ENV ? "http://questions.ddns.net:3000" : "https://server.37questions.com";
 
   static async getUser(attempt = 0) {
     const USER_KEY = "questions-user";

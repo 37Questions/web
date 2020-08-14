@@ -22,6 +22,8 @@ class Signup extends React.Component {
       this.setState({
         icons: icons
       });
+    }).catch((error) => {
+      console.warn("Failed to fetch icons:", error.message);
     });
   }
 
