@@ -235,6 +235,8 @@ class QuestionsGame extends React.Component {
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
+    }).catch((error) => {
+      console.warn("Failed to get user:", error.message);
     });
   }
 
