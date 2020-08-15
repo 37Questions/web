@@ -4,7 +4,20 @@ import "./scoreboard.scss";
 import Icon from "../../setup/icon";
 
 class Scoreboard extends React.Component {
-  render() {
+  getUserStatusString = (user) => {
+    if (!user.active) return "Inactive";
+    if (!user.state) return "Active";
+    switch (user.state) {
+      case "idle":
+        return "Idle";
+      case "selecting_question":
+        return "Choosing Question";
+      default:
+        return user.state;
+    }
+  };
+
+  render = () => {
     if (!this.props.room) return null;
     let users = this.props.room.users;
 
@@ -21,10 +34,10 @@ class Scoreboard extends React.Component {
 
               return (
                 <div className="scrollable-item scoreboard-user" key={user.id}>
-                  <Icon icon={user.icon} className="user-icon" />
+                  <Icon icon={user.icon} className="user-icon"/>
                   <div className="user-info">
                     <div className="user-name">{user.name}</div>
-                    <div className="user-state">{(user.active ? "Active" : "Inactive")}</div>
+                    <div className="user-state">{this.getUserStatusString(user)}</div>
                   </div>
                   <div className="user-score">{user.score}</div>
                 </div>
@@ -34,7 +47,7 @@ class Scoreboard extends React.Component {
         </div>
       </div>
     );
-  }
+  };
 }
 
 export default Scoreboard;

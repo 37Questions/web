@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Header, HeaderMenu} from "./header";
-import Game from "./game";
+import Game from "./main/game";
 import Scoreboard from "./scoreboard/scoreboard";
 import Chat from "./chat/chat";
 import './wrapper.scss';
@@ -91,7 +91,7 @@ function Wrapper(props) {
             activated={panelStatus === USER_PANEL_VISIBLE}
           />
           <div className="container" id="game-container">
-            <Game />
+            <Game socket={props.socket} room={props.room} user={props.user} />
           </div>
           <div className="side container" id="chat-container">
             <Chat socket={props.socket} room={props.room} user={props.user} />

@@ -60,18 +60,11 @@ class QuestionsGame extends React.Component {
     let user = this.state.user;
 
     user.name = name;
+
     user.icon = icon;
 
-    user.score = 0;
-    user.active = true;
-
-    let room = this.state.room;
-
-    if (room) room.users[user.id] = user;
-
     this.setState({
-      user: user,
-      room: room
+      user: user
     });
   };
 
@@ -198,7 +191,7 @@ class QuestionsGame extends React.Component {
       if (userName) user.name = userName;
       if (userIcon) user.icon = userIcon;
 
-      console.info(`Updated user #${userId}:`, data);
+      console.info(`Updated user #${userId}:`, user);
 
       this.setState({room: room});
     }

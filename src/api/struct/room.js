@@ -10,6 +10,9 @@ class Room {
     this.users = room.users;
     this.messages = room.messages;
 
+    this.state = room.state;
+    this.questions = room.questions;
+
     this.finishedCreation = finishedCreation;
 
     let url = window.location.href.split("?")[0];
