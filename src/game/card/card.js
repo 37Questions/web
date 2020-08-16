@@ -12,8 +12,9 @@ function CardBacking() {
 }
 
 function Card(props) {
+  let extraClasses = (props.canHover ? " can-hover " : " ") + (props.className ? props.className : "");
   return (
-    <div className={"outer-card" + (props.canHover ? " can-hover" : "")} onClick={props.onClick}>
+    <div className={"outer-card" + extraClasses} onClick={props.onClick}>
       <div className="inner-card">
         <div className={props.type + " card front"}>
           <p className="text">{props.text}</p>
@@ -26,13 +27,13 @@ function Card(props) {
 
 function QuestionCard(props) {
   return (
-    <Card type="question" text={props.text} onClick={props.onClick} canHover={props.canHover} />
+    <Card type="question" text={props.text} onClick={props.onClick} canHover={props.canHover} className={props.className} />
   );
 }
 
 function ResponseCard(props) {
   return (
-    <Card type="response" text={props.text} onClick={props.onClick} canHover={props.canHover} />
+    <Card type="response" text={props.text} onClick={props.onClick} canHover={props.canHover} className={props.className} />
   )
 }
 

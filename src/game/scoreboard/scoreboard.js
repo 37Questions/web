@@ -2,16 +2,21 @@ import * as React from "react";
 import "../panel.scss";
 import "./scoreboard.scss";
 import Icon from "../../setup/icon";
+import {UserState} from "../../api/struct/user";
 
 class Scoreboard extends React.Component {
   getUserStatusString = (user) => {
     if (!user.active) return "Inactive";
     if (!user.state) return "Active";
     switch (user.state) {
-      case "idle":
+      case UserState.IDLE:
         return "Idle";
-      case "selecting_question":
+      case UserState.SELECTING_QUESTION:
         return "Choosing Question";
+      case UserState.ASKING_QUESTION:
+        return "Asking Question";
+      case UserState.ANSWERING_QUESTION:
+        return "Answering Question";
       default:
         return user.state;
     }

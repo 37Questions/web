@@ -6,9 +6,9 @@ import Api from "./api/api";
 import {LoadingScreen, LogoutScreen} from "./splash";
 import RoomSetup from "./setup/rooms";
 import Socket from "./api/socket";
-import {Room} from "./api/struct/room";
-import './index.scss';
+import {Room, RoomState} from "./api/struct/room";
 import {UserState} from "./api/struct/user";
+import './index.scss';
 
 function WrapperContainer(props) {
   return (
@@ -215,10 +215,25 @@ class QuestionsGame extends React.Component {
     this.setState({room: room});
   }
 
+  onRoundStarted = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received new round data when not in a room:`, this.state);
+
+    room.state = RoomState.PICKING_QUESTION;
+
+    room.forEachUser((user) => {
+      user.state = (user.id === data.chosenUserId) ? UserState.SELECTING_QUESTION : UserState.IDLE;
+    });
+
+    this.setState({room: room});
+  }
+
   onAdditionalUpdate = (event, data) => {
     switch (event) {
       case "userStateChanged":
         return this.onUserStateChanged(data);
+      case "startRound":
+        return this.onRoundStarted(data);
       default:
         return console.warn("Received unrecognised socket event", event, data);
     }
@@ -243,6 +258,20 @@ class QuestionsGame extends React.Component {
     this.setState({room: room});
   };
 
+  onQuestionSelected = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received question selection when not in a room:`, this.state);
+
+    room.state = RoomState.COLLECTING_ANSWERS;
+
+    room.forEachUser((user) => {
+      if (user.id === data.selectedBy) user.state = UserState.ASKING_QUESTION;
+      else user.state = UserState.ANSWERING_QUESTION;
+    })
+
+    this.setState({room: room});
+  };
+
   componentDidMount() {
     setTimeout(function () {
       this.setState({canRender: true});
@@ -259,6 +288,8 @@ class QuestionsGame extends React.Component {
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
+
+      socket.on("questionSelected", this.onQuestionSelected);
     }).catch((error) => {
       console.warn("Failed to get user:", error.message);
     });

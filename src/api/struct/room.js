@@ -35,6 +35,16 @@ class Room {
     });
   }
 
+  getActiveUsers(exclude) {
+    let activeUsers = [];
+
+    this.forEachUser((user) => {
+      if (exclude !== user.id && user.active && user.icon && user.name) activeUsers.push(user);
+    })
+
+    return activeUsers;
+  }
+
   // Remove room metadata from the current URL
   static resetLink() {
     let url = window.location.href.split("?")[0];

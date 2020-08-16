@@ -107,45 +107,6 @@ $initialWidth: 570px;
           }
         }
       }
-
-      .setup-button {
-        background-color: $lightSidebarColor;
-        transition: background-color 0.1s ease;
-
-        @media (prefers-color-scheme: dark) {
-          background-color: $darkButtonColor;
-        }
-
-        margin: 30px;
-        padding: 10px 40px;
-
-        border: 2px solid black;
-        border-radius: 10px;
-
-        cursor: pointer;
-        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-
-        font-weight: 700;
-
-        &:hover {
-          background-color: rgba(black, 0.05);
-          @media (prefers-color-scheme: dark) {
-            background-color: rgba(white, 0.1);
-          }
-        }
-
-        &.disabled {
-          cursor: not-allowed;
-
-          background-color: rgba(black, 0.25);
-          color: rgba(black, 0.4);
-
-          @media (prefers-color-scheme: dark) {
-            background-color: rgba(red, 0.1);
-            color: rgba(white, 0.35);
-          }
-        }
-      }
     }
   }
 }

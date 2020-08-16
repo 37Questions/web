@@ -4,6 +4,7 @@ import SetupFooter from "./footer";
 import {LoadingSpinner} from "../splash";
 import Api from "../api/api";
 import "./rooms.scss";
+import {Button} from "../ui/button";
 
 const SELECT_OPTION = 0;
 const CREATE_ROOM = 1;
@@ -177,8 +178,12 @@ class RoomCreationMenu extends React.Component {
           </div>
           {this.state.warning && <div className={"setup-warning"}>{this.state.warning.message}</div>}
           <div className="buttons-list">
-            <div className="setup-button" onClick={this.createRoom}>Create Room</div>
-            <div className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>Back</div>
+            <Button className="setup-button" onClick={this.createRoom}>
+              Create Room
+            </Button>
+            <Button className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>
+              Back
+            </Button>
           </div>
         </RoomSetupWrapper>
       );
@@ -216,9 +221,9 @@ class RoomCreationMenu extends React.Component {
               {this.state.room.link}
             </div>
           </div>
-          <div className="setup-button" onClick={this.onComplete}>
+          <Button className="setup-button" onClick={this.onComplete}>
             Start Game
-          </div>
+          </Button>
         </RoomSetupWrapper>
       )
     }
@@ -271,7 +276,9 @@ class RoomCard extends React.Component {
           <p>{room.players} Players ({room.activePlayers} Active)</p>
           <p>{this.votingString}</p>
         </div>
-        <div className="setup-button join-room-button" onClick={() => this.props.joinRoom(room.id, room.token)}>Join</div>
+        <Button className="setup-button join-room-button" onClick={() => this.props.joinRoom(room.id, room.token)}>
+          Join
+        </Button>
       </div>
     );
   }
@@ -324,7 +331,9 @@ class RoomJoinMenu extends React.Component {
         <h2>If you're trying to play with a friend, ask them for the link to their room.</h2>
         <br />
         {roomList}
-        <div className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>Back</div>
+        <Button className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>
+          Back
+        </Button>
       </RoomSetupWrapper>
     );
   };
@@ -352,8 +361,12 @@ class RoomSetup extends React.Component {
           <h1>37 Questions</h1>
           <h2>Join or create a room to start playing.</h2>
           <div className="buttons-list">
-            <div className="setup-button" onClick={(e) => this.setMode(e, CREATE_ROOM)}>Create Room </div>
-            <div className="setup-button" onClick={(e) => this.setMode(e, JOIN_ROOM)}>Join Room</div>
+            <Button className="setup-button" onClick={(e) => this.setMode(e, CREATE_ROOM)}>
+              Create Room
+            </Button>
+            <Button className="setup-button" onClick={(e) => this.setMode(e, JOIN_ROOM)}>
+              Join Room
+            </Button>
           </div>
         </RoomSetupWrapper>
       );

@@ -95,6 +95,15 @@ class Socket {
       id: id
     }).then((res) => res.unchainMessageId);
   }
+
+  async submitQuestion(id) {
+    return this.emit("submitQuestion", {
+      id: id
+    }).then((res) => {
+      console.info("Submitted question:", res);
+      return res;
+    });
+  }
 }
 
 
