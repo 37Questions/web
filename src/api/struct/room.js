@@ -29,6 +29,12 @@ class Room {
     this.messages[message.id] = message;
   }
 
+  forEachUser(fn) {
+    Object.keys(this.users).forEach((userId) => {
+      fn(this.users[userId]);
+    });
+  }
+
   // Remove room metadata from the current URL
   static resetLink() {
     let url = window.location.href.split("?")[0];
@@ -36,4 +42,10 @@ class Room {
   }
 }
 
-export default Room;
+class RoomState {
+  static PICKING_QUESTION = "picking_question";
+  static COLLECTING_ANSWERS = "collecting_answers";
+  static READING_ANSWERS = "reading_answers";
+}
+
+export {Room, RoomState};

@@ -1,6 +1,9 @@
 import * as React from "react";
 import {InputCard, QuestionCard, ResponseCard} from "../card/card";
 import './game.scss';
+import {RoomState} from "../../api/struct/room";
+import {UserState} from "../../api/struct/user";
+import {LoadingSpinner} from "../../splash";
 
 function QuestionSelector(props) {
   return (
@@ -58,11 +61,34 @@ class Game extends React.Component {
     let room = this.props.room;
     let questions = this.state.questions;
 
-    if (!room || !questions) {
-      content = null;
-    } else if (questions.length > 0) {
-      content = <QuestionSelector questions={questions}/>
+    if (!room || !questions || !this.props.user) {
+      return null;
     }
+
+    let user = room.users[this.props.user.id];
+
+    if (room.state === RoomState.PICKING_QUESTION) {
+      if (user.state === UserState.SELECTING_QUESTION && questions.length > 0) {
+        content = <QuestionSelector questions={questions}/>;
+      } else {
+        let pickingUser = undefined;
+
+        room.forEachUser((user) => {
+          if (user.state === UserState.SELECTING_QUESTION) pickingUser = user;
+        });
+
+        content = (
+          <div>
+            <h1>{(pickingUser ? pickingUser.name : "Someone")} is selecting a question...</h1>
+            <p>This might take a moment</p>
+            <br />
+            <LoadingSpinner />
+          </div>
+        )
+      }
+    }
+
+    console.info("RENDER:", room);
 
     return (
       <div id="outer-game-wrapper">

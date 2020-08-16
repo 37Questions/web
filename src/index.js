@@ -6,8 +6,9 @@ import Api from "./api/api";
 import {LoadingScreen, LogoutScreen} from "./splash";
 import RoomSetup from "./setup/rooms";
 import Socket from "./api/socket";
-import Room from "./api/struct/room";
+import {Room} from "./api/struct/room";
 import './index.scss';
+import {UserState} from "./api/struct/user";
 
 function WrapperContainer(props) {
   return (
@@ -232,7 +233,11 @@ class QuestionsGame extends React.Component {
       return console.warn(`Received leave notification for unknown user #${userId}:`, data, room.users)
     }
 
-    room.users[userId].active = false;
+    let user = room.users[userId];
+
+    user.active = false;
+    user.state = UserState.IDLE;
+
     console.info(`User #${userId} left:`, data);
 
     this.setState({room: room});

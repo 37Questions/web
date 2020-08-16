@@ -1,6 +1,6 @@
 import socketIOClient from "socket.io-client";
 import Api from "./api";
-import Room from "./struct/room";
+import {Room} from "./struct/room";
 
 class Socket {
   constructor(user, additionalUpdateListener) {
@@ -27,9 +27,11 @@ class Socket {
     this.socket.on(message, (data) => {
       callback(data);
 
-      let update = data.additionalUpdate;
-      if (update && this.additionalUpdateListener) {
-        this.additionalUpdateListener(update.event, update.data);
+      if (data && data.additionalUpdate) {
+        let update = data.additionalUpdate;
+        if (update && this.additionalUpdateListener) {
+          this.additionalUpdateListener(update.event, update.data);
+        }
       }
     });
   }
