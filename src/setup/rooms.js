@@ -23,7 +23,8 @@ function RoomSetupWrapper(props) {
 }
 
 const votingMethods = [
-  { value: "rotate", label: "Rotate", desc: "Rotational Voting" },
+  { value: "winner", label: "Winner Votes", desc: "Winner Votes" },
+  { value: "rotate", label: "Rotational", desc: "Rotational Voting" },
   { value: "democratic", label: "Democratic", desc: "Democratic Voting" }
 ];
 
@@ -50,7 +51,7 @@ class RoomCreationMenu extends React.Component {
   fallbackRoomName = this.props.user ? (this.props.user.name + "'s Room") : undefined;
 
   getWarning = (votingMethod, visibility) => {
-    if (votingMethod.value === "rotate" && visibility.value === "public") {
+    if (votingMethod.value !== "democratic" && visibility.value === "public") {
       return {
         message: "Democratic voting is strongly recommended in public rooms!",
         for: "votingMethod"
@@ -233,7 +234,7 @@ class RoomCard extends React.Component {
     this.votingString = room.votingMethod[0].toUpperCase() + room.votingMethod.slice(1) + " Voting";
 
     for (let i = 0; i < votingMethods.length; i++) {
-      let method = votingMethods[0];
+      let method = votingMethods[i];
       if (method.value === room.votingMethod) {
         this.votingString = method.desc;
         break;

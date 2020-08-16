@@ -22,6 +22,30 @@ function QuestionSelector(props) {
 }
 
 class Game extends React.Component {
+  state = {
+    questions: {}
+  };
+
+  onQuestionsListReceived = (data) => {
+    console.info("Received question list:", data);
+    this.setState({
+      questions: data.questions
+    });
+  };
+
+  componentDidUpdate = (prevProps) => {
+    if (!this.props.room || prevProps.room) return;
+
+    console.info("Registering game event listeners");
+    let socket = this.props.socket;
+
+    socket.on("newQuestionsList", this.onQuestionsListReceived);
+
+    this.setState({
+      questions: this.props.room.questions
+    });
+  }
+
   render() {
     let content = (
       <div className="card-list">
@@ -31,10 +55,13 @@ class Game extends React.Component {
       </div>
     );
 
-    if (!this.props.room) {
+    let room = this.props.room;
+    let questions = this.state.questions;
+
+    if (!room || !questions) {
       content = null;
-    } else if (this.props.room.questions.length > 0) {
-      content = <QuestionSelector questions={this.props.room.questions}/>
+    } else if (questions.length > 0) {
+      content = <QuestionSelector questions={questions}/>
     }
 
     return (

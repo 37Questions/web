@@ -186,16 +186,42 @@ class QuestionsGame extends React.Component {
 
     let userName = data.name;
     let userIcon = data.icon;
+    let userState = data.state;
 
-    if (userName || userIcon) {
+    if (userName || userIcon || data.state) {
       if (userName) user.name = userName;
       if (userIcon) user.icon = userIcon;
+      if (userState) user.state = userState;
 
       console.info(`Updated user #${userId}:`, user);
 
       this.setState({room: room});
     }
   };
+
+  onUserStateChanged = (data) => {
+    if (!data.state) return console.warn("Received user state update with missing state:", data);
+
+    let room = this.state.room;
+    if (!room) return console.warn(`Received user state update when not in a room:`, this.state);
+
+    let userId = data.id;
+    if (!room.users.hasOwnProperty(userId)) {
+      return console.warn(`Received state update for unknown user #${userId}:`, data, room.users)
+    }
+
+    room.users[userId].state = data.state;
+    this.setState({room: room});
+  }
+
+  onAdditionalUpdate = (event, data) => {
+    switch (event) {
+      case "userStateChanged":
+        return this.onUserStateChanged(data);
+      default:
+        return console.warn("Received unrecognised socket event", event, data);
+    }
+  }
 
   onUserLeft = (data) => {
     let room = this.state.room;
@@ -219,7 +245,7 @@ class QuestionsGame extends React.Component {
     Api.getUser().then((user) => {
       console.info("User:", user);
 
-      let socket = new Socket(user);
+      let socket = new Socket(user, this.onAdditionalUpdate);
       this.setState({socket: socket});
 
       socket.on("init", this.onLogin);

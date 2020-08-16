@@ -3,7 +3,7 @@ import Api from "./api";
 import Room from "./struct/room";
 
 class Socket {
-  constructor(user) {
+  constructor(user, additionalUpdateListener) {
     this.socket = socketIOClient(Api.ENDPOINT, {
       transports: ["websocket"],
       query: {
@@ -11,6 +11,7 @@ class Socket {
         token: user.token
       }
     });
+    this.additionalUpdateListener = additionalUpdateListener;
   }
 
   async emit(message, data = {}) {
@@ -23,7 +24,14 @@ class Socket {
   }
 
   on(message, callback) {
-    this.socket.on(message, callback);
+    this.socket.on(message, (data) => {
+      callback(data);
+
+      let update = data.additionalUpdate;
+      if (update && this.additionalUpdateListener) {
+        this.additionalUpdateListener(update.event, update.data);
+      }
+    });
   }
 
   async createRoom(name, visibility, votingMethod) {
