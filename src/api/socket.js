@@ -103,6 +103,10 @@ class Socket {
   async submitAnswer(answer) {
     return this.emit("submitAnswer", {answer: answer});
   }
+
+  async startReadingAnswers() {
+    return this.emit("startReadingAnswers");
+  }
 }
 
 

@@ -272,6 +272,20 @@ class QuestionsGame extends React.Component {
     this.setState({room: room});
   };
 
+  startReadingAnswers = () => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received room state when not in a room:`, this.state);
+
+    room.state = RoomState.READING_ANSWERS;
+
+    room.forEachUser((user) => {
+      if (user.state === UserState.ASKING_QUESTION) user.state = UserState.READING_ANSWERS;
+      else user.state = UserState.IDLE;
+    });
+
+    this.setState({room: room});
+  };
+
   componentDidMount() {
     setTimeout(function () {
       this.setState({canRender: true});
@@ -291,6 +305,7 @@ class QuestionsGame extends React.Component {
       socket.on("userStateChanged", this.onUserStateChanged);
 
       socket.on("questionSelected", this.onQuestionSelected);
+      socket.on("startReadingAnswers", this.startReadingAnswers);
     }).catch((error) => {
       console.warn("Failed to get user:", error.message);
     });

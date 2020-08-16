@@ -12,6 +12,7 @@ class Room {
 
     this.state = room.state;
     this.questions = room.questions;
+    this.answers = room.answers;
 
     this.finishedCreation = finishedCreation;
 
