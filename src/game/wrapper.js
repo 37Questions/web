@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import {Header, HeaderMenu} from "./header";
-import Game from "./game";
 import Scoreboard from "./scoreboard/scoreboard";
 import Chat from "./chat/chat";
 import './wrapper.scss';
+import {GameWrapper, Game} from "./main/game";
 
 function SidebarButton(props) {
   const [hovered, setHovered] = useState(false);
@@ -91,7 +91,9 @@ function Wrapper(props) {
             activated={panelStatus === USER_PANEL_VISIBLE}
           />
           <div className="container" id="game-container">
-            <Game />
+            <GameWrapper>
+              <Game socket={props.socket} room={props.room} user={props.user} />
+            </GameWrapper>
           </div>
           <div className="side container" id="chat-container">
             <Chat socket={props.socket} room={props.room} user={props.user} />

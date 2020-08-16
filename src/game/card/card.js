@@ -12,8 +12,9 @@ function CardBacking() {
 }
 
 function Card(props) {
+  let extraClasses = (props.canHover ? " can-hover " : " ") + (props.className ? props.className : "");
   return (
-    <div className="outer-card">
+    <div className={"outer-card" + extraClasses} onClick={props.onClick}>
       <div className="inner-card">
         <div className={props.type + " card front"}>
           <p className="text">{props.text}</p>
@@ -26,13 +27,13 @@ function Card(props) {
 
 function QuestionCard(props) {
   return (
-    <Card type="question" text={props.text} />
+    <Card type="question" text={props.text} onClick={props.onClick} canHover={props.canHover} className={props.className} />
   );
 }
 
 function ResponseCard(props) {
   return (
-    <Card type="response" text={props.text} />
+    <Card type="response" text={props.text} onClick={props.onClick} canHover={props.canHover} className={props.className} />
   )
 }
 
@@ -80,11 +81,22 @@ class InputCard extends React.Component {
   }
 
   submit() {
+    if (this.state.flipped) return;
+
     let text = this.input.current.value;
 
     if (this.validateInput(text)) {
       this.setState({
-        flipped: !this.state.flipped
+        flipped: true
+      }, () => {
+        if (!this.props.onSubmit) return;
+        this.props.onSubmit(text).catch((error) => {
+          console.warn("Card failed to submit:", error.message);
+          this.setState({
+            flipped: false,
+            error: "something went wrong"
+          });
+        });
       });
     }
   }

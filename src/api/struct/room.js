@@ -10,6 +10,10 @@ class Room {
     this.users = room.users;
     this.messages = room.messages;
 
+    this.state = room.state;
+    this.questions = room.questions;
+    this.answers = room.answers;
+
     this.finishedCreation = finishedCreation;
 
     let url = window.location.href.split("?")[0];
@@ -26,6 +30,22 @@ class Room {
     this.messages[message.id] = message;
   }
 
+  forEachUser(fn) {
+    Object.keys(this.users).forEach((userId) => {
+      fn(this.users[userId]);
+    });
+  }
+
+  getActiveUsers(exclude) {
+    let activeUsers = [];
+
+    this.forEachUser((user) => {
+      if (exclude !== user.id && user.active && user.icon && user.name) activeUsers.push(user);
+    })
+
+    return activeUsers;
+  }
+
   // Remove room metadata from the current URL
   static resetLink() {
     let url = window.location.href.split("?")[0];
@@ -33,4 +53,10 @@ class Room {
   }
 }
 
-export default Room;
+class RoomState {
+  static PICKING_QUESTION = "picking_question";
+  static COLLECTING_ANSWERS = "collecting_answers";
+  static READING_ANSWERS = "reading_answers";
+}
+
+export {Room, RoomState};

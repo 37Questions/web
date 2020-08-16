@@ -1,9 +1,9 @@
 import socketIOClient from "socket.io-client";
 import Api from "./api";
-import Room from "./struct/room";
+import {Room} from "./struct/room";
 
 class Socket {
-  constructor(user) {
+  constructor(user, additionalUpdateListener) {
     this.socket = socketIOClient(Api.ENDPOINT, {
       transports: ["websocket"],
       query: {
@@ -11,6 +11,7 @@ class Socket {
         token: user.token
       }
     });
+    this.additionalUpdateListener = additionalUpdateListener;
   }
 
   async emit(message, data = {}) {
@@ -23,7 +24,16 @@ class Socket {
   }
 
   on(message, callback) {
-    this.socket.on(message, callback);
+    this.socket.on(message, (data) => {
+      callback(data);
+
+      if (data && data.additionalUpdate) {
+        let update = data.additionalUpdate;
+        if (update && this.additionalUpdateListener) {
+          this.additionalUpdateListener(update.event, update.data);
+        }
+      }
+    });
   }
 
   async createRoom(name, visibility, votingMethod) {
@@ -84,6 +94,18 @@ class Socket {
     return this.emit("deleteMessage", {
       id: id
     }).then((res) => res.unchainMessageId);
+  }
+
+  async submitQuestion(id) {
+    return this.emit("submitQuestion", {id: id});
+  }
+
+  async submitAnswer(answer) {
+    return this.emit("submitAnswer", {answer: answer});
+  }
+
+  async startReadingAnswers() {
+    return this.emit("startReadingAnswers");
   }
 }
 

@@ -4,6 +4,7 @@ import SetupFooter from "./footer";
 import {LoadingSpinner} from "../splash";
 import Api from "../api/api";
 import "./rooms.scss";
+import {Button} from "../ui/button";
 
 const SELECT_OPTION = 0;
 const CREATE_ROOM = 1;
@@ -23,7 +24,8 @@ function RoomSetupWrapper(props) {
 }
 
 const votingMethods = [
-  { value: "rotate", label: "Rotate", desc: "Rotational Voting" },
+  { value: "winner", label: "Winner Votes", desc: "Winner Votes" },
+  { value: "rotate", label: "Rotational", desc: "Rotational Voting" },
   { value: "democratic", label: "Democratic", desc: "Democratic Voting" }
 ];
 
@@ -50,7 +52,7 @@ class RoomCreationMenu extends React.Component {
   fallbackRoomName = this.props.user ? (this.props.user.name + "'s Room") : undefined;
 
   getWarning = (votingMethod, visibility) => {
-    if (votingMethod.value === "rotate" && visibility.value === "public") {
+    if (votingMethod.value !== "democratic" && visibility.value === "public") {
       return {
         message: "Democratic voting is strongly recommended in public rooms!",
         for: "votingMethod"
@@ -176,8 +178,12 @@ class RoomCreationMenu extends React.Component {
           </div>
           {this.state.warning && <div className={"setup-warning"}>{this.state.warning.message}</div>}
           <div className="buttons-list">
-            <div className="setup-button" onClick={this.createRoom}>Create Room</div>
-            <div className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>Back</div>
+            <Button className="setup-button" onClick={this.createRoom}>
+              Create Room
+            </Button>
+            <Button className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>
+              Back
+            </Button>
           </div>
         </RoomSetupWrapper>
       );
@@ -215,9 +221,9 @@ class RoomCreationMenu extends React.Component {
               {this.state.room.link}
             </div>
           </div>
-          <div className="setup-button" onClick={this.onComplete}>
+          <Button className="setup-button" onClick={this.onComplete}>
             Start Game
-          </div>
+          </Button>
         </RoomSetupWrapper>
       )
     }
@@ -233,7 +239,7 @@ class RoomCard extends React.Component {
     this.votingString = room.votingMethod[0].toUpperCase() + room.votingMethod.slice(1) + " Voting";
 
     for (let i = 0; i < votingMethods.length; i++) {
-      let method = votingMethods[0];
+      let method = votingMethods[i];
       if (method.value === room.votingMethod) {
         this.votingString = method.desc;
         break;
@@ -270,7 +276,9 @@ class RoomCard extends React.Component {
           <p>{room.players} Players ({room.activePlayers} Active)</p>
           <p>{this.votingString}</p>
         </div>
-        <div className="setup-button join-room-button" onClick={() => this.props.joinRoom(room.id, room.token)}>Join</div>
+        <Button className="setup-button join-room-button" onClick={() => this.props.joinRoom(room.id, room.token)}>
+          Join
+        </Button>
       </div>
     );
   }
@@ -323,7 +331,9 @@ class RoomJoinMenu extends React.Component {
         <h2>If you're trying to play with a friend, ask them for the link to their room.</h2>
         <br />
         {roomList}
-        <div className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>Back</div>
+        <Button className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>
+          Back
+        </Button>
       </RoomSetupWrapper>
     );
   };
@@ -351,8 +361,12 @@ class RoomSetup extends React.Component {
           <h1>37 Questions</h1>
           <h2>Join or create a room to start playing.</h2>
           <div className="buttons-list">
-            <div className="setup-button" onClick={(e) => this.setMode(e, CREATE_ROOM)}>Create Room </div>
-            <div className="setup-button" onClick={(e) => this.setMode(e, JOIN_ROOM)}>Join Room</div>
+            <Button className="setup-button" onClick={(e) => this.setMode(e, CREATE_ROOM)}>
+              Create Room
+            </Button>
+            <Button className="setup-button" onClick={(e) => this.setMode(e, JOIN_ROOM)}>
+              Join Room
+            </Button>
           </div>
         </RoomSetupWrapper>
       );

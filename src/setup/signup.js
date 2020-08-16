@@ -3,6 +3,7 @@ import Api from "../api/api";
 import Icon from "./icon";
 import "./signup.scss";
 import SetupFooter from "./footer";
+import {Button} from "../ui/button";
 
 const MIN_USERNAME_LENGTH = 3;
 const MAX_USERNAME_LENGTH = 12;
@@ -117,13 +118,9 @@ class Signup extends React.Component {
                 })
               }
             </div>
-            <div
-              id="signup-submit"
-              className={"setup-button" + (this.state.canSubmit ? "" : " disabled")}
-              onClick={this.submit}
-            >
+            <Button id="signup-submit" isDisabled={!this.state.canSubmit} className="setup-button" onClick={this.submit}>
               Continue
-            </div>
+            </Button>
             <SetupFooter />
           </div>
         </div>

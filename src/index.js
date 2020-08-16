@@ -6,7 +6,8 @@ import Api from "./api/api";
 import {LoadingScreen, LogoutScreen} from "./splash";
 import RoomSetup from "./setup/rooms";
 import Socket from "./api/socket";
-import Room from "./api/struct/room";
+import {Room, RoomState} from "./api/struct/room";
+import {UserState} from "./api/struct/user";
 import './index.scss';
 
 function WrapperContainer(props) {
@@ -60,18 +61,11 @@ class QuestionsGame extends React.Component {
     let user = this.state.user;
 
     user.name = name;
+
     user.icon = icon;
 
-    user.score = 0;
-    user.active = true;
-
-    let room = this.state.room;
-
-    if (room) room.users[user.id] = user;
-
     this.setState({
-      user: user,
-      room: room
+      user: user
     });
   };
 
@@ -193,16 +187,57 @@ class QuestionsGame extends React.Component {
 
     let userName = data.name;
     let userIcon = data.icon;
+    let userState = data.state;
 
-    if (userName || userIcon) {
+    if (userName || userIcon || data.state) {
       if (userName) user.name = userName;
       if (userIcon) user.icon = userIcon;
+      if (userState) user.state = userState;
 
-      console.info(`Updated user #${userId}:`, data);
+      console.info(`Updated user #${userId}:`, user);
 
       this.setState({room: room});
     }
   };
+
+  onUserStateChanged = (data) => {
+    if (!data.state) return console.warn("Received user state update with missing state:", data);
+
+    let room = this.state.room;
+    if (!room) return console.warn(`Received user state update when not in a room:`, this.state);
+
+    let userId = data.id;
+    if (!room.users.hasOwnProperty(userId)) {
+      return console.warn(`Received state update for unknown user #${userId}:`, data, room.users)
+    }
+
+    room.users[userId].state = data.state;
+    this.setState({room: room});
+  }
+
+  onRoundStarted = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received new round data when not in a room:`, this.state);
+
+    room.state = RoomState.PICKING_QUESTION;
+
+    room.forEachUser((user) => {
+      user.state = (user.id === data.chosenUserId) ? UserState.SELECTING_QUESTION : UserState.IDLE;
+    });
+
+    this.setState({room: room});
+  }
+
+  onAdditionalUpdate = (event, data) => {
+    switch (event) {
+      case "userStateChanged":
+        return this.onUserStateChanged(data);
+      case "startRound":
+        return this.onRoundStarted(data);
+      default:
+        return console.warn("Received unrecognised socket event", event, data);
+    }
+  }
 
   onUserLeft = (data) => {
     let room = this.state.room;
@@ -213,8 +248,40 @@ class QuestionsGame extends React.Component {
       return console.warn(`Received leave notification for unknown user #${userId}:`, data, room.users)
     }
 
-    room.users[userId].active = false;
+    let user = room.users[userId];
+
+    user.active = false;
+    user.state = UserState.IDLE;
+
     console.info(`User #${userId} left:`, data);
+
+    this.setState({room: room});
+  };
+
+  onQuestionSelected = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received question selection when not in a room:`, this.state);
+
+    room.state = RoomState.COLLECTING_ANSWERS;
+
+    room.forEachUser((user) => {
+      if (user.id === data.selectedBy) user.state = UserState.ASKING_QUESTION;
+      else user.state = UserState.ANSWERING_QUESTION;
+    });
+
+    this.setState({room: room});
+  };
+
+  startReadingAnswers = () => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Received room state when not in a room:`, this.state);
+
+    room.state = RoomState.READING_ANSWERS;
+
+    room.forEachUser((user) => {
+      if (user.state === UserState.ASKING_QUESTION) user.state = UserState.READING_ANSWERS;
+      else user.state = UserState.IDLE;
+    });
 
     this.setState({room: room});
   };
@@ -226,7 +293,7 @@ class QuestionsGame extends React.Component {
     Api.getUser().then((user) => {
       console.info("User:", user);
 
-      let socket = new Socket(user);
+      let socket = new Socket(user, this.onAdditionalUpdate);
       this.setState({socket: socket});
 
       socket.on("init", this.onLogin);
@@ -235,6 +302,10 @@ class QuestionsGame extends React.Component {
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
+      socket.on("userStateChanged", this.onUserStateChanged);
+
+      socket.on("questionSelected", this.onQuestionSelected);
+      socket.on("startReadingAnswers", this.startReadingAnswers);
     }).catch((error) => {
       console.warn("Failed to get user:", error.message);
     });
