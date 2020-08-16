@@ -9,23 +9,29 @@ import {Button} from "../../ui/button";
 function AnswerCollector(props) {
   return (
     <div>
-      <h1>{(props.askedBy ? props.askedBy.name : "You")} asked a question</h1>
+      <h1>You asked a question</h1>
       <p>{props.responses}/{props.players} players have responded</p>
       <br/>
       <div className="card-list">
         <QuestionCard text={props.question.question}/>
       </div>
-      {!props.askedBy &&
-        <Button id="read-answers-btn" isDisabled={props.responses < 2}>
-          Read Answers
-        </Button>
-      }
+      <Button id="read-answers-btn" isDisabled={props.responses < 2}>
+        Read Answers
+      </Button>
 
     </div>
   );
 }
 
 function AnswerInput(props) {
+  const onSubmit = (answer) => {
+    console.info("Submitted answer:", answer);
+    if (props.onAnswerSubmitted) props.onAnswerSubmitted(answer);
+    return props.socket.submitAnswer(answer).then((res) => {
+      console.info("Submitted answer:", answer, res);
+    });
+  };
+
   return (
     <div>
       <h1>{(props.askedBy ? props.askedBy.name : "Someone")} asked a question</h1>
@@ -33,7 +39,9 @@ function AnswerInput(props) {
       <br />
       <div className="card-list">
         <QuestionCard text={props.question.question}/>
-        <InputCard />
+        {
+          props.showResponse && <InputCard onSubmit={onSubmit} />
+        }
       </div>
     </div>
   );
@@ -100,7 +108,7 @@ class Game extends React.Component {
   state = {
     questions: [],
     answers: [],
-    answersReceived: 0
+    hasAnswered: false
   };
 
   onQuestionsListReceived = (data) => {
@@ -114,7 +122,14 @@ class Game extends React.Component {
     let questions = [];
     questions.push(data.question);
     this.setState({
-      questions: questions
+      questions: questions,
+      hasAnswered: false
+    });
+  }
+
+  onAnswerSubmitted = () => {
+    this.setState({
+      hasAnswered: true
     });
   }
 
@@ -128,7 +143,8 @@ class Game extends React.Component {
     socket.on("questionSelected", this.onQuestionSelected);
 
     this.setState({
-      questions: this.props.room.questions
+      questions: this.props.room.questions,
+      hasAnswered: false
     });
   }
 
@@ -178,34 +194,35 @@ class Game extends React.Component {
       }
     } else if (room.state === RoomState.COLLECTING_ANSWERS) {
       let askedBy = undefined;
+      let answersReceived = 0;
 
-      if (user.state !== UserState.ASKING_QUESTION) {
-        room.forEachUser((user) => {
-          if (user.state === UserState.ASKING_QUESTION) askedBy = user;
-        });
-      }
+      room.forEachUser((roomUser) => {
+        if (roomUser.state === UserState.ASKING_QUESTION) askedBy = roomUser;
+        if (roomUser.active && roomUser.name && roomUser.icon && roomUser.state === UserState.IDLE) answersReceived++;
+      });
 
       if (questions.length < 1) {
         content = <LoadingSpinner/>;
-      } else if (user.state === UserState.ANSWERING_QUESTION) {
-        content = (
-          <AnswerInput
-            question={questions[0]}
-            responses={this.state.answersReceived}
-            players={activePlayers.length}
-            askedBy={askedBy}
-          />
-        )
-      } else {
-
+      } else if (user.state === UserState.ASKING_QUESTION) {
         content = (
           <AnswerCollector
             question={questions[0]}
-            responses={this.state.answersReceived}
+            responses={answersReceived}
             players={activePlayers.length}
-            askedBy={askedBy}
           />
         );
+      } else {
+        content = (
+          <AnswerInput
+            socket={this.props.socket}
+            question={questions[0]}
+            responses={answersReceived}
+            players={activePlayers.length}
+            askedBy={askedBy}
+            showResponse={user.state === UserState.ANSWERING_QUESTION || this.state.hasAnswered}
+            onAnswerSubmitted={this.onAnswerSubmitted}
+          />
+        )
       }
     }
 

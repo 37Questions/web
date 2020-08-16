@@ -97,12 +97,11 @@ class Socket {
   }
 
   async submitQuestion(id) {
-    return this.emit("submitQuestion", {
-      id: id
-    }).then((res) => {
-      console.info("Submitted question:", res);
-      return res;
-    });
+    return this.emit("submitQuestion", {id: id});
+  }
+
+  async submitAnswer(answer) {
+    return this.emit("submitAnswer", {answer: answer});
   }
 }
 

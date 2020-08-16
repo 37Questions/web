@@ -81,11 +81,22 @@ class InputCard extends React.Component {
   }
 
   submit() {
+    if (this.state.flipped) return;
+
     let text = this.input.current.value;
 
     if (this.validateInput(text)) {
       this.setState({
-        flipped: !this.state.flipped
+        flipped: true
+      }, () => {
+        if (!this.props.onSubmit) return;
+        this.props.onSubmit(text).catch((error) => {
+          console.warn("Card failed to submit:", error.message);
+          this.setState({
+            flipped: false,
+            error: "something went wrong"
+          });
+        });
       });
     }
   }

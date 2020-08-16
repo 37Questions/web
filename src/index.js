@@ -267,7 +267,7 @@ class QuestionsGame extends React.Component {
     room.forEachUser((user) => {
       if (user.id === data.selectedBy) user.state = UserState.ASKING_QUESTION;
       else user.state = UserState.ANSWERING_QUESTION;
-    })
+    });
 
     this.setState({room: room});
   };
@@ -288,6 +288,7 @@ class QuestionsGame extends React.Component {
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
+      socket.on("userStateChanged", this.onUserStateChanged);
 
       socket.on("questionSelected", this.onQuestionSelected);
     }).catch((error) => {
