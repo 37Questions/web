@@ -103,6 +103,39 @@
             &.flipped {
               transform: rotateY(180deg);
             }
+
+            .unread-counter-wrapper {
+              position: absolute;
+              top: -1px;
+              right: -3px;
+
+              background-color: $errorColor;
+              border-radius: 50%;
+
+              width: 20px;
+              height: 20px;
+
+              font-size: 13px;
+              color: $lightTextColor;
+
+              display: flex;
+              justify-content: center;
+              align-items: center;
+
+              visibility: hidden;
+              transform: scale(0);
+
+              transition: transform 0.1s ease;
+
+              &.visible {
+                visibility: visible;
+                transform:scale(1);
+              }
+
+              .unread-counter {
+                padding-bottom: 2px;
+              }
+            }
           }
 
           .title {

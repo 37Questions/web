@@ -6,6 +6,7 @@ import {LoadingSpinner} from "../../splash";
 import {AnswerCollector, AnswerInput} from "./answer_collection";
 import {QuestionSelector} from "./question_selection";
 import {AnswerList} from "./answer_list";
+import {AnswerState} from "../../api/struct/answer";
 
 class Game extends React.Component {
   state = {
@@ -28,23 +29,64 @@ class Game extends React.Component {
       questions: questions,
       hasAnswered: false
     });
-  }
+  };
 
   onAnswerSubmitted = () => {
     this.setState({
       hasAnswered: true
     });
-  }
+  };
 
   onAnswersReceived = (data) => {
-    console.info("Answers:", data.answers);
+    console.info("Answers received:", data.answers);
     this.setState({
       answers: data.answers
     });
+  };
+
+  onAnswerRevealed = (data) => {
+    let answer = data.answer;
+    console.info("Answer revealed:", answer);
+
+    let answers = this.state.answers;
+    if (answers.length < answer.displayPosition) return console.warn("Tried to reveal unknown answer", answer, answers);
+
+    answers[answer.displayPosition] = answer;
+    this.setState({answers: answers});
+  };
+
+  onAnswerFavorited = (data) => {
+    let displayPosition = data.displayPosition;
+    let answers = this.state.answers;
+
+    if (answers.length < displayPosition) return console.warn(`Tried to favorite out-of-bounds answer #${displayPosition}:`, answers);
+
+    for (let a = 0; a < answers.length; a++) {
+      let answer = answers[a];
+      if (answer.state === AnswerState.SUBMITTED) continue;
+      answer.state = answer.displayPosition === displayPosition ? AnswerState.FAVORITE : AnswerState.REVEALED;
+    }
+
+    console.info(`Answer #${displayPosition} favorited:`, answers);
+    this.setState({answers: answers});
+  };
+
+  onFavoriteAnswerCleared = () => {
+    let answers = this.state.answers;
+
+    for (let a = 0; a < answers.length; a++) {
+      let answer = answers[a];
+      if (answer.state !== AnswerState.FAVORITE) continue;
+      answer.state = AnswerState.REVEALED;
+    }
+
+    console.info("Favorite answer cleared:", answers);
+    this.setState({answers: answers});
   }
 
   componentDidUpdate = (prevProps) => {
-    if (!this.props.room || prevProps.room) return;
+    if (!this.props.room) return;
+    if (prevProps.room && prevProps.room.clientId === this.props.room.clientId) return;
 
     console.info("Registering game event listeners");
     let socket = this.props.socket;
@@ -52,6 +94,9 @@ class Game extends React.Component {
     socket.on("newQuestionsList", this.onQuestionsListReceived);
     socket.on("questionSelected", this.onQuestionSelected);
     socket.on("startReadingAnswers", this.onAnswersReceived);
+    socket.on("answerRevealed", this.onAnswerRevealed);
+    socket.on("answerFavorited", this.onAnswerFavorited);
+    socket.on("favoriteAnswerCleared", this.onFavoriteAnswerCleared);
 
     this.setState({
       questions: this.props.room.questions,
@@ -130,13 +175,24 @@ class Game extends React.Component {
       let [questions, answers] = [this.state.questions, this.state.answers];
       if (questions.length < 1 || answers.length < 1) return <LoadingSpinner />;
 
+      let askedBySelf = user.state === UserState.READING_ANSWERS;
       let askedBy = undefined;
-      room.forEachUser((roomUser) => {
-        if (roomUser.state === UserState.READING_ANSWERS) askedBy = roomUser;
-      });
+
+      if (askedBySelf) askedBy = user;
+      else {
+        room.forEachUser((roomUser) => {
+          if (roomUser.state === UserState.READING_ANSWERS) askedBy = roomUser;
+        });
+      }
 
       return (
-        <AnswerList question={questions[0]} askedBy={askedBy} answers={answers} />
+        <AnswerList
+          socket={this.props.socket}
+          question={questions[0]}
+          askedBySelf={askedBySelf}
+          askedBy={askedBy}
+          answers={answers}
+        />
       );
     }
 

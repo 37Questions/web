@@ -96,17 +96,13 @@ class Socket {
     }).then((res) => res.unchainMessageId);
   }
 
-  async submitQuestion(id) {
-    return this.emit("submitQuestion", {id: id});
-  }
+  submitQuestion = (id) => this.emit("submitQuestion", {id: id});
+  submitAnswer = (answer) => this.emit("submitAnswer", {answer: answer});
 
-  async submitAnswer(answer) {
-    return this.emit("submitAnswer", {answer: answer});
-  }
-
-  async startReadingAnswers() {
-    return this.emit("startReadingAnswers");
-  }
+  startReadingAnswers = () => this.emit("startReadingAnswers");
+  revealAnswer = (displayPosition) => this.emit("revealAnswer", {displayPosition: displayPosition});
+  setFavoriteAnswer = (displayPosition) => this.emit("setFavoriteAnswer", {displayPosition: displayPosition});
+  clearFavoriteAnswer = () => this.emit("clearFavoriteAnswer");
 }
 
 

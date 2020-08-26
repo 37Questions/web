@@ -2,28 +2,7 @@ import React from "react";
 import Icon from "../../setup/icon";
 import TextareaAutosize from "react-textarea-autosize";
 import "./message.scss";
-
-function MessageAction(props) {
-  const [hovered, setHovered] = React.useState(false);
-
-  return (
-    <div className={"message-action" + (hovered ? " hovered" : "")}>
-      <div className="message-action-title-container">
-        <div className="message-action-title">{props.title}</div>
-      </div>
-      <div
-        className="message-action-icon-container"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        onClick={props.onClick}
-      >
-        <div className="message-action-icon">
-          <i className={"fa" + (props.type || "s") + " fa-" + props.icon}/>
-        </div>
-      </div>
-    </div>
-  );
-}
+import {ActionButton} from "../../ui/button";
 
 class Message extends React.Component {
   constructor(props) {
@@ -186,11 +165,11 @@ class Message extends React.Component {
         {hovered && !message.isSystemMsg && !editing &&
         <div className="message-actions-container">
           <div className="message-actions">
-            {!likedBySelf && <MessageAction icon="heart" title="Like" onClick={this.props.addLike}/>}
-            {likedBySelf && <MessageAction icon="heart" type="r" title="Unlike" onClick={this.props.removeLike}/>}
-            {postedBySelf && <MessageAction icon="pencil" title="Edit" onClick={this.startEditing}/>}
-            {postedBySelf && <MessageAction icon="trash" title="Delete" onClick={this.props.deleteSelf}/>}
-            {!postedBySelf && <MessageAction icon="exclamation-triangle" title="Report"/>}
+            {!likedBySelf && <ActionButton icon="heart" title="Like" onClick={this.props.addLike}/>}
+            {likedBySelf && <ActionButton icon="heart" type="r" title="Unlike" onClick={this.props.removeLike}/>}
+            {postedBySelf && <ActionButton icon="pencil" title="Edit" onClick={this.startEditing}/>}
+            {postedBySelf && <ActionButton icon="trash" title="Delete" onClick={this.props.deleteSelf}/>}
+            {!postedBySelf && <ActionButton icon="exclamation-triangle" title="Report"/>}
           </div>
         </div>
         }

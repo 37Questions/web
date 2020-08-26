@@ -1,6 +1,8 @@
 import React from 'react';
 import logo from "../../logo.svg";
 import './card.scss';
+import {AnswerState} from "../../api/struct/answer";
+import {ActionButton} from "../../ui/button";
 
 function CardBacking() {
   return (
@@ -15,9 +17,10 @@ function Card(props) {
   let extraClasses = (props.canHover ? " can-hover " : " ") + (props.className ? props.className : "");
   return (
     <div className={"outer-card" + extraClasses} onClick={props.onClick}>
-      <div className="inner-card">
+      <div className={"inner-card" + (props.flipped ? " flipped" : "")}>
         <div className={props.type + " card front"}>
           <p className="text">{props.text}</p>
+          {props.children}
         </div>
         <CardBacking />
       </div>
@@ -27,13 +30,53 @@ function Card(props) {
 
 function QuestionCard(props) {
   return (
-    <Card type="question" text={props.text} onClick={props.onClick} canHover={props.canHover} className={props.className} />
+    <Card
+      type="question"
+      text={props.text}
+      onClick={props.onClick}
+      canHover={props.canHover}
+      className={props.className}
+    />
   );
 }
 
 function ResponseCard(props) {
+  let isFavorite = props.answer.state === AnswerState.FAVORITE;
+
   return (
-    <Card type="response" text={props.text} onClick={props.onClick} canHover={props.canHover} className={props.className} />
+    <Card
+      type="response"
+      text={props.answer.answer}
+      onClick={props.onClick}
+      canHover={props.canHover}
+      className={props.className}
+      flipped={props.answer.state === AnswerState.SUBMITTED}
+    >
+      <div className={"card-controls-wrapper"}>
+        <div className={"card-controls"}>
+          {isFavorite &&
+            <ActionButton
+              className={"star active"}
+              disabled={!props.canFavorite}
+              onClick={props.onClickStar}
+              type="s"
+              icon="star"
+              title="Remove Favorite"
+            />
+          }
+          {!isFavorite &&
+            <ActionButton
+              className={"star"}
+              disabled={!props.canFavorite}
+              onClick={props.onClickStar}
+              type="d"
+              icon="star"
+              title="Favorite"
+            />
+          }
+        </div>
+      </div>
+    </Card>
   )
 }
 
@@ -113,6 +156,7 @@ class InputCard extends React.Component {
               onKeyDown={this.onKeyDown}
               onInput={this.onInputChanged}
               ref={this.input}
+              readOnly={this.state.flipped}
             />
             <div className="corner">
               <div className="submit-text">Submit</div>

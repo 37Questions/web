@@ -13,13 +13,9 @@ class QuestionSelector extends React.Component {
     this.setState({
       submittedQuestion: question
     }, () => {
-      this.props.socket.submitQuestion(question.id).then((res) => {
-        console.info("Submitted question for real:", res);
-      }).catch((error) => {
+      this.props.socket.submitQuestion(question.id).catch((error) => {
         console.warn(`Failed to submit question #${question.id}:`, error.message);
-        this.setState({
-          submittedQuestion: undefined
-        });
+        this.setState({submittedQuestion: undefined});
       });
     });
   };
@@ -54,6 +50,7 @@ class QuestionSelector extends React.Component {
             })
           }
         </div>
+        <br />
       </div>
     );
   };
