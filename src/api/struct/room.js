@@ -14,6 +14,7 @@ class Room {
     this.questions = room.questions;
     this.answers = room.answers;
 
+    this.clientId = room.clientId;
     this.finishedCreation = finishedCreation;
 
     let url = window.location.href.split("?")[0];

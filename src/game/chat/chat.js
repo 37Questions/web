@@ -106,7 +106,8 @@ class Chat extends React.Component {
   }
 
   componentDidUpdate = (prevProps) => {
-    if (!this.props.room || prevProps.room) return;
+    if (!this.props.room) return;
+    if (prevProps.room && prevProps.room.clientId === this.props.room.clientId) return;
 
     console.info("Registering chat event listeners");
     let socket = this.props.socket;

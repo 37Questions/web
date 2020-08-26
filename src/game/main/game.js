@@ -43,8 +43,20 @@ class Game extends React.Component {
     });
   }
 
+  onAnswerRevealed = (data) => {
+    let answer = data.answer;
+    console.info("Answer revealed:", answer);
+
+    let answers = this.state.answers;
+    if (answers.length < answer.displayPosition) return console.warn("Tried to reveal unknown answer", answer, answers);
+
+    answers[answer.displayPosition] = answer;
+    this.setState({answers: answers});
+  }
+
   componentDidUpdate = (prevProps) => {
-    if (!this.props.room || prevProps.room) return;
+    if (!this.props.room) return;
+    if (prevProps.room && prevProps.room.clientId === this.props.room.clientId) return;
 
     console.info("Registering game event listeners");
     let socket = this.props.socket;
@@ -52,6 +64,7 @@ class Game extends React.Component {
     socket.on("newQuestionsList", this.onQuestionsListReceived);
     socket.on("questionSelected", this.onQuestionSelected);
     socket.on("startReadingAnswers", this.onAnswersReceived);
+    socket.on("answerRevealed", this.onAnswerRevealed);
 
     this.setState({
       questions: this.props.room.questions,
@@ -130,13 +143,24 @@ class Game extends React.Component {
       let [questions, answers] = [this.state.questions, this.state.answers];
       if (questions.length < 1 || answers.length < 1) return <LoadingSpinner />;
 
+      let askedBySelf = user.state === UserState.READING_ANSWERS;
       let askedBy = undefined;
-      room.forEachUser((roomUser) => {
-        if (roomUser.state === UserState.READING_ANSWERS) askedBy = roomUser;
-      });
+
+      if (askedBySelf) askedBy = user;
+      else {
+        room.forEachUser((roomUser) => {
+          if (roomUser.state === UserState.READING_ANSWERS) askedBy = roomUser;
+        });
+      }
 
       return (
-        <AnswerList question={questions[0]} askedBy={askedBy} answers={answers} />
+        <AnswerList
+          socket={this.props.socket}
+          question={questions[0]}
+          askedBySelf={askedBySelf}
+          askedBy={askedBy}
+          answers={answers}
+        />
       );
     }
 

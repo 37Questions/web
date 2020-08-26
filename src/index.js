@@ -43,7 +43,8 @@ class QuestionsGame extends React.Component {
     canRender: false,
     socket: null,
     user: null,
-    room: null
+    room: null,
+    clientRoomId: 0
   };
 
   loadingUpdate = () => {
@@ -81,13 +82,21 @@ class QuestionsGame extends React.Component {
     }
   };
 
+  setRoomForcefully = (room, user = null) => {
+    let clientRoomId = this.state.clientRoomId;
+    room.clientId = clientRoomId;
+    this.setState({
+      room: room,
+      user: user ? user : this.state.user,
+      clientRoomId: clientRoomId + 1
+    });
+  };
+
   setRoom = (room) => {
     if (this.state.user.name && room && room.id && this.state.stage === Stage.SIGNED_UP) {
-      this.setState({
-        room: room
-      });
+      this.setRoomForcefully(room);
     }
-  }
+  };
 
   startGame = () => {
     let room = this.state.room;
@@ -113,9 +122,7 @@ class QuestionsGame extends React.Component {
     }.bind(this), LOADING_DELAY);
     this.state.socket.joinRoom(id, token).then((room) => {
       console.info(`Joined room #${id}:`, room);
-      this.setState({
-        room: room
-      });
+      this.setRoomForcefully(room);
     }).catch((error) => {
       console.info(`Failed to join room #${id}:`, error.message);
       Room.resetLink();
@@ -132,10 +139,7 @@ class QuestionsGame extends React.Component {
     if (roomId) {
       this.state.socket.joinRoom(roomId, token).then((room) => {
         console.info(`Joined room #${roomId}:`, room);
-        this.setState({
-          user: user,
-          room: room
-        });
+        this.setRoomForcefully(room, user);
       }).catch((error) => {
         console.info(`Failed to join room #${roomId}:`, error.message);
         Room.resetLink();

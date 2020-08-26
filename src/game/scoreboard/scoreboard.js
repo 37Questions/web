@@ -17,6 +17,8 @@ class Scoreboard extends React.Component {
         return "Asking Question";
       case UserState.ANSWERING_QUESTION:
         return "Answering Question";
+      case UserState.READING_ANSWERS:
+        return "Reading Answers";
       default:
         return user.state;
     }

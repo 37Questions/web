@@ -96,17 +96,10 @@ class Socket {
     }).then((res) => res.unchainMessageId);
   }
 
-  async submitQuestion(id) {
-    return this.emit("submitQuestion", {id: id});
-  }
-
-  async submitAnswer(answer) {
-    return this.emit("submitAnswer", {answer: answer});
-  }
-
-  async startReadingAnswers() {
-    return this.emit("startReadingAnswers");
-  }
+  submitQuestion = (id) => this.emit("submitQuestion", {id: id});
+  submitAnswer = (answer) => this.emit("submitAnswer", {answer: answer});
+  startReadingAnswers = () => this.emit("startReadingAnswers");
+  revealAnswer = (displayPosition) => this.emit("revealAnswer", {displayPosition: displayPosition});
 }
 
 

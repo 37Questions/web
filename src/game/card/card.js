@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from "../../logo.svg";
 import './card.scss';
+import {AnswerState} from "../../api/struct/answer";
 
 function CardBacking() {
   return (
@@ -15,7 +16,7 @@ function Card(props) {
   let extraClasses = (props.canHover ? " can-hover " : " ") + (props.className ? props.className : "");
   return (
     <div className={"outer-card" + extraClasses} onClick={props.onClick}>
-      <div className="inner-card">
+      <div className={"inner-card" + (props.flipped ? " flipped" : "")}>
         <div className={props.type + " card front"}>
           <p className="text">{props.text}</p>
         </div>
@@ -27,13 +28,26 @@ function Card(props) {
 
 function QuestionCard(props) {
   return (
-    <Card type="question" text={props.text} onClick={props.onClick} canHover={props.canHover} className={props.className} />
+    <Card
+      type="question"
+      text={props.text}
+      onClick={props.onClick}
+      canHover={props.canHover}
+      className={props.className}
+    />
   );
 }
 
 function ResponseCard(props) {
   return (
-    <Card type="response" text={props.text} onClick={props.onClick} canHover={props.canHover} className={props.className} />
+    <Card
+      type="response"
+      text={props.answer.answer}
+      onClick={props.onClick}
+      canHover={props.canHover}
+      className={props.className}
+      flipped={props.answer.state === AnswerState.SUBMITTED}
+    />
   )
 }
 
@@ -113,6 +127,7 @@ class InputCard extends React.Component {
               onKeyDown={this.onKeyDown}
               onInput={this.onInputChanged}
               ref={this.input}
+              readOnly={this.state.flipped}
             />
             <div className="corner">
               <div className="submit-text">Submit</div>
