@@ -24,6 +24,10 @@ class AnswerList extends React.Component {
       this.props.socket.setFavoriteAnswer(answer.displayPosition).catch((error) => {
         console.warn(`Failed to set favorite answer #${answer.displayPosition}:`, error.message);
       });
+    } else if (answer.state === AnswerState.FAVORITE) {
+      this.props.socket.clearFavoriteAnswer().catch((error) => {
+        console.warn(`Failed to clear favorite answer #${answer.displayPosition}:`, error.message);
+      });
     }
   };
 

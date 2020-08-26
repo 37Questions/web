@@ -1,9 +1,7 @@
 class AnswerState {
   static SUBMITTED = "submitted";
-  static  REVEALED = "revealed";
-  static  GUESSED = "guessed";
-  static  FAVORITE = "favorite";
-  static  DISCARDED = "discarded";
+  static REVEALED = "revealed";
+  static FAVORITE = "favorite";
 }
 
 export {AnswerState};

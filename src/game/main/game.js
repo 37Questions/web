@@ -38,7 +38,7 @@ class Game extends React.Component {
   };
 
   onAnswersReceived = (data) => {
-    console.info("Answers:", data.answers);
+    console.info("Answers received:", data.answers);
     this.setState({
       answers: data.answers
     });
@@ -67,10 +67,22 @@ class Game extends React.Component {
       answer.state = answer.displayPosition === displayPosition ? AnswerState.FAVORITE : AnswerState.REVEALED;
     }
 
-    this.setState({answers: answers});
-
     console.info(`Answer #${displayPosition} favorited:`, answers);
+    this.setState({answers: answers});
   };
+
+  onFavoriteAnswerCleared = () => {
+    let answers = this.state.answers;
+
+    for (let a = 0; a < answers.length; a++) {
+      let answer = answers[a];
+      if (answer.state !== AnswerState.FAVORITE) continue;
+      answer.state = AnswerState.REVEALED;
+    }
+
+    console.info("Favorite answer cleared:", answers);
+    this.setState({answers: answers});
+  }
 
   componentDidUpdate = (prevProps) => {
     if (!this.props.room) return;
@@ -84,6 +96,7 @@ class Game extends React.Component {
     socket.on("startReadingAnswers", this.onAnswersReceived);
     socket.on("answerRevealed", this.onAnswerRevealed);
     socket.on("answerFavorited", this.onAnswerFavorited);
+    socket.on("favoriteAnswerCleared", this.onFavoriteAnswerCleared);
 
     this.setState({
       questions: this.props.room.questions,

@@ -102,6 +102,7 @@ class Socket {
   startReadingAnswers = () => this.emit("startReadingAnswers");
   revealAnswer = (displayPosition) => this.emit("revealAnswer", {displayPosition: displayPosition});
   setFavoriteAnswer = (displayPosition) => this.emit("setFavoriteAnswer", {displayPosition: displayPosition});
+  clearFavoriteAnswer = () => this.emit("clearFavoriteAnswer");
 }
 
 
