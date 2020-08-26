@@ -25,6 +25,7 @@ class Chat extends React.Component {
     messages[message.id] = message;
 
     this.setState({messages: messages});
+    this.props.onUpdate();
   };
 
   onMessageReceived = (data) => {
@@ -46,6 +47,7 @@ class Chat extends React.Component {
     }
 
     messages[message.id].body = message.body;
+
     this.setState({messages: messages});
   };
 
@@ -65,7 +67,9 @@ class Chat extends React.Component {
     }
 
     message.likes[like.userId] = like;
+
     this.setState({messages: messages});
+    this.props.onUpdate();
   };
 
   onMessageUnliked = (data) => {
@@ -84,6 +88,7 @@ class Chat extends React.Component {
     }
 
     delete message.likes[userId];
+
     this.setState({messages: messages});
   };
 
