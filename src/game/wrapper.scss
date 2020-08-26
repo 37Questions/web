@@ -106,7 +106,7 @@
 
             .unread-counter-wrapper {
               position: absolute;
-              top: 0;
+              top: -1px;
               right: -3px;
 
               background-color: $errorColor;

@@ -61,12 +61,6 @@ class PanelStatus {
 }
 
 class Wrapper extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.onChatUpdate = this.onChatUpdate.bind(this);
-  }
-
   state = {
     panelStatus: PanelStatus.PANELS_HIDDEN,
     unreads: 0,
@@ -103,13 +97,14 @@ class Wrapper extends React.Component {
     }
   }
 
-  setHeaderMenuVisible(headerMenuVisible) {
+  setHeaderMenuVisible = (headerMenuVisible) => {
     this.setState({headerMenuVisible: headerMenuVisible});
   }
 
   onChatUpdate = () => {
-    console.info("UPODATE I:)", this);
     if (this.state.panelStatus === PanelStatus.CHAT_PANEL_VISIBLE) return;
+    if (this.state.unreads >= 99) return;
+
     this.setState({
       unreads: this.state.unreads + 1
     });
@@ -120,7 +115,7 @@ class Wrapper extends React.Component {
     let headerMenuVisible = this.state.headerMenuVisible;
 
     let socket = this.props.socket;
-    let room =this.props.room;
+    let room = this.props.room;
     let user = this.props.user;
 
     return (
