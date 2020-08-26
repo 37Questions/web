@@ -15,6 +15,18 @@ class AnswerList extends React.Component {
     }
   };
 
+  clickStar = (answer) => {
+    if (!this.props.askedBySelf) return;
+
+    console.info("Clicked star:", answer);
+
+    if (answer.state === AnswerState.REVEALED) {
+      this.props.socket.setFavoriteAnswer(answer.displayPosition).catch((error) => {
+        console.warn(`Failed to set favorite answer #${answer.displayPosition}:`, error.message);
+      });
+    }
+  };
+
   render = () => {
     let askedBy = this.props.askedBy;
     let askedBySelf = this.props.askedBySelf;
@@ -34,13 +46,16 @@ class AnswerList extends React.Component {
                 <ResponseCard
                   key={answer.displayPosition}
                   answer={answer}
-                  canHover={askedBySelf}
+                  canHover={answer.state === AnswerState.SUBMITTED}
+                  canFavorite={askedBySelf}
                   onClick={() => this.clickAnswer(answer)}
+                  onClickStar={() => this.clickStar(answer)}
                 />
               );
             })
           }
         </div>
+        <br />
       </div>
     );
   };

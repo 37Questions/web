@@ -47,6 +47,7 @@ function AnswerInput(props) {
           props.showResponse && <InputCard onSubmit={onSubmit} />
         }
       </div>
+      <br />
     </div>
   );
 }

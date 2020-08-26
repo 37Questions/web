@@ -98,8 +98,10 @@ class Socket {
 
   submitQuestion = (id) => this.emit("submitQuestion", {id: id});
   submitAnswer = (answer) => this.emit("submitAnswer", {answer: answer});
+
   startReadingAnswers = () => this.emit("startReadingAnswers");
   revealAnswer = (displayPosition) => this.emit("revealAnswer", {displayPosition: displayPosition});
+  setFavoriteAnswer = (displayPosition) => this.emit("setFavoriteAnswer", {displayPosition: displayPosition});
 }
 
 

@@ -2,6 +2,7 @@ import React from 'react';
 import logo from "../../logo.svg";
 import './card.scss';
 import {AnswerState} from "../../api/struct/answer";
+import {ActionButton} from "../../ui/button";
 
 function CardBacking() {
   return (
@@ -19,6 +20,7 @@ function Card(props) {
       <div className={"inner-card" + (props.flipped ? " flipped" : "")}>
         <div className={props.type + " card front"}>
           <p className="text">{props.text}</p>
+          {props.children}
         </div>
         <CardBacking />
       </div>
@@ -39,6 +41,8 @@ function QuestionCard(props) {
 }
 
 function ResponseCard(props) {
+  let isFavorite = props.answer.state === AnswerState.FAVORITE;
+
   return (
     <Card
       type="response"
@@ -47,7 +51,32 @@ function ResponseCard(props) {
       canHover={props.canHover}
       className={props.className}
       flipped={props.answer.state === AnswerState.SUBMITTED}
-    />
+    >
+      <div className={"card-controls-wrapper"}>
+        <div className={"card-controls"}>
+          {isFavorite &&
+            <ActionButton
+              className={"star active"}
+              disabled={!props.canFavorite}
+              onClick={props.onClickStar}
+              type="s"
+              icon="star"
+              title="Remove Favorite"
+            />
+          }
+          {!isFavorite &&
+            <ActionButton
+              className={"star"}
+              disabled={!props.canFavorite}
+              onClick={props.onClickStar}
+              type="d"
+              icon="star"
+              title="Favorite"
+            />
+          }
+        </div>
+      </div>
+    </Card>
   )
 }
 

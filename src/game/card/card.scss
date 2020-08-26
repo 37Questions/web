@@ -45,7 +45,54 @@ $cardHeight: 204px;
           display: block;
           cursor: text;
           padding: 0;
-          margin: 15px 0 0;
+          margin: 5px 0 0;
+        }
+
+        .card-controls-wrapper {
+          position: absolute;
+          right: 10px;
+          bottom: 10px;
+
+          .card-controls {
+            display: flex;
+            justify-content: flex-end;
+
+            .action-btn {
+              .action-btn-icon-container {
+                font-size: 22px;
+                background-color: transparent;
+              }
+
+              .action-btn-title {
+                padding: 8px 10px;
+                font-size: 0.9em;
+              }
+
+              &.star {
+
+                .fa-primary {
+                  visibility: hidden;
+                }
+
+                .fa-secondary {
+                  opacity: 1;
+                  color: $darkButtonColor;
+                }
+
+                &:hover:not(.disabled) {
+                  .fa-secondary {
+                    color: dodgerblue;
+                  }
+                }
+
+                &.active {
+                  .action-btn-icon-container {
+                    color: dodgerblue;
+                  }
+                }
+              }
+            }
+          }
         }
 
         &.response .text {
@@ -147,6 +194,11 @@ $cardHeight: 204px;
 
         .text {
           cursor: pointer;
+        }
+
+        .card-controls-wrapper {
+          right: 8px;
+          bottom: 8px;
         }
       }
     }

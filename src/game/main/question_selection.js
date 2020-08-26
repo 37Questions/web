@@ -50,6 +50,7 @@ class QuestionSelector extends React.Component {
             })
           }
         </div>
+        <br />
       </div>
     );
   };

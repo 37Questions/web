@@ -136,92 +136,17 @@
     .message-actions {
       display: flex;
 
-      .message-action {
+      .action-btn {
         $iconSize: 30px;
 
-        &:first-child .message-action-icon-container {
+        &:first-child .action-btn-icon-container {
           border-top-left-radius: $borderRadius;
           border-bottom-left-radius: $borderRadius;
         }
 
-        &:last-child .message-action-icon-container {
+        &:last-child .action-btn-icon-container {
           border-top-right-radius: $borderRadius;
           border-bottom-right-radius: $borderRadius;
-        }
-
-        .message-action-icon-container {
-          box-sizing: border-box;
-
-          color: rgba(black, 0.7);
-
-          @media (prefers-color-scheme: dark) {
-            color: rgba(white, 0.7);
-          }
-
-          width: $iconSize;
-          height: $iconSize;
-
-          display: flex;
-          justify-content: center;
-          align-items: center;
-
-          cursor: pointer;
-
-          &:hover {
-            background-color: rgba(black, 0.08);
-
-            @media (prefers-color-scheme: dark) {
-              background-color: rgba(white, 0.1);
-            }
-          }
-        }
-
-        .message-action-title-container {
-          box-sizing: border-box;
-
-          position: absolute;
-          top: -8px;
-          transform: translateY(-100%) translateX(calc(-50% + #{$iconSize / 2}));
-
-          background-color: black;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-
-          box-shadow: 0 3px 10px rgba(black, 0.3);
-          border-radius: 5px;
-
-          visibility: hidden;
-          opacity: 0;
-
-          transition: visibility 0.1s ease, opacity 0.1s ease;
-
-          &:before, &:after {
-            content: "";
-            position: absolute;
-            bottom: -5px;
-            z-index: 12;
-            width: 0;
-            height: 0;
-            border: solid 5px transparent;
-            border-bottom: 0;
-            border-top-color: black;
-          }
-
-          .message-action-title {
-            color: $lightTextColor;
-            text-align: right;
-            padding: 5px 6px;
-            font-size: 0.9em;
-            font-weight: 500;
-          }
-        }
-
-        &.hovered {
-          .message-action-title-container {
-            visibility: visible;
-            opacity: 1;
-          }
         }
       }
     }
