@@ -6,12 +6,12 @@ import {LoadingSpinner} from "../../splash";
 import {AnswerCollector, AnswerInput} from "./answer_collection";
 import {QuestionSelector} from "./question_selection";
 import {AnswerList} from "./answer_list";
-import {AnswerState} from "../../api/struct/answer";
 
 class Game extends React.Component {
   state = {
     questions: [],
     answers: [],
+    favoriteAnswers: [],
     hasAnswered: false
   };
 
@@ -56,32 +56,11 @@ class Game extends React.Component {
   };
 
   onAnswerFavorited = (data) => {
-    let displayPosition = data.displayPosition;
-    let answers = this.state.answers;
-
-    if (answers.length < displayPosition) return console.warn(`Tried to favorite out-of-bounds answer #${displayPosition}:`, answers);
-
-    for (let a = 0; a < answers.length; a++) {
-      let answer = answers[a];
-      if (answer.state === AnswerState.SUBMITTED) continue;
-      answer.state = answer.displayPosition === displayPosition ? AnswerState.FAVORITE : AnswerState.REVEALED;
-    }
-
-    console.info(`Answer #${displayPosition} favorited:`, answers);
-    this.setState({answers: answers});
+    this.setState({favoriteAnswers: [data.displayPosition]});
   };
 
   onFavoriteAnswerCleared = () => {
-    let answers = this.state.answers;
-
-    for (let a = 0; a < answers.length; a++) {
-      let answer = answers[a];
-      if (answer.state !== AnswerState.FAVORITE) continue;
-      answer.state = AnswerState.REVEALED;
-    }
-
-    console.info("Favorite answer cleared:", answers);
-    this.setState({answers: answers});
+    this.setState({favoriteAnswers: []});
   }
 
   componentDidUpdate = (prevProps) => {
@@ -101,6 +80,7 @@ class Game extends React.Component {
     this.setState({
       questions: this.props.room.questions,
       answers: this.props.room.answers,
+      favoriteAnswers: this.props.room.favoriteAnswers,
       hasAnswered: false
     });
   }
@@ -192,6 +172,7 @@ class Game extends React.Component {
           askedBySelf={askedBySelf}
           askedBy={askedBy}
           answers={answers}
+          favoriteAnswers={this.state.favoriteAnswers}
         />
       );
     }

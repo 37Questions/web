@@ -41,8 +41,6 @@ function QuestionCard(props) {
 }
 
 function ResponseCard(props) {
-  let isFavorite = props.answer.state === AnswerState.FAVORITE;
-
   return (
     <Card
       type="response"
@@ -54,7 +52,7 @@ function ResponseCard(props) {
     >
       <div className={"card-controls-wrapper"}>
         <div className={"card-controls"}>
-          {isFavorite &&
+          {props.isFavorite &&
             <ActionButton
               className={"star active"}
               disabled={!props.canFavorite}
@@ -64,7 +62,7 @@ function ResponseCard(props) {
               title="Remove Favorite"
             />
           }
-          {!isFavorite &&
+          {!props.isFavorite &&
             <ActionButton
               className={"star"}
               disabled={!props.canFavorite}

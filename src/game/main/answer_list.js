@@ -20,13 +20,14 @@ class AnswerList extends React.Component {
 
     console.info("Clicked star:", answer);
 
-    if (answer.state === AnswerState.REVEALED) {
-      this.props.socket.setFavoriteAnswer(answer.displayPosition).catch((error) => {
-        console.warn(`Failed to set favorite answer #${answer.displayPosition}:`, error.message);
-      });
-    } else if (answer.state === AnswerState.FAVORITE) {
+    let isFavorite = !!this.props.favoriteAnswers.includes(answer.displayPosition);
+    if (isFavorite) {
       this.props.socket.clearFavoriteAnswer().catch((error) => {
         console.warn(`Failed to clear favorite answer #${answer.displayPosition}:`, error.message);
+      });
+    } else if (answer.state === AnswerState.REVEALED) {
+      this.props.socket.setFavoriteAnswer(answer.displayPosition).catch((error) => {
+        console.warn(`Failed to set favorite answer #${answer.displayPosition}:`, error.message);
       });
     }
   };
@@ -50,7 +51,8 @@ class AnswerList extends React.Component {
                 <ResponseCard
                   key={answer.displayPosition}
                   answer={answer}
-                  canHover={answer.state === AnswerState.SUBMITTED}
+                  isFavorite={!!this.props.favoriteAnswers.includes(answer.displayPosition)}
+                  canHover={askedBySelf && answer.state === AnswerState.SUBMITTED}
                   canFavorite={askedBySelf}
                   onClick={() => this.clickAnswer(answer)}
                   onClickStar={() => this.clickStar(answer)}
