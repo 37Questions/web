@@ -65,6 +65,11 @@ class AnswerList extends React.Component {
     });
   };
 
+  finalizeGuesses = (e) => {
+    e.stopPropagation();
+    console.info("TODO: finalize guesses");
+  };
+
   render = () => {
     let users = this.props.users;
     let askedBy = this.props.askedBy;
@@ -134,20 +139,25 @@ class AnswerList extends React.Component {
           <Button className="finish-guessing-btn" onClick={this.stopGuessing}>
             Back
           </Button>
+          <br />
         </div>
       );
     }
 
     let hiddenAnswers = 0;
+    let unguessedAnswers = 0;
+    let numFavorites = this.props.favoriteAnswers.length;
     this.props.answers.forEach((answer) => {
       if (answer.state === AnswerState.SUBMITTED) hiddenAnswers++;
+      else if (answer.guesses.length === 0) unguessedAnswers++;
     });
 
     let prompt = "Click any answer to reveal it";
     if (!askedBySelf) prompt = "They are reading the answers";
     else if (hiddenAnswers === 0) {
-      if (this.props.favoriteAnswers.length === 0) prompt = "Click on a star to choose your favorite answer";
-      else prompt = "Click on an answer to guess who wrote it";
+      if (numFavorites === 0) prompt = "Click on a star to choose your favorite answer";
+      else if (unguessedAnswers > 0) prompt = "Click on an answer to guess who wrote it";
+      else prompt = "Press Continue to finalize your guesses"
     }
 
     return (
@@ -176,6 +186,11 @@ class AnswerList extends React.Component {
             })
           }
         </div>
+        {askedBySelf &&
+          <Button className="finalize-guesses-btn" onClick={this.finalizeGuesses} isDisabled={numFavorites === 0 || unguessedAnswers > 0}>
+            Continue
+          </Button>
+        }
         <br />
       </div>
     );
