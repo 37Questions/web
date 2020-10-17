@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {Header, HeaderMenu} from "./header";
+import {Header, HeaderMenu} from "./overlay/header";
+import {SuggestionOverlay} from "./overlay/suggestion_overlay";
 import Scoreboard from "./scoreboard/scoreboard";
 import Chat from "./chat/chat";
 import './wrapper.scss';
@@ -15,12 +16,12 @@ function SidebarButton(props) {
   const onClickIcon = (e) => {
     e.stopPropagation();
     handleClick();
-  }
+  };
 
   const handleClick = () => {
     setHovered(false);
     props.onClick();
-  }
+  };
 
   const text = (
     <div className="title">
@@ -60,11 +61,17 @@ class PanelStatus {
   static CHAT_PANEL_VISIBLE = 2;
 }
 
+class OverlayStatus {
+  static OVERLAYS_HIDDEN = 0;
+  static HEADER_MENU_VISIBLE = 1;
+  static SUGGESTION_PANEL_VISIBLE = 2;
+}
+
 class Wrapper extends React.Component {
   state = {
     panelStatus: PanelStatus.PANELS_HIDDEN,
-    unreads: 0,
-    headerMenuVisible: false
+    overlayStatus: OverlayStatus.OVERLAYS_HIDDEN,
+    unreads: 0
   };
 
   toggleUserPanel = () => {
@@ -82,7 +89,7 @@ class Wrapper extends React.Component {
       panelStatus: status,
       unreads: status === PanelStatus.CHAT_PANEL_VISIBLE ? 0 : this.state.unreads
     });
-  }
+  };
 
   hidePanels = () => this.setState({panelStatus: PanelStatus.PANELS_HIDDEN});
 
@@ -95,11 +102,15 @@ class Wrapper extends React.Component {
       default:
         return "without-panels";
     }
-  }
+  };
 
   setHeaderMenuVisible = (headerMenuVisible) => {
-    this.setState({headerMenuVisible: headerMenuVisible});
-  }
+    this.setState({overlayStatus: headerMenuVisible ? OverlayStatus.HEADER_MENU_VISIBLE : OverlayStatus.OVERLAYS_HIDDEN});
+  };
+
+  setSuggestionPanelVisible = (suggestionPanelVisible) => {
+    this.setState({overlayStatus: suggestionPanelVisible ? OverlayStatus.SUGGESTION_PANEL_VISIBLE : OverlayStatus.OVERLAYS_HIDDEN});
+  };
 
   onChatUpdate = () => {
     if (this.state.panelStatus === PanelStatus.CHAT_PANEL_VISIBLE) return;
@@ -112,7 +123,7 @@ class Wrapper extends React.Component {
 
   render = () => {
     let panelStatus = this.state.panelStatus;
-    let headerMenuVisible = this.state.headerMenuVisible;
+    let overlayStatus = this.state.overlayStatus;
 
     let socket = this.props.socket;
     let room = this.props.room;
@@ -121,7 +132,7 @@ class Wrapper extends React.Component {
     return (
       <div id="wrapper">
         <div id="top-bar">
-          <Header withMenu={headerMenuVisible} toggleMenu={this.setHeaderMenuVisible} />
+          <Header withMenu={overlayStatus === OverlayStatus.HEADER_MENU_VISIBLE} toggleMenu={this.setHeaderMenuVisible} />
         </div>
         <div id="game-wrapper" className={this.getPanelString()}>
           <div id="game-layout">
@@ -157,8 +168,18 @@ class Wrapper extends React.Component {
             className="overlay"
             onClick={this.hidePanels}
           />
-          <HeaderMenu visible={headerMenuVisible} setVisible={this.setHeaderMenuVisible} leaveRoom={this.props.leaveRoom} />
+          <HeaderMenu
+            visible={overlayStatus === OverlayStatus.HEADER_MENU_VISIBLE}
+            setVisible={this.setHeaderMenuVisible}
+            openSuggestionPanel={() => this.setSuggestionPanelVisible(true)}
+            leaveRoom={this.props.leaveRoom}
+          />
         </div>
+        <SuggestionOverlay
+          visible={overlayStatus === OverlayStatus.SUGGESTION_PANEL_VISIBLE}
+          close={() => this.setSuggestionPanelVisible(false)}
+          socket={socket}
+        />
       </div>
     );
   };

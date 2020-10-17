@@ -1,6 +1,6 @@
 import React from "react";
 import onClickOutside from "react-onclickoutside";
-import logo from "../logo.svg";
+import logo from "../../logo.svg";
 import "./header.scss"
 
 function Header(props) {
@@ -44,8 +44,8 @@ class HeaderMenu extends React.Component {
     return (
       <div id="header-menu-container" className={(this.props.visible ? "visible" : "")}>
         <div id="header-menu">
-          <HeaderMenuItem title="Suggest a Question" icon="lightbulb "/>
-          <HeaderMenuItem title="Support us on Patreon" icon="hand-holding-usd" />
+          <HeaderMenuItem title="Suggest a Question" icon="lightbulb" onClick={this.props.openSuggestionPanel} />
+          <HeaderMenuItem title="Support us on Patreon" icon="hand-holding-usd"/>
           <HeaderMenuItem title="Leave Room" icon="house-leave" onClick={this.props.leaveRoom} />
         </div>
       </div>

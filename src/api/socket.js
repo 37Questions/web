@@ -96,6 +96,8 @@ class Socket {
     }).then((res) => res.unchainMessageId);
   }
 
+  suggestQuestion = (question) => this.emit("suggestQuestion", {question: question});
+
   submitQuestion = (id) => this.emit("submitQuestion", {id: id});
   submitAnswer = (answer) => this.emit("submitAnswer", {answer: answer});
 

@@ -1,0 +1,74 @@
+@import "../../theme";
+
+#suggestion-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-color: rgba(1, 1, 1, 0.4);
+  z-index: 200;
+
+  transition: visibility 0.2s ease, opacity 0.2s ease;
+  visibility: hidden;
+  opacity: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &.visible {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  #suggestion-panel-wrapper {
+    background-color: $lightBackgroundColor;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: $darkBackgroundColor;
+    }
+
+    box-sizing: border-box;
+    max-width: 500px;
+    border: 2px solid $darkTextColor;
+
+    @media (max-width: 500px) {
+      border-left-width: 0;
+      border-right-width: 0;
+    }
+
+    overflow-y: scroll;
+    max-height: 100%;
+
+    #suggestion-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+
+      padding: 20px 50px;
+      height: 100%;
+
+      h1 {
+        margin: 0;
+      }
+
+      .submission-thanks {
+        color: dodgerblue;
+      }
+
+      .suggestion-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .button {
+        margin: 15px 0 0;
+      }
+    }
+  }
+}

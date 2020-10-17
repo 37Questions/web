@@ -92,6 +92,7 @@ class InputCard extends React.Component {
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onInputChanged = this.onInputChanged.bind(this);
     this.submit = this.submit.bind(this);
+    this.reset = this.reset.bind(this);
   }
 
   onKeyDown(e) {
@@ -131,7 +132,14 @@ class InputCard extends React.Component {
         flipped: true
       }, () => {
         if (!this.props.onSubmit) return;
-        this.props.onSubmit(text).catch((error) => {
+        this.props.onSubmit(text).then(() => {
+          if (this.props.resetOnSubmit) {
+            this.input.current.value = "";
+            this.setState({
+              flipped: false
+            });
+          }
+        }).catch((error) => {
           console.warn("Card failed to submit:", error.message);
           this.setState({
             flipped: false,
@@ -142,6 +150,14 @@ class InputCard extends React.Component {
     }
   }
 
+  reset() {
+    this.input.current.value = "";
+    this.setState({
+      flipped: false,
+      error: null
+    });
+  }
+
   render() {
     return (
       <div className="outer-card">
@@ -150,7 +166,7 @@ class InputCard extends React.Component {
             <textarea
               maxLength="140"
               className="text"
-              placeholder={this.state.error || "your answer..."}
+              placeholder={this.state.error || this.props.placeholder || "your answer..."}
               onKeyDown={this.onKeyDown}
               onInput={this.onInputChanged}
               ref={this.input}
