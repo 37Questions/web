@@ -169,9 +169,11 @@ class Game extends React.Component {
         <AnswerList
           socket={this.props.socket}
           question={questions[0]}
-          askedBySelf={askedBySelf}
           askedBy={askedBy}
           answers={answers}
+          self={user}
+          // TODO: only include players who submitted an answer (including players who submitted and then left)
+          users={activePlayers}
           favoriteAnswers={this.state.favoriteAnswers}
         />
       );

@@ -54,7 +54,7 @@ function ResponseCard(props) {
         <div className={"card-controls"}>
           {props.isFavorite &&
             <ActionButton
-              className={"star active"}
+              className={"card-btn active"}
               disabled={!props.canFavorite}
               onClick={props.onClickStar}
               type="s"
@@ -62,12 +62,12 @@ function ResponseCard(props) {
               title="Remove Favorite"
             />
           }
-          {!props.isFavorite &&
+          {!props.isFavorite && props.canFavorite &&
             <ActionButton
-              className={"star"}
+              className={"card-btn"}
               disabled={!props.canFavorite}
               onClick={props.onClickStar}
-              type="d"
+              type="r"
               icon="star"
               title="Favorite"
             />
@@ -132,14 +132,7 @@ class InputCard extends React.Component {
         flipped: true
       }, () => {
         if (!this.props.onSubmit) return;
-        this.props.onSubmit(text).then(() => {
-          if (this.props.resetOnSubmit) {
-            this.input.current.value = "";
-            this.setState({
-              flipped: false
-            });
-          }
-        }).catch((error) => {
+        this.props.onSubmit(text).catch((error) => {
           console.warn("Card failed to submit:", error.message);
           this.setState({
             flipped: false,

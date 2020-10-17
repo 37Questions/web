@@ -45,7 +45,7 @@ class HeaderMenu extends React.Component {
       <div id="header-menu-container" className={(this.props.visible ? "visible" : "")}>
         <div id="header-menu">
           <HeaderMenuItem title="Suggest a Question" icon="lightbulb" onClick={this.props.openSuggestionPanel} />
-          <HeaderMenuItem title="Support us on Patreon" icon="hand-holding-usd"/>
+          <HeaderMenuItem title="Support us on Patreon" icon="hand-holding-usd" onClick={() => window.open("https://www.patreon.com/raphhennessy", "_blank")}/>
           <HeaderMenuItem title="Leave Room" icon="house-leave" onClick={this.props.leaveRoom} />
         </div>
       </div>

@@ -57,39 +57,25 @@ $cardHeight: 204px;
             display: flex;
             justify-content: flex-end;
 
-            .action-btn {
+            .card-btn {
               .action-btn-icon-container {
                 font-size: 22px;
                 background-color: transparent;
+
+                color: $darkButtonColor;
+
+                &:hover:not(.disabled) {
+                  color: dodgerblue;
+                }
+              }
+
+              &.active .action-btn-icon-container {
+                color: dodgerblue;
               }
 
               .action-btn-title {
                 padding: 8px 10px;
                 font-size: 0.9em;
-              }
-
-              &.star {
-
-                .fa-primary {
-                  visibility: hidden;
-                }
-
-                .fa-secondary {
-                  opacity: 1;
-                  color: $darkButtonColor;
-                }
-
-                &:hover:not(.disabled) {
-                  .fa-secondary {
-                    color: dodgerblue;
-                  }
-                }
-
-                &.active {
-                  .action-btn-icon-container {
-                    color: dodgerblue;
-                  }
-                }
               }
             }
           }
