@@ -61,7 +61,36 @@ class Game extends React.Component {
 
   onFavoriteAnswerCleared = () => {
     this.setState({favoriteAnswers: []});
-  }
+  };
+
+  onAnswerGuessed = (data) => {
+    let answers = this.state.answers;
+
+    console.info("Received guess for answer #" + data.displayPosition + " for user #" + data.guessedUserId);
+
+    // TODO: democratic guessing
+    answers.forEach((answer) => {
+
+
+      if (answer.displayPosition === data.displayPosition) {
+        answer.guesses = [{
+          guessedUserId: data.guessedUserId
+        }];
+      } else {
+        // Remove existing guesses for the same user id
+        let g = answer.guesses.length;
+        while (g--) {
+          if (answer.guesses[g].guessedUserId === data.guessedUserId) {
+            answer.guesses.splice(g, 1);
+          }
+        }
+      }
+    });
+
+    this.setState({
+      answers: answers
+    });
+  };
 
   componentDidUpdate = (prevProps) => {
     if (!this.props.room) return;
@@ -76,6 +105,7 @@ class Game extends React.Component {
     socket.on("answerRevealed", this.onAnswerRevealed);
     socket.on("answerFavorited", this.onAnswerFavorited);
     socket.on("favoriteAnswerCleared", this.onFavoriteAnswerCleared);
+    socket.on("answerGuessed", this.onAnswerGuessed);
 
     this.setState({
       questions: this.props.room.questions,
@@ -83,7 +113,7 @@ class Game extends React.Component {
       favoriteAnswers: this.props.room.favoriteAnswers,
       hasAnswered: false
     });
-  }
+  };
 
   render() {
     let room = this.props.room;
@@ -173,7 +203,7 @@ class Game extends React.Component {
           answers={answers}
           self={user}
           // TODO: only include players who submitted an answer (including players who submitted and then left)
-          users={activePlayers}
+          users={room.users}
           favoriteAnswers={this.state.favoriteAnswers}
         />
       );

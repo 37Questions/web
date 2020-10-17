@@ -48,8 +48,14 @@ class AnswerList extends React.Component {
   };
 
   makeGuess = (e, answer, user) => {
+    if (!this.wasAskedBySelf()) return;
+
     e.stopPropagation();
-    console.info("Guess for " + answer + " is " + user);
+    console.info("Guess for ", answer, " is ", user);
+
+    this.props.socket.makeAuthorGuess(answer.displayPosition, user.id).catch((error) => {
+      console.warn(`Failed to make guess for answer #${answer.displayPosition}:`, error.message);
+    });
   };
 
   stopGuessing = (e) => {
@@ -60,12 +66,12 @@ class AnswerList extends React.Component {
   };
 
   render = () => {
+    let users = this.props.users;
     let askedBy = this.props.askedBy;
     let self = this.props.self;
     let askedBySelf = this.wasAskedBySelf();
 
     if (this.state.selectedAnswer) {
-      let users = this.props.users;
 
       return (
         <div className="answer-guessing">
@@ -74,6 +80,7 @@ class AnswerList extends React.Component {
             <QuestionCard text={this.props.question.question} />
             <ResponseCard
               answer={this.state.selectedAnswer}
+              users={users}
               canFavorite={true}
               isFavorite={!!this.props.favoriteAnswers.includes(this.state.selectedAnswer.displayPosition)}
               onClickStar={(e) => this.clickStar(e, this.state.selectedAnswer)}
@@ -86,9 +93,28 @@ class AnswerList extends React.Component {
                 let user = users[userId];
                 if (!user.name || !user.icon || user.id === self.id) return null;
 
+                let selected = false;
+                for (let g = 0; g < this.state.selectedAnswer.guesses.length; g++) {
+                  if (this.state.selectedAnswer.guesses[g].guessedUserId === user.id) selected = true;
+                }
+
+                let selectedElsewhere = false;
+                if (!selected) {
+                  for (let a = 0; a < this.props.answers.length; a++) {
+                    let answer = this.props.answers[a];
+                    for (let g = 0; g < answer.guesses.length; g++) {
+                      let guess = answer.guesses[g];
+                      if (guess.guessedUserId === user.id) {
+                        selectedElsewhere = true;
+                        break;
+                      }
+                    }
+                  }
+                }
+
                 return (
                   <div
-                    className={"guessable-user"}
+                    className={"guessable-user" + (selected ? " selected" : (selectedElsewhere ? " selected-elsewhere" : ""))}
                     style={{backgroundColor: `hsl(${user.icon.backgroundColor}, 70%, 80%)`}}
                     onClick={(e) => this.makeGuess(e, this.state.selectedAnswer, user)}
                     key={user.id}
@@ -139,6 +165,7 @@ class AnswerList extends React.Component {
                 <ResponseCard
                   key={answer.displayPosition}
                   answer={answer}
+                  users={users}
                   isFavorite={!!this.props.favoriteAnswers.includes(answer.displayPosition)}
                   canHover={askedBySelf}
                   canFavorite={askedBySelf}

@@ -3,6 +3,7 @@ import logo from "../../logo.svg";
 import './card.scss';
 import {AnswerState} from "../../api/struct/answer";
 import {ActionButton} from "../../ui/button";
+import Icon from "../../setup/icon";
 
 function CardBacking() {
   return (
@@ -71,6 +72,17 @@ function ResponseCard(props) {
               icon="star"
               title="Favorite"
             />
+          }
+          {props.users &&
+            props.answer.guesses.map((guess) => {
+              if (!props.users.hasOwnProperty(guess.guessedUserId)) return null;
+              let user = props.users[guess.guessedUserId];
+              return (
+                <div className="answer-guess-icon" key={guess.guessedUserId}>
+                  <Icon icon={user.icon} />
+                </div>
+              );
+            })
           }
         </div>
       </div>

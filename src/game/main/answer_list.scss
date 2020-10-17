@@ -46,8 +46,12 @@
         margin: 0 5px;
       }
 
-      &:hover {
+      &:hover, &.selected {
         border-color: dodgerblue;
+      }
+
+      &.selected-elsewhere {
+        opacity: 0.5;
       }
     }
   }

@@ -103,8 +103,14 @@ class Socket {
 
   startReadingAnswers = () => this.emit("startReadingAnswers");
   revealAnswer = (displayPosition) => this.emit("revealAnswer", {displayPosition: displayPosition});
+
   setFavoriteAnswer = (displayPosition) => this.emit("setFavoriteAnswer", {displayPosition: displayPosition});
   clearFavoriteAnswer = () => this.emit("clearFavoriteAnswer");
+
+  makeAuthorGuess = (displayPosition, guessedUserId) => this.emit("makeAuthorGuess", {
+    displayPosition: displayPosition,
+    guessedUserId: guessedUserId
+  });
 }
 
 
