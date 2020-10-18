@@ -74,21 +74,22 @@ class AnswerList extends React.Component {
     let users = this.props.users;
     let askedBy = this.props.askedBy;
     let self = this.props.self;
+    let selectedAnswer = this.state.selectedAnswer;
     let askedBySelf = this.wasAskedBySelf();
 
-    if (this.state.selectedAnswer) {
-
+    if (selectedAnswer) {
+      let answerUserIds = this.props.answerUserIds;
       return (
         <div className="answer-guessing">
           <h1>Someone responded to {askedBySelf ? "your" : (askedBy ? (askedBy.name + "'s") : "a")} question</h1>
           <div className="card-list">
             <QuestionCard text={this.props.question.question} />
             <ResponseCard
-              answer={this.state.selectedAnswer}
+              answer={selectedAnswer}
               users={users}
               canFavorite={true}
-              isFavorite={!!this.props.favoriteAnswers.includes(this.state.selectedAnswer.displayPosition)}
-              onClickStar={(e) => this.clickStar(e, this.state.selectedAnswer)}
+              isFavorite={!!this.props.favoriteAnswers.includes(selectedAnswer.displayPosition)}
+              onClickStar={(e) => this.clickStar(e, selectedAnswer)}
             />
           </div>
           <p className="select-prompt">Select the player who you think wrote this answer</p>
@@ -96,11 +97,11 @@ class AnswerList extends React.Component {
             {
               Object.keys(users).map((userId) => {
                 let user = users[userId];
-                if (!user.name || !user.icon || user.id === self.id) return null;
+                if (!user.name || !user.icon || user.id === self.id || !answerUserIds.includes(user.id)) return null;
 
                 let selected = false;
-                for (let g = 0; g < this.state.selectedAnswer.guesses.length; g++) {
-                  if (this.state.selectedAnswer.guesses[g].guessedUserId === user.id) selected = true;
+                for (let g = 0; g < selectedAnswer.guesses.length; g++) {
+                  if (selectedAnswer.guesses[g].guessedUserId === user.id) selected = true;
                 }
 
                 let selectedElsewhere = false;
@@ -121,7 +122,7 @@ class AnswerList extends React.Component {
                   <div
                     className={"guessable-user" + (selected ? " selected" : (selectedElsewhere ? " selected-elsewhere" : ""))}
                     style={{backgroundColor: `hsl(${user.icon.backgroundColor}, 70%, 80%)`}}
-                    onClick={(e) => this.makeGuess(e, this.state.selectedAnswer, user)}
+                    onClick={(e) => this.makeGuess(e, selectedAnswer, user)}
                     key={user.id}
                   >
                     <Icon icon={user.icon} className="user-icon"/>

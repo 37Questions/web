@@ -11,6 +11,7 @@ class Game extends React.Component {
   state = {
     questions: [],
     answers: [],
+    answerUserIds: [],
     favoriteAnswers: [],
     hasAnswered: false
   };
@@ -40,7 +41,8 @@ class Game extends React.Component {
   onAnswersReceived = (data) => {
     console.info("Answers received:", data.answers);
     this.setState({
-      answers: data.answers
+      answers: data.answers,
+      answerUserIds: data.answerUserIds
     });
   };
 
@@ -110,6 +112,7 @@ class Game extends React.Component {
     this.setState({
       questions: this.props.room.questions,
       answers: this.props.room.answers,
+      answerUserIds: this.props.room.answerUserIds,
       favoriteAnswers: this.props.room.favoriteAnswers,
       hasAnswered: false
     });
@@ -202,8 +205,8 @@ class Game extends React.Component {
           askedBy={askedBy}
           answers={answers}
           self={user}
-          // TODO: only include players who submitted an answer (including players who submitted and then left)
           users={room.users}
+          answerUserIds={this.state.answerUserIds}
           favoriteAnswers={this.state.favoriteAnswers}
         />
       );

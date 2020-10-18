@@ -13,6 +13,7 @@ class Room {
     this.state = room.state;
     this.questions = room.questions;
     this.answers = room.answers;
+    this.answerUserIds = room.answerUserIds;
     this.favoriteAnswers = room.favoriteAnswers;
 
     this.clientId = room.clientId;
