@@ -205,8 +205,7 @@ $cardHeight: 204px;
   }
 
   &.guess-correct .inner-card .card {
-    padding: 8px 18px;
-    border: 4px solid green;
+    background-color: #8cff8a;
 
     .card-controls-wrapper .card-controls .answer-guess-icon .icon-wrapper {
       border: 2px solid green;
@@ -214,8 +213,7 @@ $cardHeight: 204px;
   }
 
   &.guess-incorrect .inner-card .card  {
-    padding: 8px 18px;
-    border: 4px solid red;
+    background-color: #ffa18a;
 
     .card-controls-wrapper .card-controls .answer-guess-icon .icon-wrapper {
       border: 2px solid red;

@@ -112,6 +112,7 @@ class Socket {
     guessedUserId: guessedUserId
   });
   finalizeGuesses = () => this.emit("finalizeGuesses");
+  finishRound = () => this.emit("finishRound");
 }
 
 

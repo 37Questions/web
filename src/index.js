@@ -298,10 +298,20 @@ class QuestionsGame extends React.Component {
 
     room.state = RoomState.VIEWING_RESULTS;
 
+    // TODO: customize points gained
     room.forEachUser((user) => {
-      if (user.id === data.winnerId) user.state = UserState.WINNER;
-      else if (user.id === data.askingNextId) user.state = UserState.ASKING_NEXT;
-      else if (user.state === UserState.READING_ANSWERS) user.state = UserState.ASKED_QUESTION;
+      if (user.id === data.winnerId) {
+        user.state = UserState.WINNER;
+        user.score += 2;
+      } else if (user.id === data.askingNextId) user.state = UserState.ASKING_NEXT;
+      else if (user.state === UserState.READING_ANSWERS) {
+        let correctGuesses = 0;
+        Object.keys(data.guessResults).forEach((displayPosition) => {
+          if (data.guessResults[displayPosition]) correctGuesses++;
+        });
+        user.state = UserState.ASKED_QUESTION;
+        user.score += correctGuesses;
+      }
       else user.state = UserState.IDLE;
     });
 
@@ -328,6 +338,7 @@ class QuestionsGame extends React.Component {
       socket.on("questionSelected", this.onQuestionSelected);
       socket.on("startReadingAnswers", this.startReadingAnswers);
       socket.on("startViewingResults", this.onResultsReceived);
+      socket.on("startRound", this.onRoundStarted);
 
       this.gameWrapper.current.initSocketEvents(socket);
       this.setState({socket: socket});

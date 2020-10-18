@@ -3,9 +3,9 @@ import {QuestionCard, ResponseCard} from "../card/card";
 import {AnswerState} from "../../api/struct/answer";
 import {RoomState, RoomVotingMethod} from "../../api/struct/room";
 import {UserState} from "../../api/struct/user";
-import "./answer_list.scss";
 import {Button} from "../../ui/button";
 import Icon from "../../setup/icon";
+import "./answer_list.scss";
 
 class AnswerList extends React.Component {
   state = {
@@ -16,6 +16,10 @@ class AnswerList extends React.Component {
   wasWonBySelf = () => this.props.wonBy && this.props.wonBy.id === this.props.self.id;
 
   canInteract = () => this.props.room.state === RoomState.READING_ANSWERS && this.wasAskedBySelf();
+  canFinishRound = () => {
+    let [method, state] = [this.props.room.votingMethod, this.props.self.state];
+    return (method === RoomVotingMethod.WINNER && state === UserState.WINNER) || (method === RoomVotingMethod.ROTATE && state === UserState.ASKING_NEXT);
+  };
 
   clickAnswer = (answer) => {
     if (!this.canInteract()) return;
@@ -70,22 +74,35 @@ class AnswerList extends React.Component {
     });
   };
 
-  finalizeGuesses = (e) => {
+  onContinue = (e) => {
     e.stopPropagation();
-    if (!this.canInteract()) return;
 
-    let unguessedAnswers = 0;
-    this.props.answers.forEach((answer) => {
-      if (answer.guesses.length === 0) unguessedAnswers++;
-    });
-    if (this.props.favoriteAnswers.length === 0 || unguessedAnswers > 0) {
-      console.warn("Tried to finalize guesses in incorrect state", this.props);
-      return;
+    let room = this.props.room;
+
+    if (room.state === RoomState.READING_ANSWERS) {
+      if (!this.canInteract()) return;
+
+      let unguessedAnswers = 0;
+      this.props.answers.forEach((answer) => {
+        if (answer.guesses.length === 0) unguessedAnswers++;
+      });
+      if (this.props.favoriteAnswers.length === 0 || unguessedAnswers > 0) {
+        console.warn("Tried to finalize guesses in incorrect state", this.props);
+        return;
+      }
+      console.info("Finalizing guesses..");
+      this.props.socket.finalizeGuesses().catch((err) => {
+        console.warn("Failed to finalize guesses:", err.message);
+      });
+    } else if (room.state === RoomState.VIEWING_RESULTS) {
+      if (!this.canFinishRound()) return;
+
+      console.info("Finishing round...");
+      this.props.socket.finishRound().catch((err) => {
+        console.warn("Failed to finish round:", err.message);
+      });
     }
-    console.info("Finalizing guesses..");
-    this.props.socket.finalizeGuesses().catch((err) => {
-      console.warn("Failed to finalize guesses:", err.message);
-    });
+
   };
 
   render = () => {
@@ -199,9 +216,8 @@ class AnswerList extends React.Component {
         let correct = guessResults[displayPosition];
         if (correct) correctAnswers++;
       });
-      prompt = (askedBySelf ? "You" : "They") + " guessed " + correctAnswers + " answer" + (correctAnswers === 1 ? "" : "s") +" correctly";
-      if ((room.votingMethod === RoomVotingMethod.WINNER && self.state === UserState.WINNER)
-        || (room.votingMethod === RoomVotingMethod.ROTATE && self.state === UserState.ASKING_NEXT)) {
+      prompt = (askedBySelf ? "You" : "They") + " guessed " + correctAnswers + " answer" + (correctAnswers === 1 ? "" : "s") + " correctly";
+      if (this.canFinishRound()) {
         prompt = "Press Continue to start the next round";
         canContinue = true;
       }
@@ -241,7 +257,7 @@ class AnswerList extends React.Component {
           }
         </div>
         {((room.state === RoomState.READING_ANSWERS && askedBySelf) || (room.state === RoomState.VIEWING_RESULTS && canContinue)) &&
-        <Button className="finalize-guesses-btn" onClick={this.finalizeGuesses} isDisabled={!canContinue}>
+        <Button className="finalize-guesses-btn" onClick={this.onContinue} isDisabled={!canContinue}>
           Continue
         </Button>
         }

@@ -17,6 +17,16 @@ class Game extends React.Component {
     hasAnswered: false
   };
 
+  onRoundStarted = () => {
+    this.setState({
+      answers: [],
+      answerUserIds: [],
+      favoriteAnswers: [],
+      guessResults: {},
+      hasAnswered: false
+    });
+  };
+
   onQuestionsListReceived = (data) => {
     console.info("Received question list:", data);
     this.setState({
@@ -102,6 +112,7 @@ class Game extends React.Component {
   initSocketEvents = (socket) => {
     console.info("Registering game event listeners");
 
+    socket.on("startRound", this.onRoundStarted);
     socket.on("newQuestionsList", this.onQuestionsListReceived);
     socket.on("questionSelected", this.onQuestionSelected);
     socket.on("startReadingAnswers", this.onAnswersReceived);
