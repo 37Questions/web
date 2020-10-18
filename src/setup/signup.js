@@ -77,8 +77,7 @@ class Signup extends React.Component {
       if (error) return console.info("User setup failed:", error);
       this.props.onComplete(username, icon);
     });
-  }
-
+  };
 
   render() {
     return (

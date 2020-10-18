@@ -108,14 +108,10 @@ class Chat extends React.Component {
     }
 
     this.setState({messages: messages});
-  }
+  };
 
-  componentDidUpdate = (prevProps) => {
-    if (!this.props.room) return;
-    if (prevProps.room && prevProps.room.clientId === this.props.room.clientId) return;
-
+  initSocketEvents = (socket) => {
     console.info("Registering chat event listeners");
-    let socket = this.props.socket;
 
     socket.on("userJoined", this.onMessageReceived);
     socket.on("userLeft", this.onMessageReceived);
@@ -126,11 +122,15 @@ class Chat extends React.Component {
     socket.on("messageLiked", this.onMessageLiked);
     socket.on("messageUnliked", this.onMessageUnliked);
     socket.on("messageDeleted", this.onMessageDeleted);
+  };
+
+  setRoom = (room) => {
+    console.info("Initializing room for chat panel");
 
     this.setState({
-      messages: this.props.room.messages
+      messages: room.messages
     });
-  }
+  };
 
   onInput = (e) => {
     // Enter key is pressed
@@ -145,10 +145,10 @@ class Chat extends React.Component {
         this.chatEndRef.current.scrollIntoView();
       }).catch((error) => {
         console.warn(`Failed to send message:`, error.message);
-      })
+      });
       e.target.value = "";
     }
-  }
+  };
 
   setEditingMessage = (message, editing, fn) => {
     if (message.userId === this.props.user.id) {

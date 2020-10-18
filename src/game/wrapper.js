@@ -74,6 +74,9 @@ class Wrapper extends React.Component {
     unreads: 0
   };
 
+  chatComponent = React.createRef();
+  gameComponent = React.createRef();
+
   toggleUserPanel = () => {
     let status = this.state.panelStatus;
     status = status === PanelStatus.USER_PANEL_VISIBLE ? PanelStatus.PANELS_HIDDEN : PanelStatus.USER_PANEL_VISIBLE;
@@ -89,6 +92,16 @@ class Wrapper extends React.Component {
       panelStatus: status,
       unreads: status === PanelStatus.CHAT_PANEL_VISIBLE ? 0 : this.state.unreads
     });
+  };
+
+  initSocketEvents = (socket) => {
+    this.chatComponent.current.initSocketEvents(socket);
+    this.gameComponent.current.initSocketEvents(socket);
+  };
+
+  setRoom = (room) => {
+    this.chatComponent.current.setRoom(room);
+    this.gameComponent.current.setRoom(room);
   };
 
   hidePanels = () => this.setState({panelStatus: PanelStatus.PANELS_HIDDEN});
@@ -148,11 +161,11 @@ class Wrapper extends React.Component {
             />
             <div className="container" id="game-container">
               <GameWrapper>
-                <Game socket={socket} room={room} user={user} />
+                <Game socket={socket} room={room} user={user} ref={this.gameComponent} />
               </GameWrapper>
             </div>
             <div className="side container" id="chat-container">
-              <Chat socket={socket} room={room} user={user} onUpdate={this.onChatUpdate}/>
+              <Chat socket={socket} room={room} user={user} onUpdate={this.onChatUpdate} ref={this.chatComponent} />
             </div>
             <SidebarButton
               id="chat-panel-btn"

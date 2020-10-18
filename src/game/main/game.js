@@ -94,12 +94,8 @@ class Game extends React.Component {
     });
   };
 
-  componentDidUpdate = (prevProps) => {
-    if (!this.props.room) return;
-    if (prevProps.room && prevProps.room.clientId === this.props.room.clientId) return;
-
+  initSocketEvents = (socket) => {
     console.info("Registering game event listeners");
-    let socket = this.props.socket;
 
     socket.on("newQuestionsList", this.onQuestionsListReceived);
     socket.on("questionSelected", this.onQuestionSelected);
@@ -108,12 +104,16 @@ class Game extends React.Component {
     socket.on("answerFavorited", this.onAnswerFavorited);
     socket.on("favoriteAnswerCleared", this.onFavoriteAnswerCleared);
     socket.on("answerGuessed", this.onAnswerGuessed);
+  };
+
+  setRoom = (room) => {
+    console.info("Initializing game room");
 
     this.setState({
-      questions: this.props.room.questions,
-      answers: this.props.room.answers,
-      answerUserIds: this.props.room.answerUserIds,
-      favoriteAnswers: this.props.room.favoriteAnswers,
+      questions: room.questions,
+      answers: room.answers,
+      answerUserIds: room.answerUserIds,
+      favoriteAnswers: room.favoriteAnswers,
       hasAnswered: false
     });
   };
