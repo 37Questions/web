@@ -111,6 +111,7 @@ class Socket {
     displayPosition: displayPosition,
     guessedUserId: guessedUserId
   });
+  finalizeGuesses = () => this.emit("finalizeGuesses");
 }
 
 

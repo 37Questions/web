@@ -48,7 +48,7 @@ function ResponseCard(props) {
       text={props.answer.answer}
       onClick={props.onClick}
       canHover={props.canHover}
-      className={props.className}
+      className={props.className + (props.showGuessResults ? (props.isCorrectlyGuessed ? " guess-correct" : " guess-incorrect") : "")}
       flipped={props.answer.state === AnswerState.SUBMITTED}
     >
       <div className={"card-controls-wrapper"}>

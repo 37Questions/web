@@ -1,6 +1,8 @@
 import * as React from "react";
 import {QuestionCard, ResponseCard} from "../card/card";
 import {AnswerState} from "../../api/struct/answer";
+import {RoomState, RoomVotingMethod} from "../../api/struct/room";
+import {UserState} from "../../api/struct/user";
 import "./answer_list.scss";
 import {Button} from "../../ui/button";
 import Icon from "../../setup/icon";
@@ -11,9 +13,12 @@ class AnswerList extends React.Component {
   };
 
   wasAskedBySelf = () => this.props.askedBy && this.props.askedBy.id === this.props.self.id;
+  wasWonBySelf = () => this.props.wonBy && this.props.wonBy.id === this.props.self.id;
+
+  canInteract = () => this.props.room.state === RoomState.READING_ANSWERS && this.wasAskedBySelf();
 
   clickAnswer = (answer) => {
-    if (!this.wasAskedBySelf()) return;
+    if (!this.canInteract()) return;
 
     console.info("Clicked answer:", answer);
 
@@ -30,7 +35,7 @@ class AnswerList extends React.Component {
   };
 
   clickStar = (e, answer) => {
-    if (!this.wasAskedBySelf()) return;
+    if (!this.canInteract()) return;
 
     e.stopPropagation();
     console.info("Clicked star:", answer);
@@ -48,7 +53,7 @@ class AnswerList extends React.Component {
   };
 
   makeGuess = (e, answer, user) => {
-    if (!this.wasAskedBySelf()) return;
+    if (!this.canInteract()) return;
 
     e.stopPropagation();
     console.info("Guess for ", answer, " is ", user);
@@ -67,26 +72,40 @@ class AnswerList extends React.Component {
 
   finalizeGuesses = (e) => {
     e.stopPropagation();
-    console.info("TODO: finalize guesses");
+    if (!this.canInteract()) return;
+
+    let unguessedAnswers = 0;
+    this.props.answers.forEach((answer) => {
+      if (answer.guesses.length === 0) unguessedAnswers++;
+    });
+    if (this.props.favoriteAnswers.length === 0 || unguessedAnswers > 0) {
+      console.warn("Tried to finalize guesses in incorrect state", this.props);
+      return;
+    }
+    console.info("Finalizing guesses..");
+    this.props.socket.finalizeGuesses().catch((err) => {
+      console.warn("Failed to finalize guesses:", err.message);
+    });
   };
 
   render = () => {
-    let users = this.props.users;
+    let room = this.props.room;
     let askedBy = this.props.askedBy;
     let self = this.props.self;
     let selectedAnswer = this.state.selectedAnswer;
     let askedBySelf = this.wasAskedBySelf();
+    let canInteract = this.canInteract();
 
-    if (selectedAnswer) {
+    if (canInteract && selectedAnswer) {
       let answerUserIds = this.props.answerUserIds;
       return (
         <div className="answer-guessing">
           <h1>Someone responded to {askedBySelf ? "your" : (askedBy ? (askedBy.name + "'s") : "a")} question</h1>
           <div className="card-list">
-            <QuestionCard text={this.props.question.question} />
+            <QuestionCard text={this.props.question.question}/>
             <ResponseCard
               answer={selectedAnswer}
-              users={users}
+              users={room.users}
               canFavorite={true}
               isFavorite={!!this.props.favoriteAnswers.includes(selectedAnswer.displayPosition)}
               onClickStar={(e) => this.clickStar(e, selectedAnswer)}
@@ -95,8 +114,8 @@ class AnswerList extends React.Component {
           <p className="select-prompt">Select the player who you think wrote this answer</p>
           <div className="user-list">
             {
-              Object.keys(users).map((userId) => {
-                let user = users[userId];
+              Object.keys(room.users).map((userId) => {
+                let user = room.users[userId];
                 if (!user.name || !user.icon || user.id === self.id || !answerUserIds.includes(user.id)) return null;
 
                 let selected = false;
@@ -140,7 +159,7 @@ class AnswerList extends React.Component {
           <Button className="finish-guessing-btn" onClick={this.stopGuessing}>
             Back
           </Button>
-          <br />
+          <br/>
         </div>
       );
     }
@@ -153,33 +172,67 @@ class AnswerList extends React.Component {
       else if (answer.guesses.length === 0) unguessedAnswers++;
     });
 
-    let prompt = "Click any answer to reveal it";
-    if (!askedBySelf) prompt = "They are reading the answers";
-    else if (hiddenAnswers === 0) {
-      if (numFavorites === 0) prompt = "Click on a star to choose your favorite answer";
-      else if (unguessedAnswers > 0) prompt = "Click on an answer to guess who wrote it";
-      else prompt = "Press Continue to finalize your guesses"
+    let guessResults = this.props.guessResults;
+    let canContinue = false;
+    let title, prompt;
+
+    let askedByName = (askedBySelf ? "You" : (askedBy ? askedBy.name : "Someone"));
+
+    if (room.state === RoomState.READING_ANSWERS) {
+      title = askedByName + "asked a question";
+      prompt = "Click any answer to reveal it";
+      if (!askedBySelf) prompt = "They are reading the answers";
+      else if (hiddenAnswers === 0) {
+        if (numFavorites === 0) prompt = "Click on a star to choose your favorite answer";
+        else if (unguessedAnswers > 0) prompt = "Click on an answer to guess who wrote it";
+        else prompt = "Press Continue to finalize your guesses"
+      }
+      canContinue = numFavorites > 0 && unguessedAnswers === 0;
+    } else if (room.state === RoomState.VIEWING_RESULTS) {
+      let wonBySelf = this.wasWonBySelf();
+      let wonBy = this.props.wonBy;
+      title = askedByName + " chose " + (wonBySelf ? "your" : (wonBy ? (wonBy.name + "'s") : "someone's"))
+        + " answer as " + (askedBySelf ? "your" : "their") + " favorite!";
+
+      let correctAnswers = 0;
+      Object.keys(guessResults).forEach((displayPosition) => {
+        let correct = guessResults[displayPosition];
+        if (correct) correctAnswers++;
+      });
+      prompt = (askedBySelf ? "You" : "They") + " guessed " + correctAnswers + " answer" + (correctAnswers === 1 ? "" : "s") +" correctly";
+      if ((room.votingMethod === RoomVotingMethod.WINNER && self.state === UserState.WINNER)
+        || (room.votingMethod === RoomVotingMethod.ROTATE && self.state === UserState.ASKING_NEXT)) {
+        prompt = "Press Continue to start the next round";
+        canContinue = true;
+      }
     }
 
     return (
       <div className="answer-list">
-        <h1>{askedBySelf ? "You" : (askedBy ? askedBy.name : "Someone")} asked a question</h1>
+        <h1>{title}</h1>
         <p className="answer-list-prompt">{prompt}</p>
-        <br />
+        <br/>
         <div className="card-list">
-          <QuestionCard text={this.props.question.question} />
+          <QuestionCard text={this.props.question.question}/>
         </div>
         <div className="card-list">
           {
             this.props.answers.map((answer) => {
+              let isCorrectlyGuessed = false;
+              if (room.state === RoomState.VIEWING_RESULTS) {
+                if (!guessResults.hasOwnProperty(answer.displayPosition)) return null;
+                isCorrectlyGuessed = guessResults[answer.displayPosition];
+              }
               return (
                 <ResponseCard
                   key={answer.displayPosition}
                   answer={answer}
-                  users={users}
+                  users={room.users}
                   isFavorite={!!this.props.favoriteAnswers.includes(answer.displayPosition)}
-                  canHover={askedBySelf}
-                  canFavorite={askedBySelf}
+                  canHover={canInteract}
+                  canFavorite={canInteract}
+                  showGuessResults={room.state === RoomState.VIEWING_RESULTS}
+                  isCorrectlyGuessed={isCorrectlyGuessed}
                   onClick={() => this.clickAnswer(answer)}
                   onClickStar={(e) => this.clickStar(e, answer)}
                 />
@@ -187,12 +240,12 @@ class AnswerList extends React.Component {
             })
           }
         </div>
-        {askedBySelf &&
-          <Button className="finalize-guesses-btn" onClick={this.finalizeGuesses} isDisabled={numFavorites === 0 || unguessedAnswers > 0}>
-            Continue
-          </Button>
+        {((room.state === RoomState.READING_ANSWERS && askedBySelf) || (room.state === RoomState.VIEWING_RESULTS && canContinue)) &&
+        <Button className="finalize-guesses-btn" onClick={this.finalizeGuesses} isDisabled={!canContinue}>
+          Continue
+        </Button>
         }
-        <br />
+        <br/>
       </div>
     );
   };

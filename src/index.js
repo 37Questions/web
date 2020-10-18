@@ -169,7 +169,7 @@ class QuestionsGame extends React.Component {
 
   onUserJoined = (data) => {
     let user = data.user;
-    if (!user) return console.warn(`Received join data with no user:`, data)
+    if (!user) return console.warn(`Received join data with no user:`, data);
 
     let room = this.state.room;
     if (!room) return console.warn(`Received join data when not in a room:`, this.state);
@@ -232,7 +232,7 @@ class QuestionsGame extends React.Component {
     });
 
     this.setState({room: room});
-  }
+  };
 
   onAdditionalUpdate = (event, data) => {
     switch (event) {
@@ -292,6 +292,22 @@ class QuestionsGame extends React.Component {
     this.setState({room: room});
   };
 
+  onResultsReceived = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Tried to start viewing results when not in a room:`, this.state);
+
+    room.state = RoomState.VIEWING_RESULTS;
+
+    room.forEachUser((user) => {
+      if (user.id === data.winnerId) user.state = UserState.WINNER;
+      else if (user.id === data.askingNextId) user.state = UserState.ASKING_NEXT;
+      else if (user.state === UserState.READING_ANSWERS) user.state = UserState.ASKED_QUESTION;
+      else user.state = UserState.IDLE;
+    });
+
+    this.setState({room: room});
+  };
+
   componentDidMount() {
     setTimeout(function () {
       this.setState({canRender: true});
@@ -311,6 +327,7 @@ class QuestionsGame extends React.Component {
 
       socket.on("questionSelected", this.onQuestionSelected);
       socket.on("startReadingAnswers", this.startReadingAnswers);
+      socket.on("startViewingResults", this.onResultsReceived);
 
       this.gameWrapper.current.initSocketEvents(socket);
       this.setState({socket: socket});
