@@ -47,6 +47,8 @@ class QuestionsGame extends React.Component {
     clientRoomId: 0
   };
 
+  gameWrapper = React.createRef();
+
   loadingUpdate = () => {
     if (this.state.user && this.state.stage === Stage.LOADING) {
       let stage = Stage.LOADED;
@@ -85,6 +87,7 @@ class QuestionsGame extends React.Component {
   setRoomForcefully = (room, user = null) => {
     let clientRoomId = this.state.clientRoomId;
     room.clientId = clientRoomId;
+    this.gameWrapper.current.setRoom(room);
     this.setState({
       room: room,
       user: user ? user : this.state.user,
@@ -127,7 +130,7 @@ class QuestionsGame extends React.Component {
       console.info(`Failed to join room #${id}:`, error.message);
       Room.resetLink();
     })
-  }
+  };
 
   onLogin = (data) => {
     console.info("Socket Init:", data);
@@ -166,7 +169,7 @@ class QuestionsGame extends React.Component {
 
   onUserJoined = (data) => {
     let user = data.user;
-    if (!user) return console.warn(`Received join data with no user:`, data)
+    if (!user) return console.warn(`Received join data with no user:`, data);
 
     let room = this.state.room;
     if (!room) return console.warn(`Received join data when not in a room:`, this.state);
@@ -199,7 +202,6 @@ class QuestionsGame extends React.Component {
       if (userState) user.state = userState;
 
       console.info(`Updated user #${userId}:`, user);
-
       this.setState({room: room});
     }
   };
@@ -217,7 +219,7 @@ class QuestionsGame extends React.Component {
 
     room.users[userId].state = data.state;
     this.setState({room: room});
-  }
+  };
 
   onRoundStarted = (data) => {
     let room = this.state.room;
@@ -230,7 +232,7 @@ class QuestionsGame extends React.Component {
     });
 
     this.setState({room: room});
-  }
+  };
 
   onAdditionalUpdate = (event, data) => {
     switch (event) {
@@ -241,7 +243,7 @@ class QuestionsGame extends React.Component {
       default:
         return console.warn("Received unrecognised socket event", event, data);
     }
-  }
+  };
 
   onUserLeft = (data) => {
     let room = this.state.room;
@@ -290,6 +292,32 @@ class QuestionsGame extends React.Component {
     this.setState({room: room});
   };
 
+  onResultsReceived = (data) => {
+    let room = this.state.room;
+    if (!room) return console.warn(`Tried to start viewing results when not in a room:`, this.state);
+
+    room.state = RoomState.VIEWING_RESULTS;
+
+    // TODO: customize points gained
+    room.forEachUser((user) => {
+      if (user.id === data.winnerId) {
+        user.state = UserState.WINNER;
+        user.score += 2;
+      } else if (user.id === data.askingNextId) user.state = UserState.ASKING_NEXT;
+      else if (user.state === UserState.READING_ANSWERS) {
+        let correctGuesses = 0;
+        Object.keys(data.guessResults).forEach((displayPosition) => {
+          if (data.guessResults[displayPosition]) correctGuesses++;
+        });
+        user.state = UserState.ASKED_QUESTION;
+        user.score += correctGuesses;
+      }
+      else user.state = UserState.IDLE;
+    });
+
+    this.setState({room: room});
+  };
+
   componentDidMount() {
     setTimeout(function () {
       this.setState({canRender: true});
@@ -298,7 +326,6 @@ class QuestionsGame extends React.Component {
       console.info("User:", user);
 
       let socket = new Socket(user, this.onAdditionalUpdate);
-      this.setState({socket: socket});
 
       socket.on("init", this.onLogin);
       socket.on("forceLogout", this.onForcedLogout);
@@ -310,6 +337,11 @@ class QuestionsGame extends React.Component {
 
       socket.on("questionSelected", this.onQuestionSelected);
       socket.on("startReadingAnswers", this.startReadingAnswers);
+      socket.on("startViewingResults", this.onResultsReceived);
+      socket.on("startRound", this.onRoundStarted);
+
+      this.gameWrapper.current.initSocketEvents(socket);
+      this.setState({socket: socket});
     }).catch((error) => {
       console.warn("Failed to get user:", error.message);
     });
@@ -328,7 +360,7 @@ class QuestionsGame extends React.Component {
     }).catch((error) => {
       console.warn("Failed to leave current room:", error.message);
     });
-  }
+  };
 
   render() {
     let canRender = this.state.canRender && this.state.user;
@@ -362,7 +394,7 @@ class QuestionsGame extends React.Component {
         }
         <WrapperContainer
           visible={canRender && !loggedOut && this.state.user.name && this.state.room && this.state.room.finishedCreation}>
-          <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} leaveRoom={this.leaveRoom} />
+          <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} leaveRoom={this.leaveRoom} ref={this.gameWrapper} />
         </WrapperContainer>
         <WrapperContainer visible={loggedOut}>
           <LogoutScreen/>

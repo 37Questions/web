@@ -13,6 +13,9 @@ class Room {
     this.state = room.state;
     this.questions = room.questions;
     this.answers = room.answers;
+    this.answerUserIds = room.answerUserIds;
+    this.favoriteAnswers = room.favoriteAnswers;
+    this.guessResults = room.guessResults;
 
     this.clientId = room.clientId;
     this.finishedCreation = finishedCreation;
@@ -58,6 +61,13 @@ class RoomState {
   static PICKING_QUESTION = "picking_question";
   static COLLECTING_ANSWERS = "collecting_answers";
   static READING_ANSWERS = "reading_answers";
+  static VIEWING_RESULTS = "viewing_results";
 }
 
-export {Room, RoomState};
+class RoomVotingMethod {
+  static WINNER = "winner";
+  static ROTATE = "rotate";
+  static DEMOCRATIC = "democratic";
+}
+
+export {Room, RoomState, RoomVotingMethod};

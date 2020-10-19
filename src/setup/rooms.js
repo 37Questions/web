@@ -66,7 +66,7 @@ class RoomCreationMenu extends React.Component {
       e.preventDefault();
       this.createRoom();
     }
-  }
+  };
 
   changeVotingMethod = (method) => {
     if (method === this.state.votingMethod) return;
@@ -74,7 +74,7 @@ class RoomCreationMenu extends React.Component {
       votingMethod: method,
       warning: this.getWarning(method, this.state.visibility)
     });
-  }
+  };
 
   changeVisibility = (visibility) => {
     if (visibility === this.state.visibility) return;
@@ -82,7 +82,7 @@ class RoomCreationMenu extends React.Component {
       visibility: visibility,
       warning: this.getWarning(this.state.votingMethod, visibility)
     });
-  }
+  };
 
   createRoom = () => {
     if (this.state.stage > RoomCreationStage.CONFIGURING) return;
@@ -351,7 +351,7 @@ class RoomSetup extends React.Component {
         mode: mode
       });
     }
-  }
+  };
 
   render = () => {
     let mode = this.state.mode;

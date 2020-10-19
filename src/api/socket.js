@@ -96,13 +96,23 @@ class Socket {
     }).then((res) => res.unchainMessageId);
   }
 
+  suggestQuestion = (question) => this.emit("suggestQuestion", {question: question});
+
   submitQuestion = (id) => this.emit("submitQuestion", {id: id});
   submitAnswer = (answer) => this.emit("submitAnswer", {answer: answer});
 
   startReadingAnswers = () => this.emit("startReadingAnswers");
   revealAnswer = (displayPosition) => this.emit("revealAnswer", {displayPosition: displayPosition});
+
   setFavoriteAnswer = (displayPosition) => this.emit("setFavoriteAnswer", {displayPosition: displayPosition});
   clearFavoriteAnswer = () => this.emit("clearFavoriteAnswer");
+
+  makeAuthorGuess = (displayPosition, guessedUserId) => this.emit("makeAuthorGuess", {
+    displayPosition: displayPosition,
+    guessedUserId: guessedUserId
+  });
+  finalizeGuesses = () => this.emit("finalizeGuesses");
+  finishRound = () => this.emit("finishRound");
 }
 
 

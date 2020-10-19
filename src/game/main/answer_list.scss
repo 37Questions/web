@@ -1,0 +1,70 @@
+@import "../../theme";
+
+.answer-guessing {
+  p.select-prompt {
+    font-weight: 700;
+    font-size: 1.1em;
+    padding: 8px 0;
+  }
+
+  .user-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    max-width: 800px;
+
+    .guessable-user {
+      display: flex;
+      align-items: center;
+
+      margin: 5px;
+      padding: 2px 5px;
+
+      border: 2px solid black;
+      border-radius: 10px;
+
+      cursor: pointer;
+
+      .user-icon {
+        border-radius: 50%;
+
+        width: 30px;
+        height: 30px;
+        border-width: 0;
+        margin: 0 2px;
+
+        .icon {
+          font-size: 1.4em;
+        }
+      }
+
+      .user-name {
+        font-weight: 500;
+        font-size: 1.2em;
+        margin: 0 5px;
+      }
+
+      &:hover, &.selected {
+        border-color: dodgerblue;
+      }
+
+      &.selected-elsewhere {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  .finish-guessing-btn {
+    width: 100px;
+    margin: 18px auto;
+  }
+}
+
+.answer-list {
+  .finalize-guesses-btn {
+    width: 100px;
+    margin: 18px auto;
+  }
+}

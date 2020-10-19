@@ -6,13 +6,25 @@ import {LoadingSpinner} from "../../splash";
 import {AnswerCollector, AnswerInput} from "./answer_collection";
 import {QuestionSelector} from "./question_selection";
 import {AnswerList} from "./answer_list";
-import {AnswerState} from "../../api/struct/answer";
 
 class Game extends React.Component {
   state = {
     questions: [],
     answers: [],
+    answerUserIds: [],
+    favoriteAnswers: [],
+    guessResults: {},
     hasAnswered: false
+  };
+
+  onRoundStarted = () => {
+    this.setState({
+      answers: [],
+      answerUserIds: [],
+      favoriteAnswers: [],
+      guessResults: {},
+      hasAnswered: false
+    });
   };
 
   onQuestionsListReceived = (data) => {
@@ -40,7 +52,8 @@ class Game extends React.Component {
   onAnswersReceived = (data) => {
     console.info("Answers received:", data.answers);
     this.setState({
-      answers: data.answers
+      answers: data.answers,
+      answerUserIds: data.answerUserIds
     });
   };
 
@@ -56,54 +69,72 @@ class Game extends React.Component {
   };
 
   onAnswerFavorited = (data) => {
-    let displayPosition = data.displayPosition;
-    let answers = this.state.answers;
-
-    if (answers.length < displayPosition) return console.warn(`Tried to favorite out-of-bounds answer #${displayPosition}:`, answers);
-
-    for (let a = 0; a < answers.length; a++) {
-      let answer = answers[a];
-      if (answer.state === AnswerState.SUBMITTED) continue;
-      answer.state = answer.displayPosition === displayPosition ? AnswerState.FAVORITE : AnswerState.REVEALED;
-    }
-
-    console.info(`Answer #${displayPosition} favorited:`, answers);
-    this.setState({answers: answers});
+    this.setState({favoriteAnswers: [data.displayPosition]});
   };
 
   onFavoriteAnswerCleared = () => {
+    this.setState({favoriteAnswers: []});
+  };
+
+  onAnswerGuessed = (data) => {
     let answers = this.state.answers;
 
-    for (let a = 0; a < answers.length; a++) {
-      let answer = answers[a];
-      if (answer.state !== AnswerState.FAVORITE) continue;
-      answer.state = AnswerState.REVEALED;
-    }
+    console.info("Received guess for answer #" + data.displayPosition + " for user #" + data.guessedUserId);
 
-    console.info("Favorite answer cleared:", answers);
-    this.setState({answers: answers});
-  }
+    // TODO: democratic guessing
+    answers.forEach((answer) => {
+      if (answer.displayPosition === data.displayPosition) {
+        answer.guesses = [{
+          guessedUserId: data.guessedUserId
+        }];
+      } else {
+        // Remove existing guesses for the same user id
+        let g = answer.guesses.length;
+        while (g--) {
+          if (answer.guesses[g].guessedUserId === data.guessedUserId) {
+            answer.guesses.splice(g, 1);
+          }
+        }
+      }
+    });
 
-  componentDidUpdate = (prevProps) => {
-    if (!this.props.room) return;
-    if (prevProps.room && prevProps.room.clientId === this.props.room.clientId) return;
+    this.setState({
+      answers: answers
+    });
+  };
 
+  onResultsReceived = (data) => {
+    this.setState({
+      guessResults: data.guessResults
+    });
+  };
+
+  initSocketEvents = (socket) => {
     console.info("Registering game event listeners");
-    let socket = this.props.socket;
 
+    socket.on("startRound", this.onRoundStarted);
     socket.on("newQuestionsList", this.onQuestionsListReceived);
     socket.on("questionSelected", this.onQuestionSelected);
     socket.on("startReadingAnswers", this.onAnswersReceived);
     socket.on("answerRevealed", this.onAnswerRevealed);
     socket.on("answerFavorited", this.onAnswerFavorited);
     socket.on("favoriteAnswerCleared", this.onFavoriteAnswerCleared);
+    socket.on("answerGuessed", this.onAnswerGuessed);
+    socket.on("startViewingResults", this.onResultsReceived);
+  };
+
+  setRoom = (room) => {
+    console.info("Initializing game room");
 
     this.setState({
-      questions: this.props.room.questions,
-      answers: this.props.room.answers,
+      questions: room.questions,
+      answers: room.answers,
+      answerUserIds: room.answerUserIds,
+      favoriteAnswers: room.favoriteAnswers,
+      guessResults: room.guessResults,
       hasAnswered: false
     });
-  }
+  };
 
   render() {
     let room = this.props.room;
@@ -171,27 +202,34 @@ class Game extends React.Component {
           onAnswerSubmitted={this.onAnswerSubmitted}
         />
       );
-    } else if (room.state === RoomState.READING_ANSWERS) {
+    } else if (room.state === RoomState.READING_ANSWERS || room.state === RoomState.VIEWING_RESULTS) {
       let [questions, answers] = [this.state.questions, this.state.answers];
       if (questions.length < 1 || answers.length < 1) return <LoadingSpinner />;
 
-      let askedBySelf = user.state === UserState.READING_ANSWERS;
-      let askedBy = undefined;
+      let askedBySelf = user.state === UserState.READING_ANSWERS || user.state === UserState.ASKED_QUESTION;
+      let wonBySelf = user.state === UserState.WINNER;
+      let askedBy, wonBy;
 
       if (askedBySelf) askedBy = user;
-      else {
-        room.forEachUser((roomUser) => {
-          if (roomUser.state === UserState.READING_ANSWERS) askedBy = roomUser;
-        });
-      }
+      if (wonBySelf) wonBy = user;
+
+      room.forEachUser((roomUser) => {
+        if (!askedBy && (roomUser.state === UserState.READING_ANSWERS || roomUser.state === UserState.ASKED_QUESTION)) askedBy = roomUser;
+        if (!wonBy && roomUser.state === UserState.WINNER) wonBy = roomUser;
+      });
 
       return (
         <AnswerList
           socket={this.props.socket}
           question={questions[0]}
-          askedBySelf={askedBySelf}
           askedBy={askedBy}
+          wonBy={wonBy}
           answers={answers}
+          self={user}
+          room={room}
+          answerUserIds={this.state.answerUserIds}
+          favoriteAnswers={this.state.favoriteAnswers}
+          guessResults={this.state.guessResults}
         />
       );
     }

@@ -56,39 +56,39 @@ $cardHeight: 204px;
           .card-controls {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
 
-            .action-btn {
+            .card-btn {
               .action-btn-icon-container {
                 font-size: 22px;
                 background-color: transparent;
+
+                color: $darkButtonColor;
+
+                &:hover:not(.disabled) {
+                  color: dodgerblue;
+                }
+              }
+
+              &.active .action-btn-icon-container {
+                color: dodgerblue;
               }
 
               .action-btn-title {
                 padding: 8px 10px;
                 font-size: 0.9em;
               }
+            }
 
-              &.star {
+            .answer-guess-icon {
+              .icon-wrapper {
+                width: 29px;
+                height: 29px;
+                border-width: 1px;
+                margin: 0 2px;
 
-                .fa-primary {
-                  visibility: hidden;
-                }
-
-                .fa-secondary {
-                  opacity: 1;
-                  color: $darkButtonColor;
-                }
-
-                &:hover:not(.disabled) {
-                  .fa-secondary {
-                    color: dodgerblue;
-                  }
-                }
-
-                &.active {
-                  .action-btn-icon-container {
-                    color: dodgerblue;
-                  }
+                .icon {
+                  font-size: 1.1em;
                 }
               }
             }
@@ -201,6 +201,22 @@ $cardHeight: 204px;
           bottom: 8px;
         }
       }
+    }
+  }
+
+  &.guess-correct .inner-card .card {
+    background-color: #8cff8a;
+
+    .card-controls-wrapper .card-controls .answer-guess-icon .icon-wrapper {
+      border: 2px solid green;
+    }
+  }
+
+  &.guess-incorrect .inner-card .card  {
+    background-color: #ffa18a;
+
+    .card-controls-wrapper .card-controls .answer-guess-icon .icon-wrapper {
+      border: 2px solid red;
     }
   }
 }

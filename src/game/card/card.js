@@ -3,6 +3,7 @@ import logo from "../../logo.svg";
 import './card.scss';
 import {AnswerState} from "../../api/struct/answer";
 import {ActionButton} from "../../ui/button";
+import Icon from "../../setup/icon";
 
 function CardBacking() {
   return (
@@ -41,22 +42,20 @@ function QuestionCard(props) {
 }
 
 function ResponseCard(props) {
-  let isFavorite = props.answer.state === AnswerState.FAVORITE;
-
   return (
     <Card
       type="response"
       text={props.answer.answer}
       onClick={props.onClick}
       canHover={props.canHover}
-      className={props.className}
+      className={props.className + (props.showGuessResults ? (props.isCorrectlyGuessed ? " guess-correct" : " guess-incorrect") : "")}
       flipped={props.answer.state === AnswerState.SUBMITTED}
     >
       <div className={"card-controls-wrapper"}>
         <div className={"card-controls"}>
-          {isFavorite &&
+          {props.isFavorite &&
             <ActionButton
-              className={"star active"}
+              className={"card-btn active"}
               disabled={!props.canFavorite}
               onClick={props.onClickStar}
               type="s"
@@ -64,15 +63,26 @@ function ResponseCard(props) {
               title="Remove Favorite"
             />
           }
-          {!isFavorite &&
+          {!props.isFavorite && props.canFavorite &&
             <ActionButton
-              className={"star"}
+              className={"card-btn"}
               disabled={!props.canFavorite}
               onClick={props.onClickStar}
-              type="d"
+              type="r"
               icon="star"
               title="Favorite"
             />
+          }
+          {props.users &&
+            props.answer.guesses.map((guess) => {
+              if (!props.users.hasOwnProperty(guess.guessedUserId)) return null;
+              let user = props.users[guess.guessedUserId];
+              return (
+                <div className="answer-guess-icon" key={guess.guessedUserId}>
+                  <Icon icon={user.icon} />
+                </div>
+              );
+            })
           }
         </div>
       </div>
@@ -94,6 +104,7 @@ class InputCard extends React.Component {
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onInputChanged = this.onInputChanged.bind(this);
     this.submit = this.submit.bind(this);
+    this.reset = this.reset.bind(this);
   }
 
   onKeyDown(e) {
@@ -144,6 +155,14 @@ class InputCard extends React.Component {
     }
   }
 
+  reset() {
+    this.input.current.value = "";
+    this.setState({
+      flipped: false,
+      error: null
+    });
+  }
+
   render() {
     return (
       <div className="outer-card">
@@ -152,7 +171,7 @@ class InputCard extends React.Component {
             <textarea
               maxLength="140"
               className="text"
-              placeholder={this.state.error || "your answer..."}
+              placeholder={this.state.error || this.props.placeholder || "your answer..."}
               onKeyDown={this.onKeyDown}
               onInput={this.onInputChanged}
               ref={this.input}

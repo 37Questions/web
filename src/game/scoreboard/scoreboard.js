@@ -10,6 +10,8 @@ class Scoreboard extends React.Component {
     if (!user.state) return "Active";
     switch (user.state) {
       case UserState.IDLE:
+      case UserState.ASKED_QUESTION:
+      case UserState.ASKING_NEXT:
         return "Idle";
       case UserState.SELECTING_QUESTION:
         return "Choosing Question";
@@ -19,6 +21,8 @@ class Scoreboard extends React.Component {
         return "Answering Question";
       case UserState.READING_ANSWERS:
         return "Reading Answers";
+      case UserState.WINNER:
+        return "Winner";
       default:
         return user.state;
     }
