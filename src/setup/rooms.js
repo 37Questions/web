@@ -25,8 +25,9 @@ function RoomSetupWrapper(props) {
 
 const votingMethods = [
   { value: "winner", label: "Winner Votes", desc: "Winner Votes" },
-  { value: "rotate", label: "Rotational", desc: "Rotational Voting" },
-  { value: "democratic", label: "Democratic", desc: "Democratic Voting" }
+  { value: "rotate", label: "Rotational", desc: "Rotational Voting" }
+  // TODO: democratic voting
+  // { value: "democratic", label: "Democratic", desc: "Democratic Voting" }
 ];
 
 const visibilityOptions = [
@@ -52,12 +53,13 @@ class RoomCreationMenu extends React.Component {
   fallbackRoomName = this.props.user ? (this.props.user.name + "'s Room") : undefined;
 
   getWarning = (votingMethod, visibility) => {
-    if (votingMethod.value !== "democratic" && visibility.value === "public") {
+    // TODO: democratic voting
+    /*if (votingMethod.value !== "democratic" && visibility.value === "public") {
       return {
         message: "Democratic voting is strongly recommended in public rooms!",
         for: "votingMethod"
       };
-    } else return null;
+    } else */return null;
   }
 
   onNameInput = (e) => {

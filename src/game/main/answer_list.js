@@ -196,7 +196,7 @@ class AnswerList extends React.Component {
     let askedByName = (askedBySelf ? "You" : (askedBy ? askedBy.name : "Someone"));
 
     if (room.state === RoomState.READING_ANSWERS) {
-      title = askedByName + "asked a question";
+      title = askedByName + " asked a question";
       prompt = "Click any answer to reveal it";
       if (!askedBySelf) prompt = "They are reading the answers";
       else if (hiddenAnswers === 0) {
