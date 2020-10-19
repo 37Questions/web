@@ -29,7 +29,7 @@ class Socket {
 
       if (data && data.additionalUpdate) {
         let update = data.additionalUpdate;
-        if (update && this.additionalUpdateListener) {
+        if (update && update.event && this.additionalUpdateListener) {
           this.additionalUpdateListener(update.event, update.data);
         }
       }

@@ -208,7 +208,7 @@ class Game extends React.Component {
       if (questions.length < 1 || answers.length < 1) return <LoadingSpinner />;
 
       let askedBySelf = user.state === UserState.READING_ANSWERS || user.state === UserState.ASKED_QUESTION;
-      let wonBySelf = user.state === UserState.WINNER;
+      let wonBySelf = user.state === UserState.WINNER || user.state === UserState.WINNER_ASKING_NEXT;
       let askedBy, wonBy;
 
       if (askedBySelf) askedBy = user;
@@ -216,7 +216,7 @@ class Game extends React.Component {
 
       room.forEachUser((roomUser) => {
         if (!askedBy && (roomUser.state === UserState.READING_ANSWERS || roomUser.state === UserState.ASKED_QUESTION)) askedBy = roomUser;
-        if (!wonBy && roomUser.state === UserState.WINNER) wonBy = roomUser;
+        if (!wonBy && (roomUser.state === UserState.WINNER || roomUser.state === UserState.WINNER_ASKING_NEXT)) wonBy = roomUser;
       });
 
       return (

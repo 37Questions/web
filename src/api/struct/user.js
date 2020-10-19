@@ -7,6 +7,7 @@ class UserState {
   static ASKED_QUESTION = "asked_question";
   static WINNER = "winner";
   static ASKING_NEXT = "asking_next";
+  static WINNER_ASKING_NEXT = "winner_asking_next";
 }
 
 export {UserState};
