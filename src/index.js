@@ -301,7 +301,7 @@ class QuestionsGame extends React.Component {
     // TODO: customize points gained
     room.forEachUser((user) => {
       if (user.id === data.winnerId) {
-        user.state = UserState.WINNER;
+        user.state = user.id === data.askingNextId ? UserState.WINNER_ASKING_NEXT : UserState.WINNER;
         user.score += 2;
       } else if (user.id === data.askingNextId) user.state = UserState.ASKING_NEXT;
       else if (user.state === UserState.READING_ANSWERS) {

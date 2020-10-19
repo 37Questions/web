@@ -18,7 +18,7 @@ class AnswerList extends React.Component {
   canInteract = () => this.props.room.state === RoomState.READING_ANSWERS && this.wasAskedBySelf();
   canFinishRound = () => {
     let [method, state] = [this.props.room.votingMethod, this.props.self.state];
-    return (method === RoomVotingMethod.WINNER && state === UserState.WINNER) || (method === RoomVotingMethod.ROTATE && state === UserState.ASKING_NEXT);
+    return (method === RoomVotingMethod.WINNER && state === UserState.WINNER) || (method === RoomVotingMethod.ROTATE && (state === UserState.ASKING_NEXT || state === UserState.WINNER_ASKING_NEXT));
   };
 
   clickAnswer = (answer) => {
