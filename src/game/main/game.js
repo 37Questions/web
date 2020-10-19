@@ -39,7 +39,8 @@ class Game extends React.Component {
     questions.push(data.question);
     this.setState({
       questions: questions,
-      hasAnswered: false
+      hasAnswered: false,
+      favoriteAnswers: []
     });
   };
 
