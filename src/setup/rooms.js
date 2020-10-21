@@ -6,9 +6,12 @@ import Api from "../api/api";
 import "./rooms.scss";
 import {Button} from "../ui/button";
 
-const SELECT_OPTION = 0;
-const CREATE_ROOM = 1;
-const JOIN_ROOM = 2;
+class Screen {
+  static SELECT_OPTION = "select_option";
+  static CREATE_ROOM = "create_room";
+  static JOIN_ROOM = "join_room";
+  static TUTORIAL = "tutorial";
+}
 
 function RoomSetupWrapper(props) {
   return (
@@ -16,7 +19,7 @@ function RoomSetupWrapper(props) {
       <div className="outer-setup-container">
         <div id="room-setup" className="inner-setup-container">
           {props.children}
-          <SetupFooter />
+          <SetupFooter/>
         </div>
       </div>
     </div>
@@ -24,15 +27,15 @@ function RoomSetupWrapper(props) {
 }
 
 const votingMethods = [
-  { value: "winner", label: "Winner Votes", desc: "Winner Votes" },
-  { value: "rotate", label: "Rotational", desc: "Rotational Voting" }
+  {value: "winner", label: "Winner Votes", desc: "Winner Votes"},
+  {value: "rotate", label: "Rotational", desc: "Rotational Voting"}
   // TODO: democratic voting
   // { value: "democratic", label: "Democratic", desc: "Democratic Voting" }
 ];
 
 const visibilityOptions = [
-  { value: "private", label: "Private" },
-  { value: "public", label: "Public" }
+  {value: "private", label: "Private"},
+  {value: "public", label: "Public"}
 ];
 
 class RoomCreationStage {
@@ -59,8 +62,9 @@ class RoomCreationMenu extends React.Component {
         message: "Democratic voting is strongly recommended in public rooms!",
         for: "votingMethod"
       };
-    } else */return null;
-  }
+    } else */
+    return null;
+  };
 
   onNameInput = (e) => {
     // Enter key was pressed
@@ -132,7 +136,7 @@ class RoomCreationMenu extends React.Component {
     this.props.onComplete();
   };
 
-  render () {
+  render() {
     let stage = this.state.stage;
     if (stage === RoomCreationStage.CONFIGURING) {
       return (
@@ -166,7 +170,8 @@ class RoomCreationMenu extends React.Component {
               />
             </div>
           </div>
-          <div className={"room-option" + (this.state.warning && this.state.warning.for === "votingMethod" ? " with-error" : "")}>
+          <div
+            className={"room-option" + (this.state.warning && this.state.warning.for === "votingMethod" ? " with-error" : "")}>
             <p className="room-option-label">Voting Method</p>
             <div className="room-option-dropdown">
               <Select
@@ -183,7 +188,7 @@ class RoomCreationMenu extends React.Component {
             <Button className="setup-button" onClick={this.createRoom}>
               Create Room
             </Button>
-            <Button className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>
+            <Button className="setup-button" onClick={this.props.goBack}>
               Back
             </Button>
           </div>
@@ -195,9 +200,9 @@ class RoomCreationMenu extends React.Component {
         <RoomSetupWrapper>
           <h1>Creating Room</h1>
           <h2>This may take a few seconds.</h2>
-          <br />
-          <LoadingSpinner />
-          <br />
+          <br/>
+          <LoadingSpinner/>
+          <br/>
         </RoomSetupWrapper>
       );
     } else if (stage === RoomCreationStage.CREATED) {
@@ -205,11 +210,11 @@ class RoomCreationMenu extends React.Component {
         <RoomSetupWrapper>
           <h1>Created Room!</h1>
           <h2>To invite friends, send them the link below.</h2>
-          <br />
+          <br/>
           <div className="room-link-container">
             <div className="room-link-icon-container" onClick={this.copyRoomLink}>
               <div className="room-link-icon">
-                <i className="far fa-link" />
+                <i className="far fa-link"/>
               </div>
             </div>
             <textarea
@@ -267,6 +272,7 @@ class RoomCard extends React.Component {
       this.timeString = `${Math.round(sinceActive)} secs ago`;
     }
   }
+
   render() {
     let room = this.props.room;
 
@@ -302,7 +308,7 @@ class RoomJoinMenu extends React.Component {
   render = () => {
     let roomList = (
       <div className="rooms-list-loading">
-        <LoadingSpinner />
+        <LoadingSpinner/>
       </div>
     );
 
@@ -310,8 +316,9 @@ class RoomJoinMenu extends React.Component {
       if (this.state.rooms.length < 1) {
         roomList = (
           <p>
-            There are currently no rooms available to join!<br />
-            Try <span className="link" onClick={(e) => this.props.changeMode(e, CREATE_ROOM)}>creating a room</span>.
+            There are currently no rooms available to join!<br/>
+            Try <span className="link"
+                      onClick={(e) => this.props.changeScreen(e, Screen.CREATE_ROOM)}>creating a room</span>.
           </p>
         )
       } else {
@@ -319,7 +326,7 @@ class RoomJoinMenu extends React.Component {
           <div className="rooms-list-container">
             <div className="rooms-list">
               {
-                this.state.rooms.map((room) => <RoomCard room={room} joinRoom={this.props.joinRoom} key={room.id} />)
+                this.state.rooms.map((room) => <RoomCard room={room} joinRoom={this.props.joinRoom} key={room.id}/>)
               }
             </div>
           </div>
@@ -331,9 +338,9 @@ class RoomJoinMenu extends React.Component {
       <RoomSetupWrapper>
         <h1>Join Room</h1>
         <h2>If you're trying to play with a friend, ask them for the link to their room.</h2>
-        <br />
+        <br/>
         {roomList}
-        <Button className="setup-button" onClick={(e) => this.props.changeMode(e, SELECT_OPTION)}>
+        <Button className="setup-button" onClick={this.props.goBack}>
           Back
         </Button>
       </RoomSetupWrapper>
@@ -343,52 +350,111 @@ class RoomJoinMenu extends React.Component {
 
 class RoomSetup extends React.Component {
   state = {
-    mode: SELECT_OPTION
+    screenHistory: []
   };
 
-  setMode = (e, mode) => {
+  getCurrentScreen = () => {
+    let history = this.state.screenHistory;
+    if (history.length === 0) return Screen.SELECT_OPTION;
+    return history[history.length - 1];
+  };
+
+  setScreen = (e, screen) => {
     e.stopPropagation();
-    if (mode !== this.state.mode && mode >= SELECT_OPTION && mode <= JOIN_ROOM) {
-      this.setState({
-        mode: mode
-      });
+    let history = this.state.screenHistory;
+    if (screen !== this.getCurrentScreen) {
+      if (screen === Screen.SELECT_OPTION) {
+        this.setState({screenHistory: []});
+        return;
+      }
+      history.push(screen);
+      this.setState({screenHistory: history});
     }
   };
 
+  goBack = (e) => {
+    e.stopPropagation();
+    let history = this.state.screenHistory;
+    if (history.length === 0) return;
+    history.pop();
+    this.setState({screenHistory: history});
+  };
+
   render = () => {
-    let mode = this.state.mode;
-    if (mode === SELECT_OPTION) {
-      return (
-        <RoomSetupWrapper>
-          <h1>37 Questions</h1>
-          <h2>Join or create a room to start playing.</h2>
-          <div className="buttons-list">
-            <Button className="setup-button" onClick={(e) => this.setMode(e, CREATE_ROOM)}>
-              Create Room
+    switch (this.getCurrentScreen()) {
+      case Screen.CREATE_ROOM:
+        return (
+          <RoomCreationMenu
+            socket={this.props.socket}
+            user={this.props.user}
+            changeScreen={this.setScreen}
+            goBack={this.goBack}
+            onRoomCreated={this.props.onRoomCreated}
+            onComplete={this.props.onComplete}
+          />
+        );
+      case Screen.JOIN_ROOM:
+        return (
+          <RoomJoinMenu
+            changeScreen={this.setScreen}
+            goBack={this.goBack}
+            joinRoom={this.props.joinRoom}
+          />
+        );
+      case Screen.TUTORIAL:
+        return (
+          <RoomSetupWrapper>
+            <h1>How to Play</h1>
+            <h2>A guide to playing 37 Questions.</h2>
+            <br/>
+            <div className="game-tutorial">
+              <h3>What is 37 Questions?</h3>
+              <p>
+                37 Questions is a social card game in which players take turns asking questions. Answers are submitted
+                anonymously, and the player who originally asked the question can choose a single answer as their
+                favorite. Once they've chosen their favorite answer, they have to try and guess who said each answer.
+              </p>
+              <p>
+                Players receive points based on the number of answers which they correctly guess, and whoever wrote
+                their favorite answer also receives some points. Once the round is over, a new player is selected to
+                choose the next question, and the game continues indefinitely or until someone reaches a pre-determined
+                number of points.
+              </p>
+              <h3>Playing with Friends</h3>
+              <p>
+                This game is is most fun when you are playing with people that you know well. Someone in your group will
+                need to <span className="link" onClick={(e) => {
+                  this.setScreen(e, Screen.CREATE_ROOM)
+                }}>create a room</span>, and this will generate a secret link which they can send to everyone else.
+              </p>
+              <p>
+                If you don't want strangers to join your private game, make sure you set the <b>Privacy</b> setting
+                to <b>Private</b> when creating the room.
+              </p>
+            </div>
+            <Button className="setup-button" onClick={this.goBack}>
+              Back
             </Button>
-            <Button className="setup-button" onClick={(e) => this.setMode(e, JOIN_ROOM)}>
-              Join Room
-            </Button>
-          </div>
-        </RoomSetupWrapper>
-      );
-    } else if (mode === CREATE_ROOM) {
-      return (
-        <RoomCreationMenu
-          socket={this.props.socket}
-          user={this.props.user}
-          changeMode={this.setMode}
-          onRoomCreated={this.props.onRoomCreated}
-          onComplete={this.props.onComplete}
-        />
-      );
-    } else if (mode === JOIN_ROOM) {
-      return (
-        <RoomJoinMenu
-          changeMode={this.setMode}
-          joinRoom={this.props.joinRoom}
-        />
-      );
+          </RoomSetupWrapper>
+        );
+      default:
+        return (
+          <RoomSetupWrapper>
+            <h1>37 Questions</h1>
+            <h2>Join or create a room to start playing.</h2>
+            <div className="buttons-list long-list">
+              <Button className="setup-button" onClick={(e) => this.setScreen(e, Screen.CREATE_ROOM)}>
+                Create a Room
+              </Button>
+              <Button className="setup-button" onClick={(e) => this.setScreen(e, Screen.JOIN_ROOM)}>
+                Join a Room
+              </Button>
+              <Button className="setup-button" onClick={(e) => this.setScreen(e, Screen.TUTORIAL)}>
+                How to Play
+              </Button>
+            </div>
+          </RoomSetupWrapper>
+        );
     }
   }
 }
