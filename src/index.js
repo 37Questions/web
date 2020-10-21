@@ -64,7 +64,6 @@ class QuestionsGame extends React.Component {
     let user = this.state.user;
 
     user.name = name;
-
     user.icon = icon;
 
     this.setState({
@@ -152,19 +151,31 @@ class QuestionsGame extends React.Component {
     } else this.setState({user: user});
   };
 
-  onForcedLogout = () => {
+  logout = (title, desc) => {
     this.state.socket.emit("forcedLogout");
 
     let user = this.state.user;
     if (!user || user.loggedOut) return;
 
     user.loggedOut = true;
+    user.logoutTitle = title;
+    user.logoutDesc = desc;
+
+    if (this.state.room) Room.resetLink();
 
     this.setState({
       socket: null,
       user: user,
       room: null
     });
+  };
+
+  onForcedLogout = () => {
+    this.logout("Logged Out", "You can only play 37 Questions in one tab at a time!");
+  };
+
+  onKicked = () => {
+    this.logout("You were kicked!", "Please treat others with respect when playing 37 Questions.")
   };
 
   onUserJoined = (data) => {
@@ -221,6 +232,19 @@ class QuestionsGame extends React.Component {
     this.setState({room: room});
   };
 
+  onKickVotePlaced = (data) => {
+    if (!data.userId || !data.votedUserId) return console.warn("Received kick vote with missing data:", data);
+
+    let room = this.state.room;
+    if (!room) return console.warn("Received kick vote when not in a room:", this.state);
+
+    if (!room.kickVotes.hasOwnProperty(data.votedUserId)) room.kickVotes[data.votedUserId] = [data.userId];
+    else if (!room.kickVotes[data.votedUserId].includes(data.userId)) room.kickVotes[data.votedUserId].push(data.userId);
+    else return;
+
+    this.setState({room: room});
+  };
+
   onRoundStarted = (data) => {
     let room = this.state.room;
     if (!room) return console.warn(`Received new round data when not in a room:`, this.state);
@@ -258,6 +282,8 @@ class QuestionsGame extends React.Component {
 
     user.active = false;
     user.state = UserState.IDLE;
+
+    room.kickVotes[user.id] = [];
 
     console.info(`User #${userId} left:`, data);
 
@@ -311,8 +337,7 @@ class QuestionsGame extends React.Component {
         });
         user.state = UserState.ASKED_QUESTION;
         user.score += correctGuesses;
-      }
-      else user.state = UserState.IDLE;
+      } else user.state = UserState.IDLE;
     });
 
     this.setState({room: room});
@@ -329,11 +354,13 @@ class QuestionsGame extends React.Component {
 
       socket.on("init", this.onLogin);
       socket.on("forceLogout", this.onForcedLogout);
+      socket.on("kick", this.onKicked);
 
       socket.on("userJoined", this.onUserJoined);
       socket.on("userUpdated", this.onUserUpdated);
       socket.on("userLeft", this.onUserLeft);
       socket.on("userStateChanged", this.onUserStateChanged);
+      socket.on("kickVotePlaced", this.onKickVotePlaced);
 
       socket.on("questionSelected", this.onQuestionSelected);
       socket.on("startReadingAnswers", this.startReadingAnswers);
@@ -370,13 +397,16 @@ class QuestionsGame extends React.Component {
     return (
       <div id="app-wrapper">
         {stage < Stage.JOINED_ROOM &&
-        <WrapperContainer visible={!canRender || (!this.state.user || stage === Stage.JOINING_ROOM)} onTransitionEnd={this.loadingUpdate}>
+        <WrapperContainer visible={!canRender || (!this.state.user || stage === Stage.JOINING_ROOM)}
+                          onTransitionEnd={this.loadingUpdate}>
           <LoadingScreen/>
         </WrapperContainer>
         }
         {stage < Stage.SIGNED_UP &&
-        <WrapperContainer visible={canRender && !loggedOut && !this.state.user.name}
-                          onTransitionEnd={this.signupUpdate}>
+        <WrapperContainer
+          visible={canRender && !loggedOut && !this.state.user.name}
+          onTransitionEnd={this.signupUpdate}
+        >
           <Signup user={this.state.user} onComplete={this.finishSignup}/>
         </WrapperContainer>
         }
@@ -394,10 +424,16 @@ class QuestionsGame extends React.Component {
         }
         <WrapperContainer
           visible={canRender && !loggedOut && this.state.user.name && this.state.room && this.state.room.finishedCreation}>
-          <Wrapper socket={this.state.socket} user={this.state.user} room={this.state.room} leaveRoom={this.leaveRoom} ref={this.gameWrapper} />
+          <Wrapper
+            socket={this.state.socket}
+            user={this.state.user}
+            room={this.state.room}
+            leaveRoom={this.leaveRoom}
+            ref={this.gameWrapper}
+          />
         </WrapperContainer>
         <WrapperContainer visible={loggedOut}>
-          <LogoutScreen/>
+          <LogoutScreen info={this.state.user}/>
         </WrapperContainer>
       </div>
     );

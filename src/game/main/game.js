@@ -1,11 +1,12 @@
 import * as React from "react";
 import './game.scss';
-import {RoomState} from "../../api/struct/room";
+import {RoomState, RoomVotingMethod} from "../../api/struct/room";
 import {UserState} from "../../api/struct/user";
 import {LoadingSpinner} from "../../splash";
 import {AnswerCollector, AnswerInput} from "./answer_collection";
 import {QuestionSelector} from "./question_selection";
 import {AnswerList} from "./answer_list";
+import {Button} from "../../ui/button";
 
 class Game extends React.Component {
   state = {
@@ -137,11 +138,35 @@ class Game extends React.Component {
     });
   };
 
+  kickVoteButton = (user) => {
+    if (!user) return null;
+
+    const placeKickVote = (user) => {
+      this.props.socket.placeKickVote(user.id).catch((err) => {
+        console.warn("Failed to place kick vote:", err.message);
+      });
+    };
+
+    let [kickVotes, votedToKick] = [0, false];
+    if (user && this.props.room.kickVotes.hasOwnProperty(user.id)) {
+      let votes = this.props.room.kickVotes[user.id];
+
+      kickVotes = votes.length;
+      votedToKick = votes.includes(this.props.user.id);
+    }
+
+    return (
+      <Button className="small" onClick={() => placeKickVote(user)} isDisabled={votedToKick}>
+        Vote{votedToKick ? "d" : ""} to Kick ({kickVotes}/3)
+      </Button>
+    );
+  };
+
   render() {
     let room = this.props.room;
     let questions = this.state.questions;
 
-    if (!room || !questions || !this.props.user) return <LoadingSpinner />;
+    if (!room || !questions || !this.props.user) return <LoadingSpinner/>;
 
     let user = room.users[this.props.user.id];
     let activePlayers = room.getActiveUsers(user.id);
@@ -168,6 +193,7 @@ class Game extends React.Component {
           <p>This might take a moment</p>
           <br/>
           <LoadingSpinner/>
+          {this.kickVoteButton(pickingUser)}
         </div>
       );
     } else if (room.state === RoomState.COLLECTING_ANSWERS) {
@@ -201,15 +227,16 @@ class Game extends React.Component {
           askedBy={askedBy}
           showResponse={user.state === UserState.ANSWERING_QUESTION || this.state.hasAnswered}
           onAnswerSubmitted={this.onAnswerSubmitted}
+          kickVoteButton={this.kickVoteButton(askedBy)}
         />
       );
     } else if (room.state === RoomState.READING_ANSWERS || room.state === RoomState.VIEWING_RESULTS) {
       let [questions, answers] = [this.state.questions, this.state.answers];
-      if (questions.length < 1 || answers.length < 1) return <LoadingSpinner />;
+      if (questions.length < 1 || answers.length < 1) return <LoadingSpinner/>;
 
       let askedBySelf = user.state === UserState.READING_ANSWERS || user.state === UserState.ASKED_QUESTION;
       let wonBySelf = user.state === UserState.WINNER || user.state === UserState.WINNER_ASKING_NEXT;
-      let askedBy, wonBy;
+      let askedBy, wonBy, continueBy = null;
 
       if (askedBySelf) askedBy = user;
       if (wonBySelf) wonBy = user;
@@ -217,7 +244,10 @@ class Game extends React.Component {
       room.forEachUser((roomUser) => {
         if (!askedBy && (roomUser.state === UserState.READING_ANSWERS || roomUser.state === UserState.ASKED_QUESTION)) askedBy = roomUser;
         if (!wonBy && (roomUser.state === UserState.WINNER || roomUser.state === UserState.WINNER_ASKING_NEXT)) wonBy = roomUser;
+        if (!continueBy && (roomUser.state === UserState.ASKING_NEXT || roomUser.state === UserState.WINNER_ASKING_NEXT)) continueBy = roomUser;
       });
+
+      if (room.votingMethod === RoomVotingMethod.WINNER) continueBy = wonBy;
 
       return (
         <AnswerList
@@ -225,12 +255,14 @@ class Game extends React.Component {
           question={questions[0]}
           askedBy={askedBy}
           wonBy={wonBy}
+          continueBy={continueBy}
           answers={answers}
           self={user}
           room={room}
           answerUserIds={this.state.answerUserIds}
           favoriteAnswers={this.state.favoriteAnswers}
           guessResults={this.state.guessResults}
+          kickVoteButton={this.kickVoteButton}
         />
       );
     }

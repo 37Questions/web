@@ -48,6 +48,7 @@ function AnswerInput(props) {
         }
       </div>
       <br />
+      {props.kickVoteButton}
     </div>
   );
 }

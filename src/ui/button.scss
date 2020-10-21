@@ -8,7 +8,7 @@
     background-color: $darkButtonColor;
   }
 
-  margin: 30px;
+  margin: 30px auto;
   padding: 10px 40px;
 
   border: 2px solid black;
@@ -22,6 +22,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &.small {
+    width: 145px;
+  }
 
   &:hover {
     background-color: rgba(black, 0.05);

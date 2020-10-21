@@ -9,6 +9,7 @@ class Room {
 
     this.users = room.users;
     this.messages = room.messages;
+    this.kickVotes = room.kickVotes;
 
     this.state = room.state;
     this.questions = room.questions;
@@ -45,7 +46,7 @@ class Room {
 
     this.forEachUser((user) => {
       if (exclude !== user.id && user.active && user.icon && user.name) activeUsers.push(user);
-    })
+    });
 
     return activeUsers;
   }

@@ -24,11 +24,11 @@ function LoadingScreen() {
   );
 }
 
-function LogoutScreen() {
+function LogoutScreen(props) {
   return (
     <div className="splash-wrapper logout-wrapper">
-      <h1>Logged Out</h1>
-      <h2>You can only play 37 Questions in one tab at a time!</h2>
+      <h1>{props.info ? props.info.logoutTitle : "Logged Out"}</h1>
+      <h2>{props.info ? props.info.logoutDesc : "You have been logged out."}</h2>
     </div>
   );
 }
