@@ -115,6 +115,8 @@ class Chat extends React.Component {
 
     socket.on("userJoined", this.onMessageReceived);
     socket.on("userLeft", this.onMessageReceived);
+    socket.on("kickVotePlaced", this.onMessageReceived);
+    socket.on("userKicked", this.onMessageReceived);
     socket.on("userUpdated", this.onMessageReceived);
     socket.on("messageSent", this.onMessageReceived);
     socket.on("startRound", this.onMessageReceived);

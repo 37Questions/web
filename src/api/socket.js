@@ -65,6 +65,8 @@ class Socket {
     });
   }
 
+  placeKickVote = (userId) => this.emit("placeKickVote", {userId: userId});
+
   async sendMessage(body) {
     return this.emit("sendMessage", {
       body: body

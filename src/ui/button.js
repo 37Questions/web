@@ -7,7 +7,9 @@ function Button(props) {
     <div
       id={props.id}
       className={"button" + extraClasses}
-      onClick={props.onClick}
+      onClick={(e) => {
+        if (!props.isDisabled && props.onClick) props.onClick(e);
+      }}
     >
       {props.children}
     </div>

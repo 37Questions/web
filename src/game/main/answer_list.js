@@ -223,6 +223,23 @@ class AnswerList extends React.Component {
       }
     }
 
+    let button = null;
+    let finalizeBtn = false;
+
+    if (room.state === RoomState.READING_ANSWERS) {
+      if (askedBySelf) finalizeBtn = true;
+      else button = this.props.kickVoteButton(askedBy);
+    } if (room.state === RoomState.VIEWING_RESULTS) {
+     if (canContinue) finalizeBtn = true;
+     else if (this.props.continueBy !== this.props.self.id) button = this.props.kickVoteButton(this.props.continueBy);
+    }
+
+    if (finalizeBtn) button = (
+      <Button className="finalize-guesses-btn" onClick={this.onContinue} isDisabled={!canContinue}>
+        Continue
+      </Button>
+    );
+
     return (
       <div className="answer-list">
         <h1>{title}</h1>
@@ -256,11 +273,7 @@ class AnswerList extends React.Component {
             })
           }
         </div>
-        {((room.state === RoomState.READING_ANSWERS && askedBySelf) || (room.state === RoomState.VIEWING_RESULTS && canContinue)) &&
-        <Button className="finalize-guesses-btn" onClick={this.onContinue} isDisabled={!canContinue}>
-          Continue
-        </Button>
-        }
+        {button}
         <br/>
       </div>
     );
