@@ -36,10 +36,11 @@ class Socket {
     });
   }
 
-  async createRoom(name, visibility, votingMethod) {
+  async createRoom(name, visibility, answerType, votingMethod) {
     return this.emit("createRoom", {
       name: name,
       visibility: visibility,
+      answerType: answerType,
       votingMethod: votingMethod
     }).then((res) => {
       let room = new Room(res.room, false);

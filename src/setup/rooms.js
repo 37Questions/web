@@ -26,16 +26,22 @@ function RoomSetupWrapper(props) {
   );
 }
 
+const visibilityOptions = [
+  {value: "private", label: "Private"},
+  {value: "public", label: "Public"}
+];
+
+const answerTypes = [
+  {value: "mixed", label: "Mixed", desc: "Mixed Response Types"},
+  {value: "text", label: "Text Only", desc: "Text Responses Only"},
+  {value: "drawn", label: "Drawings Only", desc: "Drawn Responses Only"}
+];
+
 const votingMethods = [
   {value: "winner", label: "Winner Votes", desc: "Winner Votes"},
   {value: "rotate", label: "Rotational", desc: "Rotational Voting"}
   // TODO: democratic voting
   // { value: "democratic", label: "Democratic", desc: "Democratic Voting" }
-];
-
-const visibilityOptions = [
-  {value: "private", label: "Private"},
-  {value: "public", label: "Public"}
 ];
 
 class RoomCreationStage {
@@ -47,8 +53,9 @@ class RoomCreationStage {
 class RoomCreationMenu extends React.Component {
   state = {
     stage: RoomCreationStage.CONFIGURING,
-    votingMethod: votingMethods[0],
     visibility: visibilityOptions[0],
+    answerType: answerTypes[0],
+    votingMethod: votingMethods[0],
     warning: null,
     room: null
   };
@@ -74,14 +81,6 @@ class RoomCreationMenu extends React.Component {
     }
   };
 
-  changeVotingMethod = (method) => {
-    if (method === this.state.votingMethod) return;
-    this.setState({
-      votingMethod: method,
-      warning: this.getWarning(method, this.state.visibility)
-    });
-  };
-
   changeVisibility = (visibility) => {
     if (visibility === this.state.visibility) return;
     this.setState({
@@ -90,19 +89,35 @@ class RoomCreationMenu extends React.Component {
     });
   };
 
+  changeAnswerType = (answerType) => {
+    if (answerType === this.state.answerType) return;
+    this.setState({
+      answerType: answerType
+    });
+  };
+
+  changeVotingMethod = (method) => {
+    if (method === this.state.votingMethod) return;
+    this.setState({
+      votingMethod: method,
+      warning: this.getWarning(method, this.state.visibility)
+    });
+  };
+
   createRoom = () => {
     if (this.state.stage > RoomCreationStage.CONFIGURING) return;
 
     let name = this.roomName.current.value || this.fallbackRoomName;
-    let votingMethod = this.state.votingMethod.value;
     let visibility = this.state.visibility.value;
+    let answerType = this.state.answerType.value;
+    let votingMethod = this.state.votingMethod.value;
 
-    console.info("Creating Room with Name:", name, "Voting method:", votingMethod, "Visibility:", visibility);
+    console.info("Creating Room with state:", this.state);
     this.setState({
       stage: RoomCreationStage.LOADING
     });
 
-    this.props.socket.createRoom(name, visibility, votingMethod).then((room) => {
+    this.props.socket.createRoom(name, visibility, answerType, votingMethod).then((room) => {
       console.info("Created Room:", room);
       this.props.onRoomCreated(room);
       this.setState({
@@ -167,6 +182,19 @@ class RoomCreationMenu extends React.Component {
                 value={this.state.visibility}
                 onChange={this.changeVisibility}
                 options={visibilityOptions}
+                isSearchable={false}
+              />
+            </div>
+          </div>
+          <div className="room-option">
+            <p className="room-option-label">Responses</p>
+            <div className="room-option-dropdown">
+              <Select
+                className="dropdown-container"
+                classNamePrefix="dropdown"
+                value={this.state.answerType}
+                onChange={this.changeAnswerType}
+                options={answerTypes}
                 isSearchable={false}
               />
             </div>
@@ -255,6 +283,16 @@ class RoomCard extends React.Component {
       }
     }
 
+    this.answerTypeString = room.answerType[0].toUpperCase() + room.answerType.slice(1) + " Answers";
+
+    for (let i = 0; i < answerTypes.length; i++) {
+      let type = answerTypes[i];
+      if (type.value === room.answerType) {
+        this.answerTypeString = type.desc;
+        break;
+      }
+    }
+
     const sinceActive = (new Date().getTime() / 1000) - room.lastActive;
     this.timeString = "Now";
 
@@ -284,6 +322,7 @@ class RoomCard extends React.Component {
         <div className="room-info">
           <p><b>Active {this.timeString}</b></p>
           <p>{room.players} Players ({room.activePlayers} Active)</p>
+          <p>{this.answerTypeString}</p>
           <p>{this.votingString}</p>
         </div>
         <Button className="setup-button join-room-button" onClick={() => this.props.joinRoom(room.id, room.token)}>

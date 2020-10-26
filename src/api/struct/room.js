@@ -4,7 +4,9 @@ class Room {
     this.name = room.name;
     this.lastActive = room.lastActive;
     this.token = room.token;
+
     this.visibility = room.visibility;
+    this.answerType = room.answerType;
     this.votingMethod = room.votingMethod;
 
     this.users = room.users;
