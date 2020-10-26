@@ -167,6 +167,7 @@ class RoomCreationMenu extends React.Component {
                 value={this.state.visibility}
                 onChange={this.changeVisibility}
                 options={visibilityOptions}
+                isSearchable={false}
               />
             </div>
           </div>
@@ -180,6 +181,7 @@ class RoomCreationMenu extends React.Component {
                 value={this.state.votingMethod}
                 onChange={this.changeVotingMethod}
                 options={votingMethods}
+                isSearchable={false}
               />
             </div>
           </div>
