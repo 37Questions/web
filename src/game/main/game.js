@@ -221,6 +221,7 @@ class Game extends React.Component {
       return (
         <AnswerInput
           socket={this.props.socket}
+          room={this.props.room}
           question={questions[0]}
           responses={answersReceived}
           players={activePlayers.length}

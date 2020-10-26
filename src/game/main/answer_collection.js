@@ -1,6 +1,7 @@
-import {InputCard, QuestionCard} from "../card/card";
-import {Button} from "../../ui/button";
 import * as React from "react";
+import {DrawingCard, InputCard, QuestionCard} from "../card/card";
+import {Button} from "../../ui/button";
+import {RoomAnswerType} from "../../api/struct/room";
 
 function AnswerCollector(props) {
   const startReadingAnswers = () => {
@@ -44,7 +45,8 @@ function AnswerInput(props) {
       <div className="card-list">
         <QuestionCard text={props.question.question}/>
         {
-          props.showResponse && <InputCard onSubmit={onSubmit} />
+          props.showResponse &&
+          props.room.answerType === RoomAnswerType.DRAWN ? <DrawingCard /> : <InputCard onSubmit={onSubmit} />
         }
       </div>
       <br />

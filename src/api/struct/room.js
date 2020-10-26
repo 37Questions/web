@@ -67,10 +67,16 @@ class RoomState {
   static VIEWING_RESULTS = "viewing_results";
 }
 
+class RoomAnswerType {
+  static MIXED = "mixed";
+  static TEXT = "text";
+  static DRAWN = "drawn";
+}
+
 class RoomVotingMethod {
   static WINNER = "winner";
   static ROTATE = "rotate";
   static DEMOCRATIC = "democratic";
 }
 
-export {Room, RoomState, RoomVotingMethod};
+export {Room, RoomState, RoomAnswerType, RoomVotingMethod};

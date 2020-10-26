@@ -1,4 +1,5 @@
 import React from 'react';
+import CanvasDraw from "react-canvas-draw";
 import logo from "../../logo.svg";
 import './card.scss';
 import {AnswerState} from "../../api/struct/answer";
@@ -88,6 +89,107 @@ function ResponseCard(props) {
       </div>
     </Card>
   )
+}
+
+function DrawingTool(props) {
+  return (
+    <div className="tool" onClick={props.onClick}>
+      <i className={"fas fa-" + (props.icon ? props.icon : "question")}/>
+    </div>
+  );
+}
+
+function DrawingColor(props) {
+  return (
+    <div
+      className={"color" + (props.selected ? " selected" : "")}
+      onClick={(e) => props.setColor(e, props.color)}
+      style={{"backgroundColor": props.color}}
+    />
+  );
+}
+
+const colorPalette = ["black", "#E71D36", "#F46036", "#1B998B"];
+
+class DrawingCard extends React.Component {
+  state = {
+    flipped: false,
+    brushColor: colorPalette[0],
+    erasing: false
+  };
+
+  canvas = React.createRef();
+
+  toggleErasing = (e) => {
+    e.stopPropagation();
+    this.setState({
+      erasing: !this.state.erasing
+    });
+  };
+
+  setColor = (e, color) => {
+    e.stopPropagation();
+    this.setState({
+      brushColor: color
+    });
+  };
+
+  undoDrawing = (e) => {
+    e.stopPropagation();
+    this.canvas.current.undo();
+  };
+
+  clearDrawing = (e) => {
+    e.stopPropagation();
+    this.canvas.current.clear();
+    this.setState({
+      erasing: false
+    });
+  };
+
+  render = () => {
+    return (
+      <div className="outer-card">
+        <div className={"inner-card" + (this.state.flipped ? " flipped" : "")}>
+          <div className={"drawing card front"}>
+            <CanvasDraw
+              canvasWidth={256}
+              canvasHeight={200}
+              brushRadius={4}
+              lazyRadius={0}
+              hideGrid={true}
+              hideInterface={true}
+              brushColor={this.state.erasing ? "#fff" : this.state.brushColor}
+              ref={this.canvas}
+            />
+            <div className="drawing-controls">
+              <div className="colors">
+                {
+                  colorPalette.map((color) => {
+                    return (
+                      <DrawingColor
+                        color={color}
+                        key={color}
+                        setColor={this.setColor}
+                        selected={this.state.brushColor === color}
+                      />
+                    );
+                  })
+                }
+              </div>
+              <div className="tools">
+                {this.state.erasing && <DrawingTool onClick={this.toggleErasing} icon="paint-brush" />}
+                {!this.state.erasing && <DrawingTool onClick={this.toggleErasing} icon="eraser" /> }
+                <DrawingTool icon="undo" onClick={this.undoDrawing} />
+                <DrawingTool icon="trash" onClick={this.clearDrawing} />
+              </div>
+            </div>
+          </div>
+          <CardBacking />
+        </div>
+      </div>
+    );
+  }
 }
 
 class InputCard extends React.Component {
@@ -193,4 +295,4 @@ class InputCard extends React.Component {
   }
 }
 
-export {QuestionCard, ResponseCard, InputCard};
+export {QuestionCard, ResponseCard, DrawingCard, InputCard};

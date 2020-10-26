@@ -157,6 +157,73 @@ $cardHeight: 204px;
             }
           }
         }
+
+        &.drawing {
+          padding: 0;
+          div {
+            box-sizing: border-box;
+            border-radius: inherit;
+
+            canvas {
+              box-sizing: border-box;
+              border-radius: inherit;
+            }
+          }
+
+          .drawing-controls {
+            position: absolute;
+            bottom: 8px;
+            height: 30px;
+            right: 5px;
+            left: 5px;
+
+            display: flex;
+            align-items: center;
+            z-index: 50;
+
+            justify-content: space-between;
+
+            .colors {
+              display: flex;
+
+              .color {
+                display: block;
+                width: 25px;
+                height: 25px;
+
+                margin: 0 2px;
+
+                border: 1px solid black;
+                border-radius: 50%;
+
+                &.selected {
+                  border: 2px solid dodgerblue;
+                }
+              }
+            }
+
+            .tools {
+              display: flex;
+
+              .tool {
+                width: 25px;
+                height: 25px;
+
+                margin: 0 2px;
+
+                border: 1px solid black;
+                border-radius: 50%;
+
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                font-size: 0.9em;
+                background-color: dodgerblue;
+              }
+            }
+          }
+        }
       }
 
       &.back {
